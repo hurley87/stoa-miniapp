@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Question } from '@/hooks/use-active-questions';
 import { useAnswerCheck } from '@/hooks/use-answer-check';
 import { useSubmitAnswerOnchain } from '@/hooks/use-submit-answer-onchain';
+import { useOnchainSubmissionStatus } from '@/hooks/use-onchain-submission-status';
 
 interface QuestionCardProps {
   question: Question;
@@ -21,6 +22,11 @@ export default function QuestionCard({
     userWallet
   );
 
+  const { data: onchainStatus } = useOnchainSubmissionStatus(
+    question.contract_address,
+    userWallet as `0x${string}` | undefined
+  );
+
   const {
     submit: submitOnchain,
     step,
@@ -28,6 +34,11 @@ export default function QuestionCard({
     isLoading: submittingOnchain,
     reset,
   } = useSubmitAnswerOnchain();
+
+  const alreadySubmitted =
+    !!answerCheck?.hasAnswered ||
+    !!onchainStatus?.hasSubmitted ||
+    (onchainError?.toLowerCase().includes('already') ?? false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,17 +59,6 @@ export default function QuestionCard({
       console.error('Error submitting answer:', error);
     }
   };
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date
-      .toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      })
-      .toUpperCase();
-  };
-
   const formatUSDC = (amount: number) => (amount / 1e6).toFixed(2);
 
   // Format countdown with large numbers and small letters
@@ -173,22 +173,28 @@ export default function QuestionCard({
                 <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
                 <span className="ml-2 text-white/70">Checking...</span>
               </div>
-            ) : answerCheck?.hasAnswered ? (
+            ) : alreadySubmitted ? (
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-white font-medium">Your Answer</span>
-                  {answerCheck.answer?.score !== undefined &&
-                    answerCheck.answer.score > 0 && (
+                  {answerCheck?.answer?.score !== undefined &&
+                    (answerCheck?.answer?.score ?? 0) > 0 && (
                       <span className="bg-coral-500/20 text-coral-400 px-2 py-1 rounded-lg text-xs font-medium">
-                        Score: {answerCheck.answer.score}
-                        {answerCheck.answer.rank &&
-                          ` (#${answerCheck.answer.rank})`}
+                        Score: {answerCheck?.answer?.score}
+                        {answerCheck?.answer?.rank &&
+                          ` (#${answerCheck?.answer?.rank})`}
                       </span>
                     )}
                 </div>
-                <p className="text-white/80 text-sm">
-                  {answerCheck.answer?.content}
-                </p>
+                {answerCheck?.answer?.content ? (
+                  <p className="text-white/80 text-sm">
+                    {answerCheck?.answer?.content}
+                  </p>
+                ) : (
+                  <p className="text-white/60 text-sm italic">
+                    Already submitted.
+                  </p>
+                )}
               </div>
             ) : (
               <>
@@ -206,6 +212,15 @@ export default function QuestionCard({
                   </button>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-4">
+                    {alreadySubmitted && (
+                      <div className="bg-purple-500/10 border border-purple-400/30 rounded-xl p-3">
+                        <p className="text-purple-200 text-sm">
+                          You have already submitted. Submitting again will
+                          replace your previous answer on-chain (if contract
+                          allows) and will still incur the submission cost.
+                        </p>
+                      </div>
+                    )}
                     <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-xl p-3">
                       <p className="text-yellow-200 text-sm">
                         <span className="font-medium">⚠️ Cost:</span>{' '}

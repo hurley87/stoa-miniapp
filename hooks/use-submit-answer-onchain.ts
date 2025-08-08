@@ -1,51 +1,72 @@
-import { useState } from 'react'
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract, usePublicClient } from 'wagmi'
-import { keccak256, encodePacked, parseUnits } from 'viem'
-import { StoaQuestionABI } from '@/lib/abis/StoaQuestion'
-import { ERC20ABI } from '@/lib/abis/ERC20'
-import { useSubmitAnswer } from './use-submit-answer'
+import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAccount, useWriteContract, usePublicClient } from 'wagmi';
+import { keccak256, encodePacked, parseUnits } from 'viem';
+import { StoaQuestionABI } from '@/lib/abis/StoaQuestion';
+import { ERC20ABI } from '@/lib/abis/ERC20';
+import { useSubmitAnswer } from './use-submit-answer';
+import { base } from 'wagmi/chains';
 
 export type SubmitAnswerOnchainParams = {
-  questionId: number
-  content: string
-  contractAddress: string
-  tokenAddress: string
-  submissionCost: number
-}
+  questionId: number;
+  content: string;
+  contractAddress: string;
+  tokenAddress: string;
+  submissionCost: number;
+};
 
 export function useSubmitAnswerOnchain() {
-  const [step, setStep] = useState<'idle' | 'checking-allowance' | 'approving' | 'submitting' | 'storing' | 'completed'>('idle')
-  const [error, setError] = useState<string | null>(null)
-  const [approveHash, setApproveHash] = useState<string | null>(null)
-  const [submitHash, setSubmitHash] = useState<string | null>(null)
-  
-  const { address } = useAccount()
-  const { writeContractAsync } = useWriteContract()
-  const publicClient = usePublicClient()
-  const submitAnswerMutation = useSubmitAnswer()
+  const [step, setStep] = useState<
+    | 'idle'
+    | 'checking-allowance'
+    | 'approving'
+    | 'submitting'
+    | 'storing'
+    | 'completed'
+    | 'already-submitted'
+  >('idle');
+  const [error, setError] = useState<string | null>(null);
+  const [, setApproveHash] = useState<string | null>(null);
+  const [, setSubmitHash] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  // Wait for approval transaction
-  const { isSuccess: approveSuccess, isLoading: approveLoading } = useWaitForTransactionReceipt({
-    hash: approveHash as `0x${string}`,
-  })
+  const { address } = useAccount();
+  const { writeContractAsync } = useWriteContract();
+  const publicClient = usePublicClient();
+  const submitAnswerMutation = useSubmitAnswer();
 
-  // Wait for submit transaction
-  const { isSuccess: submitSuccess, isLoading: submitLoading } = useWaitForTransactionReceipt({
-    hash: submitHash as `0x${string}`,
-  })
+  // We track hashes for UI/debugging, but we await receipts via the public client
+  const normalizeTxHash = (value: unknown): string => {
+    if (typeof value === 'string' && value.startsWith('0x')) return value;
+    if (
+      value &&
+      typeof value === 'object' &&
+      'hash' in (value as Record<string, unknown>) &&
+      typeof (value as Record<string, unknown>).hash === 'string'
+    ) {
+      return (value as { hash: string }).hash;
+    }
+    throw new Error('Failed to obtain transaction hash');
+  };
 
-  const submit = async ({ questionId, content, contractAddress, tokenAddress, submissionCost }: SubmitAnswerOnchainParams) => {
+  const submit = async ({
+    questionId,
+    content,
+    contractAddress,
+    tokenAddress,
+    submissionCost,
+  }: SubmitAnswerOnchainParams) => {
     if (!address || !publicClient) {
-      setError('Wallet not connected')
-      return
+      setError('Wallet not connected');
+      return;
     }
 
     try {
-      setError(null)
-      setStep('checking-allowance')
+      setError(null);
+      setStep('checking-allowance');
 
       // 1. Generate answer hash
-      const answerHash = keccak256(encodePacked(['string'], [content]))
+      const answerHash = keccak256(encodePacked(['string'], [content]));
 
       // 2. Check current allowance
       const allowance = await publicClient.readContract({
@@ -53,75 +74,93 @@ export function useSubmitAnswerOnchain() {
         abi: ERC20ABI,
         functionName: 'allowance',
         args: [address, contractAddress as `0x${string}`],
-      })
+      });
 
-      const submissionCostBigInt = parseUnits((submissionCost / 1e6).toString(), 6) // Convert to proper USDC amount
+      const submissionCostBigInt = parseUnits(
+        (submissionCost / 1e6).toString(),
+        6
+      ); // Convert to proper USDC amount
 
       // 3. Approve USDC spending if needed
       if (!allowance || allowance < submissionCostBigInt) {
-        setStep('approving')
-        
-        const hash = await writeContractAsync({
+        setStep('approving');
+
+        const approvalTx = await writeContractAsync({
           address: tokenAddress as `0x${string}`,
           abi: ERC20ABI,
           functionName: 'approve',
           args: [contractAddress as `0x${string}`, submissionCostBigInt],
-        })
+          chainId: base.id,
+        });
 
-        setApproveHash(hash)
-        
-        // Wait for approval to complete
-        while (!approveSuccess && !approveLoading) {
-          await new Promise(resolve => setTimeout(resolve, 1000))
-        }
+        const approvalTxHash = normalizeTxHash(approvalTx);
+        setApproveHash(approvalTxHash);
 
-        if (!approveSuccess) {
-          throw new Error('USDC approval transaction failed')
-        }
+        // Wait for approval transaction to be mined
+        await publicClient.waitForTransactionReceipt({
+          hash: approvalTxHash as `0x${string}`,
+        });
       }
 
       // 4. Submit answer to contract
-      setStep('submitting')
-      
-      const hash = await writeContractAsync({
+      setStep('submitting');
+
+      // Submit answer using submitAnswer function
+      const submissionTx = await writeContractAsync({
         address: contractAddress as `0x${string}`,
         abi: StoaQuestionABI,
         functionName: 'submitAnswer',
         args: [answerHash],
-      })
+        chainId: base.id,
+      });
 
-      setSubmitHash(hash)
+      const submissionTxHash = normalizeTxHash(submissionTx);
+      setSubmitHash(submissionTxHash);
 
-      // Wait for submission to complete
-      while (!submitSuccess && !submitLoading) {
-        await new Promise(resolve => setTimeout(resolve, 1000))
-      }
-
-      if (!submitSuccess) {
-        throw new Error('Answer submission transaction failed')
-      }
+      // Wait for submission transaction to be mined
+      await publicClient.waitForTransactionReceipt({
+        hash: submissionTxHash as `0x${string}`,
+      });
 
       // 5. Store in database
-      setStep('storing')
-      
+      setStep('storing');
+
+      if (!submissionTxHash) {
+        throw new Error('Missing transaction hash after submission');
+      }
+
       await submitAnswerMutation.mutateAsync({
         questionId,
         userWallet: address,
         content,
         contractAddress,
-        txHash: hash,
-      })
+        txHash: submissionTxHash,
+      });
 
-      setStep('completed')
-      return { txHash: hash }
-
+      setStep('completed');
+      return { txHash: submissionTxHash };
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
-      setError(errorMessage)
-      setStep('idle')
-      throw err
+      const errorMessage =
+        err instanceof Error ? err.message : 'Unknown error occurred';
+      const lower = errorMessage.toLowerCase();
+      const isAlready =
+        lower.includes('already') &&
+        (lower.includes('answered') || lower.includes('submitted'));
+      if (isAlready) {
+        setError('You have already submitted an answer');
+        setStep('already-submitted');
+        // Refresh answer-check & questions so UI reflects existing submission
+        queryClient.invalidateQueries({
+          queryKey: ['answer-check', questionId, address],
+        });
+        queryClient.invalidateQueries({ queryKey: ['questions', 'active'] });
+      } else {
+        setError(errorMessage);
+        setStep('idle');
+      }
+      throw err;
     }
-  }
+  };
 
   return {
     submit,
@@ -129,10 +168,10 @@ export function useSubmitAnswerOnchain() {
     error,
     isLoading: step !== 'idle' && step !== 'completed',
     reset: () => {
-      setStep('idle')
-      setError(null)
-      setApproveHash(null)
-      setSubmitHash(null)
-    }
-  }
+      setStep('idle');
+      setError(null);
+      setApproveHash(null);
+      setSubmitHash(null);
+    },
+  };
 }
