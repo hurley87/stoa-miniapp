@@ -1,8 +1,17 @@
+'use client';
+
 import { farcasterFrame as miniAppConnector } from '@farcaster/miniapp-wagmi-connector';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createConfig, http, WagmiProvider } from 'wagmi';
+import {
+  createConfig,
+  http,
+  WagmiProvider,
+  useAccount,
+  useConnect,
+} from 'wagmi';
 import { base } from 'wagmi/chains';
 import { hexToNumber } from 'viem';
+import { useEffect } from 'react';
 
 // Augment connector to ensure getChainId is available for wagmi v2 writes
 const createAugmentedConnector = () => {
@@ -34,6 +43,29 @@ export const config = createConfig({
 
 const queryClient = new QueryClient();
 
+function AutoConnect() {
+  const { status } = useAccount();
+  const { connectors, connectAsync, isPending } = useConnect();
+
+  useEffect(() => {
+    const tryConnect = async () => {
+      try {
+        const preferred = connectors?.[0];
+        if (!preferred) return;
+        await connectAsync({ connector: preferred });
+      } catch {
+        // Silently ignore; user may not be in a Farcaster Mini app context
+      }
+    };
+
+    if (status === 'disconnected' && !isPending) {
+      void tryConnect();
+    }
+  }, [status, isPending, connectors, connectAsync]);
+
+  return null;
+}
+
 export default function MiniAppWalletProvider({
   children,
 }: {
@@ -41,7 +73,10 @@ export default function MiniAppWalletProvider({
 }) {
   return (
     <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <AutoConnect />
+        {children}
+      </QueryClientProvider>
     </WagmiProvider>
   );
 }

@@ -17,6 +17,11 @@ export default function Home() {
 
   const account = useAccount();
 
+  console.log('user', user);
+
+  console.log(account);
+  console.log(account.address);
+
   if (!user.data) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">

@@ -100,6 +100,24 @@ export function useSubmitAnswerOnchain() {
         await publicClient.waitForTransactionReceipt({
           hash: approvalTxHash as `0x${string}`,
         });
+
+        // Verify the allowance was updated by reading it again
+        let attempts = 0;
+        let updatedAllowance = allowance;
+        while (updatedAllowance < submissionCostBigInt && attempts < 5) {
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+          updatedAllowance = await publicClient.readContract({
+            address: tokenAddress as `0x${string}`,
+            abi: ERC20ABI,
+            functionName: 'allowance',
+            args: [address, contractAddress as `0x${string}`],
+          });
+          attempts++;
+        }
+
+        if (updatedAllowance < submissionCostBigInt) {
+          throw new Error('Allowance not updated after approval. Please try again.');
+        }
       }
 
       // 4. Submit answer to contract

@@ -17,6 +17,9 @@ export default function QuestionCard({
   const [showForm, setShowForm] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
 
+  console.log(question);
+  console.log(userWallet);
+
   const { data: answerCheck, isLoading: checkingAnswer } = useAnswerCheck(
     question.question_id,
     userWallet

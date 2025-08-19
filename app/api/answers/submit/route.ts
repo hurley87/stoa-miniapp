@@ -26,6 +26,32 @@ export async function POST(request: NextRequest) {
     // 3. Transaction was from the specified user wallet
     // 4. Payment was made correctly
 
+    // Ensure user exists in users table
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('wallet')
+      .eq('wallet', userWallet)
+      .single();
+
+    if (!existingUser) {
+      // Create user if they don't exist
+      const { error: userError } = await supabase
+        .from('users')
+        .insert({
+          wallet: userWallet,
+          joined_at: new Date().toISOString(),
+          last_activity: new Date().toISOString()
+        });
+
+      if (userError) {
+        console.error('Error creating user:', userError);
+        return NextResponse.json(
+          { error: 'Failed to create user' },
+          { status: 500 }
+        );
+      }
+    }
+
     // Check if user already answered this question
     const { data: existingAnswer } = await supabase
       .from('answers')
