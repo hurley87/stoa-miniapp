@@ -19,8 +19,8 @@ export default function QuestionPage({ idParam }: Props) {
 
   if (!questionId) {
     return (
-      <div className="min-h-screen p-4">
-        <div className="max-w-md mx-auto bg-red-900/50 border border-red-500/50 rounded-xl p-4 text-red-200">
+      <div className="min-h-screen px-6 py-6">
+        <div className="max-w-2xl mx-auto rounded-xl border border-rose-500/30 bg-rose-950/50 p-4 text-rose-200">
           Invalid question id
         </div>
       </div>
@@ -28,19 +28,19 @@ export default function QuestionPage({ idParam }: Props) {
   }
 
   return (
-    <div className="min-h-screen p-4">
+    <div className="min-h-screen px-6 pt-24 pb-6">
       <AppHeader />
-      <div className="max-w-md mx-auto">
+      <div className="max-w-2xl mx-auto px-0">
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-2 border-coral-500 border-t-transparent" />
+          <div className="flex items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-10 w-10 border-2 border-amber-400 border-t-transparent" />
           </div>
         ) : error ? (
-          <div className="bg-red-900/50 border border-red-500/50 rounded-xl p-4 text-red-200">
+          <div className="rounded-xl border border-rose-500/30 bg-rose-950/50 p-4 text-rose-200">
             Error loading question: {(error as Error).message}
           </div>
         ) : !question ? (
-          <div className="bg-slate-800/50 border border-white/10 rounded-xl p-8 text-center text-gray-400">
+          <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">
             Question not found
           </div>
         ) : (

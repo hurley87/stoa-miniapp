@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Question } from '@/hooks/use-active-questions';
 import { useAnswerCheck } from '@/hooks/use-answer-check';
 import { useSubmitAnswerOnchain } from '@/hooks/use-submit-answer-onchain';
@@ -126,13 +127,32 @@ export default function QuestionCard({
   }, [question.end_time]);
 
   return (
-    <div className="bg-stone-800 relative z-10 flex h-full flex-1 flex-col flex-wrap gap-y-2.5 px-3 py-2.5">
+    <div className="glass-card group relative overflow-hidden rounded-2xl p-6 text-white">
+      <div className="pointer-events-none absolute -top-24 right-1/2 h-48 w-48 translate-x-1/2 rounded-full bg-amber-500/10 blur-2xl group-hover:bg-amber-500/15" />
+      {/* Date and Countdown */}
+      <div className="flex justify-center mb-4">
+        <div className="text-slate-300 font-medium tracking-tight uppercase">
+          {formatCountdown(timeLeft)}
+        </div>
+      </div>
+
+      {/* Reward Amount */}
+      <div className="flex items-center justify-center mb-6">
+        <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-orange-400">
+          ${question.total_reward_pool.toString()}
+        </span>
+      </div>
+
       {/* Question */}
-      <h2 className="text-lg font-semibold">{question.content}</h2>
+      <Link href={`/questions/${question.question_id}`}>
+        <h3 className="text-xl font-semibold text-center mb-4 leading-relaxed text-slate-100 hover:text-amber-300 transition-colors cursor-pointer">
+          {question.content}
+        </h3>
+      </Link>
 
       {/* Stats */}
-      <div className="flex items-center justify-center space-x-1">
-        <span className="text-white/80 text-sm">
+      <div className="flex items-center justify-center">
+        <span className="text-white/80 text-xs sm:text-sm font-medium bg-white/5 rounded-full px-2.5 py-1">
           {question.total_submissions} submissions
         </span>
       </div>
@@ -141,7 +161,7 @@ export default function QuestionCard({
       <div className="">
         <div className="flex justify-between items-center mb-4">
           {answerCheck?.hasAnswered && (
-            <span className="text-purple-300 text-sm font-medium">
+            <span className="text-emerald-300 text-xs font-medium bg-emerald-500/10 ring-1 ring-emerald-500/20 px-2 py-1 rounded-md">
               You Answered
             </span>
           )}
@@ -151,8 +171,8 @@ export default function QuestionCard({
           <>
             {checkingAnswer ? (
               <div className="flex items-center justify-center py-3">
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
-                <span className="ml-2 text-white/70">Checking...</span>
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-amber-400 border-t-transparent" />
+                <span className="ml-2 text-white/80">Checking...</span>
               </div>
             ) : alreadySubmitted ? (
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
@@ -160,7 +180,7 @@ export default function QuestionCard({
                   <span className="text-white font-medium">Your Answer</span>
                   {answerCheck?.answer?.score !== undefined &&
                     (answerCheck?.answer?.score ?? 0) > 0 && (
-                      <span className="bg-coral-500/20 text-coral-400 px-2 py-1 rounded-lg text-xs font-medium">
+                      <span className="bg-amber-500/20 text-amber-300 px-2 py-1 rounded-lg text-xs font-medium">
                         Score: {answerCheck?.answer?.score}
                         {answerCheck?.answer?.rank &&
                           ` (#${answerCheck?.answer?.rank})`}
@@ -183,10 +203,10 @@ export default function QuestionCard({
                   <button
                     onClick={() => setShowForm(true)}
                     disabled={timeLeft === 'ENDED'}
-                    className={`w-full py-3 px-6 rounded-xl font-semibold transition-colors ${
+                    className={`w-full py-3 px-6 rounded-xl font-semibold transition-all ${
                       timeLeft === 'ENDED'
                         ? 'bg-slate-700 text-slate-400 cursor-not-allowed border border-slate-600'
-                        : 'bg-coral-500 hover:bg-coral-600 text-white'
+                        : 'bg-gradient-to-b from-amber-400 to-orange-500 text-black shadow-lg shadow-amber-500/20 ring-1 ring-black/10 hover:brightness-105 hover:-translate-y-0.5'
                     }`}
                   >
                     {timeLeft === 'ENDED' ? 'Question Ended' : 'Answer'}
@@ -202,9 +222,9 @@ export default function QuestionCard({
                         </p>
                       </div>
                     )}
-                    <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-xl p-3">
-                      <p className="text-yellow-200 text-sm">
-                        <span className="font-medium">⚠️ Cost:</span>{' '}
+                    <div className="bg-yellow-500/15 ring-1 ring-yellow-500/30 rounded-xl p-3 text-yellow-100">
+                      <p className="text-sm">
+                        <span className="font-medium">Cost:</span>{' '}
                         {formatUSDC(question.submission_cost)} USDC
                       </p>
                     </div>
@@ -212,7 +232,7 @@ export default function QuestionCard({
                       value={answerText}
                       onChange={(e) => setAnswerText(e.target.value)}
                       placeholder="Write your answer..."
-                      className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-coral-500 focus:outline-none resize-none"
+                      className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400/60 resize-none"
                       rows={3}
                       required
                     />
@@ -224,11 +244,11 @@ export default function QuestionCard({
                           submittingOnchain ||
                           timeLeft === 'ENDED'
                         }
-                        className="flex-1 bg-coral-500 hover:bg-coral-600 text-white py-3 px-6 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="flex-1 bg-gradient-to-b from-amber-400 to-orange-500 text-black py-3 px-6 rounded-xl font-semibold shadow-lg shadow-amber-500/20 ring-1 ring-black/10 hover:brightness-105 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       >
                         {submittingOnchain ? (
                           <span className="flex items-center justify-center">
-                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-black/60 border-t-transparent mr-2" />
                             {step === 'checking-allowance' && 'Checking...'}
                             {step === 'approving' && 'Approving...'}
                             {step === 'submitting' && 'Submitting...'}
@@ -251,8 +271,8 @@ export default function QuestionCard({
                       </button>
                     </div>
                     {onchainError && (
-                      <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-3">
-                        <p className="text-red-200 text-sm">{onchainError}</p>
+                      <div className="rounded-xl border border-rose-500/30 bg-rose-950/50 p-3">
+                        <p className="text-rose-200 text-sm">{onchainError}</p>
                       </div>
                     )}
                   </form>

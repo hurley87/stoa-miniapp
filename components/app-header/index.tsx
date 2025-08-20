@@ -1,57 +1,46 @@
 'use client';
 
-import { useUser } from '@/contexts/user-context';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export default function AppHeader() {
-  const { user } = useUser();
-
   return (
-    <div className="flex justify-between items-center mb-8 max-w-md mx-auto">
-      <div className="flex items-center space-x-3">
-        {user.isLoading ? (
-          <div className="w-8 h-8 rounded-full bg-slate-700 animate-pulse" />
-        ) : (
-          <Image
-            src={user.data?.pfp_url || '/images/icon.png'}
-            alt="Profile"
-            className="w-8 h-8 rounded-full border border-white/20"
-            width={32}
-            height={32}
-          />
-        )}
+    <div className="fixed inset-x-0 top-0 z-50">
+      <div className="mx-auto max-w-2xl px-6">
+        <div className="glass-panel my-3 flex items-center justify-between rounded-2xl px-3 py-2 sm:px-4 sm:py-3">
+          <Link href="/" className="flex items-center">
+            <div className="glass-button rounded-xl p-1.5 shadow-md shadow-black/20">
+              <Image
+                src="/logo.png"
+                alt="Stoa Logo"
+                className="w-9 h-9"
+                width={36}
+                height={36}
+              />
+            </div>
+          </Link>
+
+          <Link
+            href="/about"
+            aria-label="About"
+            className="glass-button inline-flex h-12 w-12 items-center justify-center rounded-xl text-slate-300 hover:text-white transition-colors"
+          >
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </Link>
+        </div>
       </div>
-
-      <Link href="/" className="flex items-center">
-        <Image
-          src="/logo.png"
-          alt="Stoa Logo"
-          className="w-8 h-8 hover:opacity-80 transition-opacity"
-          width={32}
-          height={32}
-        />
-      </Link>
-
-      <Link
-        href="/about"
-        className="flex items-center text-gray-400 hover:text-white transition-colors"
-      >
-        <span className="text-sm mr-1">About</span>
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-      </Link>
     </div>
   );
 }

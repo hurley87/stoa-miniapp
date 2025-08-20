@@ -4,7 +4,11 @@ const QuestionPageClient = dynamic(
   () => import('@/components/pages/question'),
   {
     ssr: false,
-    loading: () => <div className="min-h-screen p-4">Loading...</div>,
+    loading: () => (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin h-10 w-10 rounded-full border-2 border-amber-400 border-t-transparent" />
+      </div>
+    ),
   }
 );
 
