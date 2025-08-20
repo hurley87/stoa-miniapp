@@ -126,31 +126,9 @@ export default function QuestionCard({
   }, [question.end_time]);
 
   return (
-    <div
-      style={{
-        background: 'linear-gradient(180deg, #1a1a2e 0%, #0f0f23 100%)',
-        border: '1px solid #2c2f36',
-      }}
-      className="rounded-2xl p-6 text-white relative overflow-hidden border border-stone-800"
-    >
-      {/* Date and Countdown */}
-      <div className="flex justify-center mb-4">
-        <div className="text-white font-medium tracking-wider">
-          {formatCountdown(timeLeft)}
-        </div>
-      </div>
-
-      {/* Reward Amount */}
-      <div className="flex items-center justify-center mb-6">
-        <span className="text-3xl font-bold text-white ml-2">
-          ${question.total_reward_pool.toString()}
-        </span>
-      </div>
-
+    <div className="bg-stone-800 relative z-10 flex h-full flex-1 flex-col flex-wrap gap-y-2.5 px-3 py-2.5">
       {/* Question */}
-      <h3 className="text-xl font-semibold text-center mb-4 leading-relaxed">
-        {question.content}
-      </h3>
+      <h2 className="text-lg font-semibold">{question.content}</h2>
 
       {/* Stats */}
       <div className="flex items-center justify-center space-x-1">

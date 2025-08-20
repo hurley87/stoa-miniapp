@@ -2,10 +2,9 @@
 
 import { useUser } from '@/contexts/user-context';
 import { useActiveQuestions } from '@/hooks/use-active-questions';
-import QuestionCard from '@/components/QuestionCard';
-import Image from 'next/image';
 import Link from 'next/link';
-import { useAccount } from 'wagmi';
+import AppHeader from '@/components/app-header';
+import Image from 'next/image';
 
 export default function Home() {
   const { user, isLoading, signIn } = useUser();
@@ -15,37 +14,33 @@ export default function Home() {
     error: questionsError,
   } = useActiveQuestions();
 
-  const account = useAccount();
-
-  console.log('user', user);
-
-  console.log(account);
-  console.log(account.address);
-
   if (!user.data) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="bg-slate-800/50 backdrop-blur-sm border border-white/10 rounded-2xl p-8 max-w-md w-full text-center">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-white mb-2">
-              Welcome to Stoa
-            </h1>
-            <p className="text-gray-400">Connect your wallet to get started</p>
+      <div className="flex flex-col items-center justify-between p-5 h-screen pb-[100px]">
+        <div></div>
+        <div className="flex flex-col gap-0 items-center justify-center">
+          <Image src="/logo.png" alt="logo" width={138} height={138} />
+          <div className="flex flex-col gap-1 items-center justify-center">
+            <p className="text-white text-xl">Stoa</p>
+            <p className="text-[#7C8194] text-sm">Proof of Knowledge</p>
           </div>
+        </div>
+        <div className="flex flex-col gap-6 text-center w-full">
           <button
             onClick={signIn}
             disabled={isLoading}
-            className="w-full bg-gradient-coral text-white font-semibold rounded-xl py-3 px-6 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-2"
+            className="px-6 py-3 w-full bg-[#FBBF24] text-black font-semibold rounded-lg shadow-md hover:bg-[#FBBF24]/80 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center justify-center space-x-2 min-w-[160px] min-h-[48px]"
           >
             {isLoading ? (
               <>
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
-                <span>Connecting...</span>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                <span>Signing in...</span>
               </>
             ) : (
-              'Connect Wallet'
+              'Sign in'
             )}
           </button>
+          <p className="text-[#7C8194] text-sm">Get paid to answer questions</p>
         </div>
       </div>
     );
@@ -53,54 +48,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen p-4">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8 max-w-md mx-auto">
-        <div className="flex items-center space-x-3">
-          {user.isLoading ? (
-            <div className="w-8 h-8 rounded-full bg-slate-700 animate-pulse" />
-          ) : (
-            <Image
-              src={user.data.pfp_url!}
-              alt="Profile"
-              className="w-8 h-8 rounded-full border border-white/20"
-              width={32}
-              height={32}
-            />
-          )}
-        </div>
-
-        {/* Logo - Center */}
-        <Link href="/" className="flex items-center">
-          <Image
-            src="/logo.png"
-            alt="Stoa Logo"
-            className="w-8 h-8 hover:opacity-80 transition-opacity"
-            width={32}
-            height={32}
-          />
-        </Link>
-
-        <Link
-          href="/about"
-          className="flex items-center text-gray-400 hover:text-white transition-colors"
-        >
-          <span className="text-sm mr-1">About</span>
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        </Link>
-      </div>
-
+      <AppHeader />
       {/* Content */}
       <div className="max-w-md mx-auto">
         {questionsLoading ? (
@@ -116,13 +64,33 @@ export default function Home() {
             No active questions available
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="flex flex-col gap-2">
             {questions?.map((question) => (
-              <QuestionCard
-                key={question.id}
-                question={question}
-                userWallet={account.address}
-              />
+              <div key={question.id} className="space-y-2">
+                <Link href={`/questions/${question.question_id}`}>
+                  <div
+                    style={{
+                      background: 'rgba(238,242,248,.1)',
+                    }}
+                    className="backdrop-blur-md relative z-10 flex h-full flex-1 flex-col flex-wrap gap-y-2.5 px-3 py-2.5 rounded-sm"
+                  >
+                    {/* Question */}
+                    <h2 className="text-lg font-semibold">
+                      {question.content}
+                    </h2>
+
+                    {/* Stats */}
+                    <div className="flex items-center justify-start space-x-1">
+                      <span className="text-white/80 text-sm bg-stone-500 rounded-full px-2 py-1">
+                        {question.total_submissions}{' '}
+                        {question.total_submissions === 1
+                          ? 'submission'
+                          : 'submissions'}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              </div>
             ))}
           </div>
         )}
