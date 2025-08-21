@@ -46,7 +46,7 @@ export async function generateMetadata({
     version: 'next',
     imageUrl: `${appUrl}/api/og/question/${questionId}`,
     button: {
-      title: 'Answer to Earn',
+      title: `Answer to Earn USDC`,
       action: {
         type: 'launch_frame',
         name: 'Stoa',
