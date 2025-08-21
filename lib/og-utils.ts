@@ -4,7 +4,7 @@ export async function loadGoogleFont(font: string, text: string) {
   )}`;
   const css = await (await fetch(url)).text();
   const resource = css.match(
-    /src: url\((.+)\) format\('(opentype|truetype)'\)/
+    /src: url\((.+?)\) format\('(opentype|truetype|woff2|woff)'\)/
   );
 
   if (resource) {
@@ -14,7 +14,7 @@ export async function loadGoogleFont(font: string, text: string) {
     }
   }
 
-  throw new Error("failed to load font data");
+  throw new Error('failed to load font data');
 }
 
 export async function loadImage(url: string): Promise<ArrayBuffer> {

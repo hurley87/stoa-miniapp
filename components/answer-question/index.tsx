@@ -5,12 +5,14 @@ import { useAccount, useConnect } from 'wagmi';
 import { useAnswerCheck } from '@/hooks/use-answer-check';
 import { useOnchainSubmissionStatus } from '@/hooks/use-onchain-submission-status';
 import { useSubmitAnswerOnchain } from '@/hooks/use-submit-answer-onchain';
+import { sdk } from '@farcaster/miniapp-sdk';
 
 type QuestionLike = {
   question_id: number;
   submission_cost: number;
   contract_address: string;
   token_address: string;
+  total_submissions: number;
 };
 
 type Props = {
@@ -77,12 +79,58 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
 
   const formatUSDC = (amount: number) => (amount / 1e6).toFixed(2);
 
+  const formatTimeLeftForShare = (value: string) => {
+    if (!value || value === 'ENDED') return 'soon';
+    const parts = value.split(' ');
+    const first = parts[0];
+    if (!first) return 'soon';
+    const num = Number(first.slice(0, -1));
+    const unit = first.slice(-1);
+    if (Number.isNaN(num) || num <= 0) return 'soon';
+    const unitMap: Record<string, [singular: string, plural: string]> = {
+      D: ['day', 'days'],
+      H: ['hour', 'hours'],
+      M: ['minute', 'minutes'],
+      S: ['second', 'seconds'],
+    };
+    const words = unitMap[unit] ?? ['second', 'seconds'];
+    const label = num === 1 ? words[0] : words[1];
+    return `${num} ${label}`;
+  };
+
+  const handleShare = async () => {
+    try {
+      const url = `${window.location.origin}/questions/${question.question_id}`;
+      const timeText = formatTimeLeftForShare(timeLeft);
+      const potentialEarnings = `${question.total_submissions} USDC`;
+      const text = `I may earn ${potentialEarnings} from answering this question. Rewards distributed in ${timeText}.`;
+
+      const result = await sdk.actions.composeCast({
+        text,
+        embeds: [url],
+      });
+
+      if (!result?.cast) {
+        await navigator.clipboard.writeText(url);
+      }
+    } catch (err) {
+      try {
+        const url = `${window.location.origin}/questions/${question.question_id}`;
+        await navigator.clipboard.writeText(url);
+      } catch {}
+      console.error('Error composing cast:', err);
+    }
+  };
+
   return (
-    <div className="">
+    <div className="flex flex-col gap-4">
       {answerCheck?.hasAnswered && (
-        <span className="text-emerald-300 text-xs font-medium bg-emerald-500/10 ring-1 ring-emerald-500/20 px-2 py-1 rounded-md">
-          You Answered
-        </span>
+        <button
+          onClick={handleShare}
+          className={`w-full py-3 px-6 rounded-xl font-semibold transition-all bg-gradient-to-b from-amber-400 to-orange-500 text-black shadow-lg shadow-amber-500/20 ring-1 ring-black/10 hover:brightness-105 hover:-translate-y-0.5`}
+        >
+          Share Answer
+        </button>
       )}
 
       {userWallet ? (

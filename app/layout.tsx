@@ -7,7 +7,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Stoa - Knowledge Marketplace',
+  title: 'Stoa',
   description: 'Discover and answer questions to earn rewards',
 };
 

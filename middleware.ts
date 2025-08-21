@@ -1,27 +1,29 @@
-import * as jose from "jose";
-import { NextRequest, NextResponse } from "next/server";
-import { env } from "./lib/env";
+import * as jose from 'jose';
+import { NextRequest, NextResponse } from 'next/server';
+import { env } from './lib/env';
 
 export const config = {
-  matcher: ["/api/:path*"],
+  matcher: ['/api/:path*'],
 };
 
 export default async function middleware(req: NextRequest) {
   // Skip auth check for sign-in endpoint
   if (
-    req.nextUrl.pathname === "/api/auth/sign-in" ||
-    req.nextUrl.pathname.includes("/api/og") ||
-    req.nextUrl.pathname.includes("/api/webhook")
+    req.nextUrl.pathname === '/api/auth/sign-in' ||
+    req.nextUrl.pathname.includes('/api/og') ||
+    req.nextUrl.pathname.includes('/api/webhook') ||
+    // Allow public read access to questions endpoints
+    (req.method === 'GET' && req.nextUrl.pathname.startsWith('/api/questions'))
   ) {
     return NextResponse.next();
   }
 
   // Get token from auth_token cookie
-  const token = req.cookies.get("auth_token")?.value;
+  const token = req.cookies.get('auth_token')?.value;
 
   if (!token) {
     return NextResponse.json(
-      { error: "Authentication required" },
+      { error: 'Authentication required' },
       { status: 401 }
     );
   }
@@ -33,7 +35,7 @@ export default async function middleware(req: NextRequest) {
 
     // Clone the request headers to add user info
     const requestHeaders = new Headers(req.headers);
-    requestHeaders.set("x-user-fid", payload.fid as string);
+    requestHeaders.set('x-user-fid', payload.fid as string);
 
     // Return response with modified headers
     return NextResponse.next({
@@ -43,6 +45,6 @@ export default async function middleware(req: NextRequest) {
     });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
 }
