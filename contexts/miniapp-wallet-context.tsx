@@ -18,10 +18,13 @@ const createAugmentedConnector = () => {
   const connector: any = miniAppConnector();
   if (typeof connector.getChainId !== 'function') {
     connector.getChainId = async () => {
-      const provider = await connector.getProvider?.();
-      if (!provider?.request) return base.id;
-      const chainIdHex = await provider.request({ method: 'eth_chainId' });
       try {
+        const provider =
+          typeof connector.getProvider === 'function'
+            ? await connector.getProvider()
+            : undefined;
+        if (!provider || typeof provider.request !== 'function') return base.id;
+        const chainIdHex = await provider.request({ method: 'eth_chainId' });
         return typeof chainIdHex === 'string'
           ? hexToNumber(chainIdHex as `0x${string}`)
           : Number(chainIdHex);
@@ -39,6 +42,7 @@ export const config = createConfig({
     [base.id]: http(),
   },
   connectors: [createAugmentedConnector()],
+  ssr: true,
 });
 
 const queryClient = new QueryClient();
@@ -52,7 +56,7 @@ function AutoConnect() {
       try {
         const preferred = connectors?.[0];
         if (!preferred) return;
-        await connectAsync({ connector: preferred });
+        await connectAsync({ connector: preferred, chainId: base.id });
       } catch {
         // Silently ignore; user may not be in a Farcaster Mini app context
       }

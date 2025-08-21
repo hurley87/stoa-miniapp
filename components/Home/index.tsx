@@ -124,6 +124,21 @@ export default function Home() {
           </div>
         )}
       </div>
+      <div
+        style={{
+          background:
+            'radial-gradient(1200px 600px at 50% -200px, rgba(251, 191, 36, 0.08), transparent 60%), linear-gradient(180deg, #0b1120 0%, #0a0f1f 100%)',
+        }}
+        className="fixed bottom-0 right-0 left-0 px-4 py-8 border-t border-white/10"
+      >
+        <Link href="/new">
+          <button
+            className={`w-full py-3 px-6 rounded-xl font-semibold transition-all bg-gradient-to-b from-amber-400 to-orange-500 text-black shadow-lg shadow-amber-500/20 ring-1 ring-black/10 hover:brightness-105 hover:-translate-y-0.5`}
+          >
+            Ask a Question
+          </button>
+        </Link>
+      </div>
     </div>
   );
 }

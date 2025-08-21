@@ -35,6 +35,35 @@ export function useSubmitAnswerOnchain() {
   const publicClient = usePublicClient();
   const submitAnswerMutation = useSubmitAnswer();
 
+  const mapOnchainErrorToMessage = (err: unknown): string => {
+    const raw = String(
+      (err &&
+        typeof err === 'object' &&
+        'message' in err &&
+        (err as any).message) ||
+        err
+    );
+    const details =
+      (err &&
+        typeof err === 'object' &&
+        'details' in err &&
+        (err as any).details) ||
+      '';
+    const meta =
+      (err &&
+        typeof err === 'object' &&
+        'metaMessages' in err &&
+        (err as any).metaMessages?.join('\n')) ||
+      '';
+    const combined = `${raw}\n${details}\n${meta}`.toLowerCase();
+
+    if (combined.includes('whitelist') || combined.includes('notwhitelisted')) {
+      return 'You are not whitelisted to submit answers yet.';
+    }
+
+    return raw || 'Transaction failed';
+  };
+
   // We track hashes for UI/debugging, but we await receipts via the public client
   const normalizeTxHash = (value: unknown): string => {
     if (typeof value === 'string' && value.startsWith('0x')) return value;
@@ -69,12 +98,16 @@ export function useSubmitAnswerOnchain() {
       const answerHash = keccak256(encodePacked(['string'], [content]));
 
       // 2. Check current allowance
-      const allowance = await publicClient.readContract({
-        address: tokenAddress as `0x${string}`,
-        abi: ERC20ABI,
-        functionName: 'allowance',
-        args: [address, contractAddress as `0x${string}`],
-      });
+      const allowance = await publicClient
+        .readContract({
+          address: tokenAddress as `0x${string}`,
+          abi: ERC20ABI,
+          functionName: 'allowance',
+          args: [address, contractAddress as `0x${string}`],
+        })
+        .catch((err) => {
+          throw new Error(mapOnchainErrorToMessage(err));
+        });
 
       const submissionCostBigInt = parseUnits(
         (submissionCost / 1e6).toString(),
@@ -91,6 +124,8 @@ export function useSubmitAnswerOnchain() {
           functionName: 'approve',
           args: [contractAddress as `0x${string}`, submissionCostBigInt],
           chainId: base.id,
+        }).catch((err) => {
+          throw new Error(mapOnchainErrorToMessage(err));
         });
 
         const approvalTxHash = normalizeTxHash(approvalTx);
@@ -105,18 +140,24 @@ export function useSubmitAnswerOnchain() {
         let attempts = 0;
         let updatedAllowance = allowance;
         while (updatedAllowance < submissionCostBigInt && attempts < 5) {
-          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
-          updatedAllowance = await publicClient.readContract({
-            address: tokenAddress as `0x${string}`,
-            abi: ERC20ABI,
-            functionName: 'allowance',
-            args: [address, contractAddress as `0x${string}`],
-          });
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
+          updatedAllowance = await publicClient
+            .readContract({
+              address: tokenAddress as `0x${string}`,
+              abi: ERC20ABI,
+              functionName: 'allowance',
+              args: [address, contractAddress as `0x${string}`],
+            })
+            .catch((err) => {
+              throw new Error(mapOnchainErrorToMessage(err));
+            });
           attempts++;
         }
 
         if (updatedAllowance < submissionCostBigInt) {
-          throw new Error('Allowance not updated after approval. Please try again.');
+          throw new Error(
+            'Allowance not updated after approval. Please try again.'
+          );
         }
       }
 
@@ -130,6 +171,8 @@ export function useSubmitAnswerOnchain() {
         functionName: 'submitAnswer',
         args: [answerHash],
         chainId: base.id,
+      }).catch((err) => {
+        throw new Error(mapOnchainErrorToMessage(err));
       });
 
       const submissionTxHash = normalizeTxHash(submissionTx);
