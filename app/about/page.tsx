@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import AppHeader from '@/components/app-header';
 
 export const metadata: Metadata = {
   title: 'How Stoa Works - Stoa Knowledge Marketplace',
@@ -10,9 +9,8 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen px-6 pt-24 pb-10">
-      <AppHeader />
-      <div className="max-w-2xl mx-auto pt-4">
+    <div className="min-h-screen px-4 pt-20 pb-10">
+      <div className="max-w-2xl mx-auto">
         <div className="divide-y divide-white/10">
           <section className="py-8 first:pt-0">
             <h2 className="text-xl font-semibold mb-3 text-slate-100">
@@ -72,7 +70,8 @@ export default function AboutPage() {
               <h4 className="font-semibold mb-2 text-amber-200">Example</h4>
               <ul className="space-y-1 text-slate-400 text-sm leading-relaxed">
                 <li>
-                  • You ask: "What's the best way to invest $10,000 right now?"
+                  • You ask: &ldquo;What&#39;s the best way to invest $10,000
+                  right now?&rdquo;
                 </li>
                 <li>• Set submission cost: 5 tokens</li>
                 <li>• 30 people submit answers = 150 tokens collected</li>
@@ -109,8 +108,8 @@ export default function AboutPage() {
                   all answers based on quality
                 </li>
                 <li>
-                  <strong>Claim Rewards</strong>: If you're in the top answers,
-                  claim your reward
+                  <strong>Claim Rewards</strong>: If you&#39;re in the top
+                  answers, claim your reward
                 </li>
               </ol>
             </div>

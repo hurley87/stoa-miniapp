@@ -3,7 +3,6 @@
 import { useUser } from '@/contexts/user-context';
 import { useActiveQuestions } from '@/hooks/use-active-questions';
 import Link from 'next/link';
-import AppHeader from '@/components/app-header';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
@@ -38,7 +37,7 @@ export default function Home() {
 
   if (!user.data) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-between px-6 pt-10 pb-24">
+      <div className="min-h-screen flex flex-col items-center justify-between px-4 pt-10 pb-24">
         <div />
         <div className="flex flex-col items-center justify-center gap-4">
           <div className="glass-panel rounded-2xl p-3">
@@ -73,8 +72,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen px-6 pt-24 pb-6">
-      <AppHeader />
+    <div className="min-h-screen px-4 pt-20 pb-6">
       {/* Content */}
       <div className="max-w-2xl mx-auto px-0">
         {questionsLoading ? (
@@ -90,7 +88,7 @@ export default function Home() {
             No active questions available
           </div>
         ) : (
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-4">
             {questions?.map((question) => (
               <div key={question.id} className="space-y-2">
                 <Link href={`/questions/${question.question_id}`}>

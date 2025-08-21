@@ -96,4 +96,16 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  /* Hide scrollbar but keep scrolling */
+  .scrollbar-hidden {
+    -ms-overflow-style: none; /* IE 10+ */
+    scrollbar-width: none; /* Firefox */
+  }
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none; /* WebKit */
+  }
+}
+
+::-webkit-scrollbar {
+  display: none;
 }
