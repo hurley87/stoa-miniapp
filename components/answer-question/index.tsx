@@ -174,7 +174,9 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
                       <li>Build your onchain reputation</li>
                     </ul>
                     <div className="mt-3 text-white/70 text-xs">
-                      <p className="font-medium">How winners are chosen</p>
+                      <p className="text-white text-sm font-semibold">
+                        How winners are chosen
+                      </p>
                       <p className="mt-1">
                         When the timer ends, an AI agent reviews every answer
                         for accuracy, originality, and clarity. It scores,

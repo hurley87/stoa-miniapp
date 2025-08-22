@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { env } from '@/lib/env';
-import { loadGoogleFont, loadImage } from '@/lib/og-utils';
+// no external font or image loaders to keep @vercel/og happy
 
 export const dynamic = 'force-dynamic';
 
@@ -58,11 +58,7 @@ export async function GET(
 
     const timeLeft = formatTimeLeft(question.end_time);
 
-    const logoImage = await loadImage(`${appUrl}/logo.png`);
-    const fontData = await loadGoogleFont(
-      'Inter',
-      `${question.content} ${timeLeft} Stoa Question #${question.question_id} stoa.xyz`
-    );
+    // Use absolute URL for images; avoid base64 embedding to prevent parser issues
 
     return new ImageResponse(
       (
@@ -77,19 +73,8 @@ export async function GET(
             background:
               'radial-gradient(120% 60% at 50% 0%, rgba(251, 191, 36, 0.08) 0%, transparent 60%), linear-gradient(180deg, #0b1120 0%, #0a0f1f 100%)',
             color: 'white',
-            fontFamily: 'Inter',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
-            <img
-              src={`data:image/svg+xml;base64,${Buffer.from(logoImage).toString(
-                'base64'
-              )}`}
-              style={{ width: '40px', height: '40px' }}
-            />
-          </div>
-
           <div
             style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
           >
@@ -121,13 +106,6 @@ export async function GET(
       ),
       {
         ...size,
-        fonts: [
-          {
-            name: 'Inter',
-            data: fontData,
-            style: 'normal',
-          },
-        ],
       }
     );
   } catch (error) {

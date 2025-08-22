@@ -199,6 +199,15 @@ export function useSubmitAnswerOnchain() {
       });
 
       setStep('completed');
+      // Ensure UI updates immediately
+      queryClient.invalidateQueries({
+        queryKey: ['answer-check', questionId, address],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['onchain-submission', contractAddress, address],
+      });
+      queryClient.invalidateQueries({ queryKey: ['question', questionId] });
+      queryClient.invalidateQueries({ queryKey: ['questions', 'active'] });
       return { txHash: submissionTxHash };
     } catch (err) {
       const errorMessage =
@@ -214,6 +223,10 @@ export function useSubmitAnswerOnchain() {
         queryClient.invalidateQueries({
           queryKey: ['answer-check', questionId, address],
         });
+        queryClient.invalidateQueries({
+          queryKey: ['onchain-submission', contractAddress, address],
+        });
+        queryClient.invalidateQueries({ queryKey: ['question', questionId] });
         queryClient.invalidateQueries({ queryKey: ['questions', 'active'] });
       } else {
         setError(errorMessage);

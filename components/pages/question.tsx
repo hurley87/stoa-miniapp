@@ -143,7 +143,7 @@ export default function QuestionPage({ idParam }: Props) {
                   Reward Pool
                 </span>
                 <span className="text-white text-lg font-bold">
-                  ${question.total_reward_pool.toString()}
+                  {question.total_submissions} USDC
                 </span>
               </div>
             </div>
