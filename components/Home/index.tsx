@@ -72,7 +72,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen px-4 pt-20 pb-6">
+    <div className="min-h-screen px-4 pt-20 pb-36">
       {/* Content */}
       <div className="max-w-2xl mx-auto px-0">
         {questionsLoading ? (
