@@ -125,10 +125,7 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
   return (
     <div className="flex flex-col gap-4">
       {answerCheck?.hasAnswered && (
-        <button
-          onClick={handleShare}
-          className="cta-button w-full"
-        >
+        <button onClick={handleShare} className="cta-button w-full">
           Invite Friends To Answer
         </button>
       )}
@@ -182,10 +179,10 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
                   {alreadySubmitted && (
                     <div className="bg-purple-500/10 border border-purple-400/30 rounded-xl p-3">
                       <p className="text-purple-200 text-sm">
-                        You've already contributed to this discourse. Submitting
-                        again will replace your previous answer onchain (if
-                        contract allows) and will still incur the submission
-                        cost.
+                        You have already contributed to this discourse.
+                        Submitting again will replace your previous answer
+                        onchain (if contract allows) and will still incur the
+                        submission cost.
                       </p>
                     </div>
                   )}
