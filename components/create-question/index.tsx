@@ -9,6 +9,20 @@ import { useApiMutation } from '@/hooks/use-api-mutation';
 import { sdk } from '@farcaster/miniapp-sdk';
 import Link from 'next/link';
 
+const ALLOWLISTED_CREATORS = [
+  '0x26e94d56892521c4c7bbbb1d9699725932797e9c',
+  '0x891161c0fdd4797c79400ca2256a967bd6198450',
+] as const;
+
+const ALLOWLISTED_SET = new Set<string>(
+  ALLOWLISTED_CREATORS.map((a) => a.toLowerCase())
+);
+
+const isAllowedCreator = (addr?: string | null) => {
+  if (!addr) return false;
+  return ALLOWLISTED_SET.has(addr.toLowerCase());
+};
+
 const DURATIONS = [
   { label: '1 hour', seconds: 60 * 60 },
   { label: '1 day', seconds: 24 * 60 * 60 },
@@ -57,6 +71,8 @@ export function CreateQuestionForm() {
     submissionCostUsd: number;
   } | null>(null);
 
+  const canCreate = !!address && isAllowedCreator(address);
+
   const saveMutation = useApiMutation<
     { success: boolean; question: { question_id?: number } },
     any
@@ -78,6 +94,13 @@ export function CreateQuestionForm() {
 
     if (!address) {
       setError('Connect your wallet');
+      return;
+    }
+
+    if (!isAllowedCreator(address)) {
+      setError(
+        "You can't create questions yet. Only Logos members can create questions. DM Stoa to apply to join."
+      );
       return;
     }
 
@@ -162,6 +185,42 @@ export function CreateQuestionForm() {
       console.error('Error composing cast:', err);
     }
   };
+
+  if (canCreate) {
+    return (
+      <div className="mx-auto w-full max-w-md flex flex-col gap-4 pb-6">
+        <div className="rounded-xl border border-white/15 bg-white/5 p-4">
+          <p className="text-white text-lg font-semibold">
+            Only Logos members can create
+          </p>
+          {address ? (
+            <p className="text-white/80 text-sm mt-1">
+              Your connected address ({address.slice(0, 6)}…{address.slice(-4)})
+              is not on the Logos allowlist. DM Stoa to apply to join.
+            </p>
+          ) : (
+            <p className="text-white/80 text-sm mt-1">
+              Connect a wallet that is a Logos member to create questions. DM
+              Stoa to apply to join.
+            </p>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => sdk.actions.viewProfile({ fid: 1265133 })}
+          className="cta-button w-full"
+        >
+          View Stoa
+        </button>
+        <Link
+          href="/"
+          className="w-full text-center py-3 px-6 rounded-xl font-semibold border border-white/20 text-white hover:bg-white/10"
+        >
+          Explore questions
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <form
