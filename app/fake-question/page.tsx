@@ -44,6 +44,13 @@ const formatUsdc = (n: number) =>
     maximumFractionDigits: 2,
   });
 
+const formatAddress = (address: string, leading = 6, trailing = 4) => {
+  if (!address) return '';
+  const normalized = String(address);
+  if (normalized.length <= leading + trailing + 1) return normalized;
+  return `${normalized.slice(0, leading)}…${normalized.slice(-trailing)}`;
+};
+
 export default function FakeQuestionPage() {
   return (
     <div className="min-h-screen px-4 pt-16 pb-6">
@@ -110,8 +117,11 @@ export default function FakeQuestionPage() {
                 <div key={idx} className="glass-card rounded-2xl p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="text-xs text-white/70 font-mono break-all">
-                        {item.address}
+                      <div
+                        className="text-xs text-white/70 font-mono break-all"
+                        title={item.address}
+                      >
+                        {formatAddress(item.address)}
                       </div>
                       <p className="mt-2 text-sm sm:text-base text-slate-100 leading-relaxed">
                         {item.response}
