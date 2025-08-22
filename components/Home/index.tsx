@@ -37,8 +37,7 @@ export default function Home() {
 
   if (!user.data) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-between px-4 pt-10 pb-24">
-        <div />
+      <div className="min-h-screen flex flex-col items-center px-4 pt-10 pb-24">
         <div className="flex flex-col items-center justify-center gap-0">
           <Image src="/logo.png" alt="logo" width={128} height={128} />
           <div className="flex flex-col items-center justify-center gap-1">
@@ -50,7 +49,51 @@ export default function Home() {
             </p>
           </div>
         </div>
-        <div className="w-full max-w-md mx-auto flex flex-col gap-4 text-center">
+        <div className="mt-6 max-w-md text-center space-y-3">
+          <p className="text-amber-300/90 text-xs font-medium tracking-wide uppercase">
+            Ask. Answer. Earn.
+          </p>
+          <p className="text-slate-300 text-sm">
+            Stoa is the onchain forum where Logos curate questions and the
+            community answers. Each question runs on a timer — add your answer
+            before it ends.
+          </p>
+          <p className="text-slate-300 text-sm">
+            All questions include rewards. When a question settles, the best
+            answers will earn. Skin in the game for fair, transparent discourse.
+          </p>
+          <ul className="text-slate-400 text-sm text-left space-y-2 mx-auto inline-block">
+            <li className="flex items-start gap-2">
+              <span className="text-amber-400">•</span>
+              <span>Browse active questions below</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-amber-400">•</span>
+              <span>Sign in to submit your answer</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-amber-400">•</span>
+              <span>Track outcomes and potential rewards</span>
+            </li>
+          </ul>
+          <p className="text-slate-400 text-xs">
+            New here?{' '}
+            <Link
+              href="/about"
+              className="underline decoration-amber-400/50 underline-offset-2 hover:text-slate-200"
+            >
+              Learn more
+            </Link>
+            .
+          </p>
+        </div>
+        <div
+          style={{
+            background:
+              'radial-gradient(1200px 600px at 50% -200px, rgba(251, 191, 36, 0.08), transparent 60%), linear-gradient(180deg, #0b1120 0%, #0a0f1f 100%)',
+          }}
+          className="fixed bottom-0 right-0 left-0 px-4 py-6 border-t border-white/10"
+        >
           <button
             onClick={signIn}
             disabled={isLoading}
@@ -65,9 +108,6 @@ export default function Home() {
               'Sign in'
             )}
           </button>
-          <p className="text-slate-400 text-sm">
-            Answer questions. Earn rewards.
-          </p>
         </div>
       </div>
     );
