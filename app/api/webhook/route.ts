@@ -86,7 +86,7 @@ export async function POST(request: Request) {
         await sendFrameNotification({
           fid,
           title: `Welcome to Stoa`,
-          body: `Ask questions, share answers, and earn rewards. Your forum for onchain learning starts here.`,
+          body: `Answer questions and earn rewards.`,
         });
       } else {
         await deleteUserNotificationDetails(fid);
