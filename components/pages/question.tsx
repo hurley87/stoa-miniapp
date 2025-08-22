@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQuestion } from '@/hooks/use-active-questions';
 import AnswerQuestion from '@/components/answer-question';
 
@@ -12,6 +13,7 @@ export default function QuestionPage({ idParam }: Props) {
   const questionId = isInvalidId ? undefined : asNumber;
 
   const { data: question, isLoading, error } = useQuestion(questionId);
+  const router = useRouter();
 
   const [timeLeft, setTimeLeft] = useState('');
 
@@ -28,8 +30,10 @@ export default function QuestionPage({ idParam }: Props) {
           const letter = part.slice(-1);
           return (
             <span key={index} className="flex items-baseline">
-              <span className="text-2xl font-bold">{number}</span>
-              <span className="text-xs uppercase ml-0.5">{letter}</span>
+              <span className="text-base sm:text-lg font-bold">{number}</span>
+              <span className="text-[10px] sm:text-xs uppercase ml-0.5">
+                {letter}
+              </span>
             </span>
           );
         })}
@@ -74,7 +78,7 @@ export default function QuestionPage({ idParam }: Props) {
   }, [question?.end_time]);
 
   return (
-    <div className="min-h-screen px-4 pt-20 pb-6">
+    <div className="min-h-screen px-4 pt-16 pb-6">
       <div className="max-w-2xl mx-auto px-0">
         {isInvalidId ? (
           <div className="rounded-xl border border-rose-500/30 bg-rose-950/50 p-4 text-rose-200">
@@ -94,7 +98,28 @@ export default function QuestionPage({ idParam }: Props) {
           </div>
         ) : (
           <div className="flex w-full max-w-lg shrink-0 flex-col gap-y-4 text-white">
-            <div className="flex justify-center">
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => router.back()}
+                aria-label="Go back"
+                className="glass-button inline-flex items-center gap-2 rounded-md px-2 py-1 text-slate-300 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-amber-400/40 active:bg-white/10 transition"
+              >
+                <svg
+                  className="h-5 w-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                <span className="hidden sm:inline">Back</span>
+              </button>
               <div className="text-slate-300 font-medium tracking-tight uppercase">
                 {formatCountdown(timeLeft)}
               </div>
