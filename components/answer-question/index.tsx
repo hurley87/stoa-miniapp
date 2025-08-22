@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useAccount, useConnect } from 'wagmi';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { base } from 'wagmi/chains';
 import { useAnswerCheck } from '@/hooks/use-answer-check';
 import { useOnchainSubmissionStatus } from '@/hooks/use-onchain-submission-status';
 import { useSubmitAnswerOnchain } from '@/hooks/use-submit-answer-onchain';
@@ -33,6 +34,7 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
     isPending,
     error: connectError,
   } = useConnect();
+  const { disconnect } = useDisconnect();
 
   const { data: answerCheck, isLoading: checkingAnswer } = useAnswerCheck(
     question?.question_id,
@@ -278,7 +280,7 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
               try {
                 const preferred = connectors?.[0];
                 if (!preferred) return;
-                await connectAsync({ connector: preferred });
+                await connectAsync({ connector: preferred, chainId: base.id });
               } catch {}
             }}
             className="cta-button w-full disabled:opacity-50 disabled:cursor-not-allowed"
@@ -287,6 +289,27 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
               ? 'Connecting...'
               : 'Connect Wallet'}
           </button>
+          {(account.status === 'connecting' || isPending) && (
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  disconnect();
+                  // slight delay to allow state to settle before retrying
+                  await new Promise((r) => setTimeout(r, 50));
+                  const preferred = connectors?.[0];
+                  if (!preferred) return;
+                  await connectAsync({
+                    connector: preferred,
+                    chainId: base.id,
+                  });
+                } catch {}
+              }}
+              className="mt-2 text-xs underline text-white/80 hover:text-white"
+            >
+              Having trouble? Retry
+            </button>
+          )}
           {connectError && (
             <p className="mt-2 text-rose-300 text-sm">
               {connectError.message || 'Failed to connect'}

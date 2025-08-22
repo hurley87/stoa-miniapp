@@ -11,7 +11,8 @@ import {
 } from 'wagmi';
 import { base } from 'wagmi/chains';
 import { hexToNumber } from 'viem';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { useDisconnect } from 'wagmi';
 
 // Augment connector to ensure getChainId is available for wagmi v2 writes
 const createAugmentedConnector = () => {
@@ -50,22 +51,38 @@ const queryClient = new QueryClient();
 function AutoConnect() {
   const { status } = useAccount();
   const { connectors, connectAsync, isPending } = useConnect();
+  const { disconnect } = useDisconnect();
+  const hasAttemptedRef = useRef(false);
 
   useEffect(() => {
     const tryConnect = async () => {
       try {
         const preferred = connectors?.[0];
         if (!preferred) return;
-        await connectAsync({ connector: preferred, chainId: base.id });
+
+        const timeoutMs = 5000;
+        const timeout = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('connect-timeout')), timeoutMs)
+        );
+
+        await Promise.race([
+          connectAsync({ connector: preferred, chainId: base.id }),
+          timeout,
+        ]);
       } catch {
-        // Silently ignore; user may not be in a Farcaster Mini app context
+        // On error or timeout, ensure we reset any stuck pending state
+        try {
+          disconnect();
+        } catch {}
+      } finally {
+        hasAttemptedRef.current = true;
       }
     };
 
-    if (status === 'disconnected' && !isPending) {
+    if (status === 'disconnected' && !isPending && !hasAttemptedRef.current) {
       void tryConnect();
     }
-  }, [status, isPending, connectors, connectAsync]);
+  }, [status, isPending, connectors, connectAsync, disconnect]);
 
   return null;
 }
