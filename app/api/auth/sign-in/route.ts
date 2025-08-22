@@ -1,17 +1,17 @@
-import { Errors, createClient } from "@farcaster/quick-auth";
+import { Errors, createClient } from '@farcaster/quick-auth';
 
-import { env } from "@/lib/env";
-import { fetchUser } from "@/lib/neynar";
-import * as jose from "jose";
-import { NextRequest, NextResponse } from "next/server";
-import { Address, zeroAddress } from "viem";
+import { env } from '@/lib/env';
+import { fetchUser, NeynarError } from '@/lib/neynar';
+import * as jose from 'jose';
+import { NextRequest, NextResponse } from 'next/server';
+import { Address, zeroAddress } from 'viem';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
 const quickAuthClient = createClient();
 
 export const POST = async (req: NextRequest) => {
-  const { referrerFid, token: farcasterToken } = await req.json();
+  const { referrerFid: _referrerFid, token: farcasterToken } = await req.json();
   let fid;
   let isValidSignature;
   let walletAddress: Address = zeroAddress;
@@ -28,20 +28,34 @@ export const POST = async (req: NextRequest) => {
     expirationTime = payload.exp ?? Date.now() + 7 * 24 * 60 * 60 * 1000;
   } catch (e) {
     if (e instanceof Errors.InvalidTokenError) {
-      console.error("Invalid token", e);
+      console.error('Invalid token', e);
       isValidSignature = false;
     }
-    console.error("Error verifying token", e);
+    console.error('Error verifying token', e);
   }
 
   if (!isValidSignature || !fid) {
     return NextResponse.json(
-      { success: false, error: "Invalid token" },
+      { success: false, error: 'Invalid token' },
       { status: 401 }
     );
   }
 
-  const user = await fetchUser(fid.toString());
+  let user;
+  try {
+    user = await fetchUser(fid.toString());
+  } catch (e) {
+    if (e instanceof NeynarError) {
+      return NextResponse.json(
+        { success: false, error: e.message },
+        { status: 502 }
+      );
+    }
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch user from Neynar' },
+      { status: 500 }
+    );
+  }
 
   // Generate JWT token
   const secret = new TextEncoder().encode(env.JWT_SECRET);
@@ -50,7 +64,7 @@ export const POST = async (req: NextRequest) => {
     walletAddress,
     timestamp: Date.now(),
   })
-    .setProtectedHeader({ alg: "HS256" })
+    .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(expirationTime)
     .sign(secret);
@@ -60,13 +74,13 @@ export const POST = async (req: NextRequest) => {
 
   // Set the auth cookie with the JWT token
   response.cookies.set({
-    name: "auth_token",
+    name: 'auth_token',
     value: token,
     httpOnly: true,
     secure: true,
-    sameSite: "none",
+    sameSite: 'none',
     maxAge: 7 * 24 * 60 * 60, // 7 days
-    path: "/",
+    path: '/',
   });
 
   return response;

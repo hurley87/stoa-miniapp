@@ -6,7 +6,7 @@ import { base } from 'wagmi/chains';
 import { STOA_FACTORY_ABI, STOA_FACTORY_ADDRESS } from '@/lib/abis/StoaFactory';
 
 export type CreateQuestionParams = {
-  questionContent: string; // <= 100 chars
+  questionContent: string; // <= 150 chars
   durationSeconds: number; // 3600 | 86400 | 604800
   tokenAddress?: Address; // default USDC
   submissionCostUsd?: number; // default 1 USD (USDC 6 decimals)

@@ -32,7 +32,7 @@ export async function getFarcasterManifest() {
       homeUrl: appUrl,
       imageUrl: `${appUrl}/images/feed.png`,
       buttonTitle: `Launch App`,
-      splashImageUrl: `${appUrl}/images/splash.png`,
+      splashImageUrl: `${appUrl}/images/logo.png`,
       splashBackgroundColor: '#FFFFFF',
       webhookUrl: `${appUrl}/api/webhook`,
       // Metadata https://github.com/farcasterxyz/miniapps/discussions/191

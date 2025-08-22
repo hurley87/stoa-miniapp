@@ -26,7 +26,7 @@ const schema = z.object({
     .string()
     .trim()
     .min(1, 'Question is required')
-    .max(100, 'Max 100 characters'),
+    .max(150, 'Max 150 characters'),
   durationSeconds: z.number().int().positive(),
   submissionCostUsd: z
     .number()
@@ -209,12 +209,12 @@ export function CreateQuestionForm() {
               onChange={(e) =>
                 setForm((s) => ({ ...s, questionContent: e.target.value }))
               }
-              maxLength={100}
-              placeholder="Frame the discourse (max 100 chars)"
+              maxLength={150}
+              placeholder="Frame the discourse (max 150 chars)"
               className="w-full rounded-md border border-gray-700 bg-black p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <div className="text-right text-xs text-gray-400">
-              {form.questionContent.length}/100
+              {form.questionContent.length}/150
             </div>
           </div>
 

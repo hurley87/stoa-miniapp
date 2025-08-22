@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 const BodySchema = z.object({
   questionId: z.number().int().nonnegative(),
-  questionContent: z.string().trim().min(1).max(100),
+  questionContent: z.string().trim().min(1).max(150),
   txHash: z.string().regex(/^0x[0-9a-fA-F]{64}$/),
   blockNumber: z.number().int().nonnegative().optional(),
   creator: z.string().regex(/^0x[0-9a-fA-F]{40}$/),

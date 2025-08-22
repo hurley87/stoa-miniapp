@@ -36,16 +36,13 @@ function formatTimeLeft(endTimeIso: string | null): string {
 
 export async function GET(
   _request: Request,
-  {
-    params,
-  }: {
-    params: Promise<{
-      id: string;
-    }>;
-  }
+  context: { params: { id?: string } }
 ) {
   try {
-    const { id } = await params;
+    const id = context?.params?.id;
+    if (!id || typeof id !== 'string') {
+      return new Response('Invalid id', { status: 400 });
+    }
     const appUrl = env.NEXT_PUBLIC_URL;
 
     console.log('appUrl', appUrl);

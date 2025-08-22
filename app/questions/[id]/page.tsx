@@ -51,7 +51,7 @@ export async function generateMetadata({
         type: 'launch_frame',
         name: 'Stoa',
         url: `${appUrl}/questions/${questionId}`,
-        splashImageUrl: `${appUrl}/images/splash.png`,
+        splashImageUrl: `${appUrl}/images/logo.png`,
         splashBackgroundColor: '#ffffff',
       },
     },

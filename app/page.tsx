@@ -1,33 +1,33 @@
-import HomePage from "@/components/pages/home";
-import { env } from "@/lib/env";
-import { Metadata } from "next";
+import HomePage from '@/components/pages/home';
+import { env } from '@/lib/env';
+import { Metadata } from 'next';
 
 const appUrl = env.NEXT_PUBLIC_URL;
 
 const frame = {
-  version: "next",
+  version: 'next',
   imageUrl: `${appUrl}/images/feed.png`,
   button: {
-    title: "Launch App",
+    title: 'Launch App',
     action: {
-      type: "launch_frame",
-      name: "Stoa",
+      type: 'launch_frame',
+      name: 'Stoa',
       url: appUrl,
-      splashImageUrl: `${appUrl}/images/splash.png`,
-      splashBackgroundColor: "#ffffff",
+      splashImageUrl: `${appUrl}/images/logo.png`,
+      splashBackgroundColor: '#ffffff',
     },
   },
 };
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Stoa - Where Questions Shape Discourse",
+    title: 'Stoa - Where Questions Shape Discourse',
     openGraph: {
-      title: "Stoa - Where Questions Shape Discourse",
-      description: "Ask. Answer. Earn. A modern forum of ideas built onchain.",
+      title: 'Stoa - Where Questions Shape Discourse',
+      description: 'Ask. Answer. Earn. A modern forum of ideas built onchain.',
     },
     other: {
-      "fc:frame": JSON.stringify(frame),
+      'fc:frame': JSON.stringify(frame),
     },
   };
 }
