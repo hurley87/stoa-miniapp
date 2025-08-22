@@ -11,7 +11,7 @@ const frame = {
     title: "Launch App",
     action: {
       type: "launch_frame",
-      name: "Mini-app Starter",
+      name: "Stoa",
       url: appUrl,
       splashImageUrl: `${appUrl}/images/splash.png`,
       splashBackgroundColor: "#ffffff",
@@ -21,10 +21,10 @@ const frame = {
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "Mini-app Starter",
+    title: "Stoa - Where Questions Shape Discourse",
     openGraph: {
-      title: "Mini-app Starter",
-      description: "A starter for Farcastermini-apps",
+      title: "Stoa - Where Questions Shape Discourse",
+      description: "Ask. Answer. Earn. A modern forum of ideas built onchain.",
     },
     other: {
       "fc:frame": JSON.stringify(frame),

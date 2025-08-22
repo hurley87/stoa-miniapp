@@ -47,14 +47,16 @@ export default function Home() {
             <p className="text-slate-100 text-3xl font-semibold tracking-tight">
               Stoa
             </p>
-            <p className="text-slate-400 text-sm">Proof of Knowledge</p>
+            <p className="text-slate-400 text-sm">
+              Where Questions Shape Discourse
+            </p>
           </div>
         </div>
         <div className="w-full max-w-md mx-auto flex flex-col gap-4 text-center">
           <button
             onClick={signIn}
             disabled={isLoading}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-amber-400 to-orange-500 px-6 py-3 text-black font-semibold shadow-lg shadow-amber-500/20 ring-1 ring-black/10 transition-all duration-200 hover:brightness-105 hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="cta-button inline-flex w-full items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <>
@@ -65,14 +67,16 @@ export default function Home() {
               'Sign in'
             )}
           </button>
-          <p className="text-slate-400 text-sm">Get paid to answer questions</p>
+          <p className="text-slate-400 text-sm">
+            Answer questions. Earn rewards.
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen px-4 pt-20 pb-36">
+    <div className="min-h-screen px-4 pt-16 pb-36">
       {/* Content */}
       <div className="max-w-2xl mx-auto px-0">
         {questionsLoading ? (
@@ -85,7 +89,7 @@ export default function Home() {
           </div>
         ) : questions?.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">
-            No active questions available
+            No questions in the discourse yet
           </div>
         ) : (
           <div className="flex flex-col gap-4">
@@ -129,14 +133,10 @@ export default function Home() {
           background:
             'radial-gradient(1200px 600px at 50% -200px, rgba(251, 191, 36, 0.08), transparent 60%), linear-gradient(180deg, #0b1120 0%, #0a0f1f 100%)',
         }}
-        className="fixed bottom-0 right-0 left-0 px-4 py-8 border-t border-white/10"
+        className="fixed bottom-0 right-0 left-0 p-4 border-t border-white/10"
       >
         <Link href="/new">
-          <button
-            className={`w-full py-3 px-6 rounded-xl font-semibold transition-all bg-gradient-to-b from-amber-400 to-orange-500 text-black shadow-lg shadow-amber-500/20 ring-1 ring-black/10 hover:brightness-105 hover:-translate-y-0.5`}
-          >
-            Ask a Question
-          </button>
+          <button className="cta-button w-full">Create a Question</button>
         </Link>
       </div>
     </div>

@@ -103,7 +103,7 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
       const url = `${window.location.origin}/questions/${question.question_id}`;
       const timeText = formatTimeLeftForShare(timeLeft);
       const potentialEarnings = `${question.total_submissions} USDC`;
-      const text = `I may earn ${potentialEarnings} from answering this question. Rewards distributed in ${timeText}.`;
+      const text = `I may earn ${potentialEarnings} by contributing to this discourse. Rewards distributed in ${timeText}.`;
 
       const result = await sdk.actions.composeCast({
         text,
@@ -127,9 +127,9 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
       {answerCheck?.hasAnswered && (
         <button
           onClick={handleShare}
-          className={`w-full py-3 px-6 rounded-xl font-semibold transition-all bg-gradient-to-b from-amber-400 to-orange-500 text-black shadow-lg shadow-amber-500/20 ring-1 ring-black/10 hover:brightness-105 hover:-translate-y-0.5`}
+          className="cta-button w-full"
         >
-          Share Answer
+          Invite Friends To Answer
         </button>
       )}
 
@@ -169,29 +169,30 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
                 <button
                   onClick={() => setShowForm(true)}
                   disabled={timeLeft === 'ENDED'}
-                  className={`w-full py-3 px-6 rounded-xl font-semibold transition-all ${
+                  className={`w-full ${
                     timeLeft === 'ENDED'
-                      ? 'bg-slate-700 text-slate-400 cursor-not-allowed border border-slate-600'
-                      : 'bg-gradient-to-b from-amber-400 to-orange-500 text-black shadow-lg shadow-amber-500/20 ring-1 ring-black/10 hover:brightness-105 hover:-translate-y-0.5'
+                      ? 'bg-slate-700 text-slate-400 cursor-not-allowed border border-slate-600 py-3 px-6 rounded-xl font-semibold transition-all'
+                      : 'cta-button'
                   }`}
                 >
-                  {timeLeft === 'ENDED' ? 'Question Ended' : 'Answer'}
+                  {timeLeft === 'ENDED' ? 'Discourse Ended' : 'Answer'}
                 </button>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {alreadySubmitted && (
                     <div className="bg-purple-500/10 border border-purple-400/30 rounded-xl p-3">
                       <p className="text-purple-200 text-sm">
-                        You have already submitted. Submitting again will
-                        replace your previous answer on-chain (if contract
-                        allows) and will still incur the submission cost.
+                        You've already contributed to this discourse. Submitting
+                        again will replace your previous answer onchain (if
+                        contract allows) and will still incur the submission
+                        cost.
                       </p>
                     </div>
                   )}
                   <textarea
                     value={answerText}
                     onChange={(e) => setAnswerText(e.target.value)}
-                    placeholder="Write your answer..."
+                    placeholder="Contribute to the discourse..."
                     className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400/60 resize-none"
                     rows={8}
                     required
@@ -204,7 +205,7 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
                         submittingOnchain ||
                         timeLeft === 'ENDED'
                       }
-                      className="flex-1 bg-gradient-to-b from-amber-400 to-orange-500 text-black py-3 px-6 rounded-xl font-semibold shadow-lg shadow-amber-500/20 ring-1 ring-black/10 hover:brightness-105 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className="cta-button flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {submittingOnchain ? (
                         <span className="flex items-center justify-center">
@@ -244,7 +245,9 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
         </>
       ) : (
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
-          <p className="text-white/80 mb-3">Connect your wallet to answer.</p>
+          <p className="text-white/80 mb-3">
+            Connect your wallet to contribute.
+          </p>
           <button
             disabled={
               isPending || !connectors?.[0] || account.status === 'connecting'
@@ -256,7 +259,7 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
                 await connectAsync({ connector: preferred });
               } catch {}
             }}
-            className="w-full py-3 px-6 rounded-xl font-semibold transition-all bg-gradient-to-b from-amber-400 to-orange-500 text-black shadow-lg shadow-amber-500/20 ring-1 ring-black/10 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-105 hover:-translate-y-0.5"
+            className="cta-button w-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {account.status === 'connecting' || isPending
               ? 'Connecting...'

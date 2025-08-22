@@ -2,120 +2,84 @@
 
 ## What is Stoa?
 
-Stoa is a platform where you can earn money by sharing your knowledge. Ask questions, provide great answers, and get rewarded based on how helpful your contributions are.
+Stoa is a modern forum of ideas built onchain.  
+Only those chosen to join **the Logos** may ask questions. Everyone else can answer them.  
+The Logos frame the discourse; the crowd carries it forward.
 
-## For Question Creators
+By asking, answering, and earning, you take part in a system where knowledge has real weight.
+
+---
+
+## For the Logos (Question Askers)
 
 ### Creating a Question
 
-1. **Pick a Topic**: Choose something you want to learn about or need help with
-2. **Set the Stakes**: Decide how much people pay to answer (this creates the reward pool)
-3. **Choose Duration**: Set how long people have to submit answers
-4. **Pick Winners**: Decide how many of the best answers will be rewarded
+1. **Frame the Discourse**: Choose a topic worth debating or a problem worth solving
+2. **Set the Stakes**: Define the cost to answer (this funds the reward pool)
+3. **Choose Duration**: Decide how long answers will be accepted
+4. **Define Winners**: Select how many top answers will be rewarded
 
 ### What You Earn
 
-As a question creator, you earn **10% of all submission fees**. If 20 people each pay 10 tokens to answer your question, you earn 20 tokens just for asking a good question.
+As a member of the Logos, you earn **10% of all submission fees** for every question you ask.  
+If 20 people each pay 10 tokens to answer your question, you earn 20 tokens simply for curating the discourse.
 
-### Example
+---
 
-- You ask: "What's the best way to invest $10,000 right now?"
-- Set submission cost: 5 tokens
-- 30 people submit answers = 150 tokens collected
-- You earn: 15 tokens (10% of all fees)
-- The rest goes to reward the best answers
-
-## For Answer Providers
+## For Answerers
 
 ### How to Earn
 
-1. **Find Good Questions**: Look for topics where you have expertise
-2. **Pay to Play**: Submit your answer along with the required fee
-3. **Share Your Knowledge**: Provide detailed, helpful answers
-4. **AI Evaluation**: An AI agent reviews and ranks all answers based on quality
-5. **Claim Rewards**: If you're in the top answers, claim your reward
+1. **Find Questions**: Browse what the Logos have set forth
+2. **Pay to Play**: Submit your answer with the required fee
+3. **Contribute Knowledge**: Offer depth, originality, and clarity
+4. **AI Judgement**: An AI agent reviews and ranks all answers
+5. **Claim Rewards**: If your answer ranks among the best, you win your share
 
-### How Much You Earn
+### Reward System
 
-Your reward depends on how good your answer is compared to others:
+- 80% of all submission fees flow into the reward pool
+- Rewards are distributed by score, weighted by AI evaluation
 
-- **Best answer**: Gets the biggest share of the reward pool
-- **Second best**: Gets the second biggest share
-- **And so on**: Up to the maximum number of winners set by the question creator
-
-### Reward Calculation
-
-- 80% of all submission fees become the reward pool
-- Your share = (Your score ÷ Total scores) × Reward pool
-
-### Example
-
-- Question has 100 tokens in the reward pool
-- Your answer ranks #1 out of 3 winners with scores: You=3, Second=2, Third=1
-- Total scores = 6
-- Your reward = (3 ÷ 6) × 100 = 50 tokens
+---
 
 ## The Money Flow
 
 When someone submits an answer for 10 tokens:
 
-- **1 token** → Platform fees (keeps Stoa running)
-- **1 token** → Question creator (rewards good questions)
-- **8 tokens** → Reward pool (pays answer providers)
+- **1 token** → Stoa protocol (keeps the forum running)
+- **1 token** → Logos member who asked the question
+- **8 tokens** → Reward pool for the best answers
 
-## AI-Powered Evaluation
+---
 
-After the submission deadline, an AI agent automatically:
+## AI as Arbiter
 
-- Reviews all submitted answers
-- Evaluates them for accuracy, completeness, and helpfulness
-- Ranks them from best to worst
-- Assigns scores that determine token distribution
+Once the timer expires, AI acts as judge:
 
-The AI evaluation is:
+- Reviews all answers
+- Scores them for accuracy, originality, and clarity
+- Ranks winners and distributes rewards
 
-- **Objective**: No human bias or favoritism
-- **Fast**: Results typically available within hours
-- **Consistent**: Same standards applied to all answers
-- **Transparent**: Scores are public on the blockchain
+AI ensures evaluation is:
 
-## Key Benefits
+- **Objective**: No human bias
+- **Consistent**: Same rules for all
+- **Transparent**: Scores are visible onchain
 
-### For Everyone
+---
 
-- **Fair AI Judging**: Objective evaluation without human bias
-- **Quality Content**: Submission fees prevent spam
-- **Transparent**: All payments and AI scores are public on the blockchain
+## Why Stoa?
 
-### Safety Features
+- **Questions with weight**: Only Logos may ask, ensuring fewer but better questions
+- **Skin in the game**: Submission fees prevent spam
+- **Onchain clarity**: All payments and evaluations are transparent
 
-- **Emergency Refunds**: If AI evaluation takes too long (7+ days), you can get your money back
-- **Secure Payments**: All transactions handled by smart contracts
-- **Automated Process**: No waiting for human evaluators
-
-## Getting Started
-
-1. **Get Tokens**: You'll need the specific token each question uses
-2. **Find Questions**: Browse available questions in your areas of expertise
-3. **Submit Answers**: Pay the fee and share your knowledge
-4. **Wait for AI Results**: AI evaluation happens automatically after the submission deadline
-5. **Claim Rewards**: Collect your earnings if the AI ranked your answer in the top winners
-
-## Tips for Success
-
-### Question Creators
-
-- Ask clear, specific questions
-- Set reasonable submission costs (not too high or low)
-- Choose topics people care about
-
-### Answer Providers
-
-- Focus on areas where you have real expertise
-- Provide detailed, well-researched answers
-- Consider the submission cost vs. potential reward
-- Don't just copy what others might say - add unique value
+---
 
 ## The Bottom Line
 
-Stoa turns knowledge into money. Good questions attract good answers, and good answers earn good money. It's that simple.
+**Stoa is where questions shape discourse.**  
+The Logos ignite debate. The crowd contends. The best answers are rewarded.
+
+**Ask. Answer. Earn.**

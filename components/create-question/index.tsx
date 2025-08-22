@@ -148,7 +148,7 @@ export function CreateQuestionForm() {
     if (!created) return;
     const url = `${window.location.origin}/questions/${created.id}`;
     const timeText = formatDurationForShare(created.durationSeconds);
-    const text = `I just asked: "${created.content}" Answer to earn rewards. Ends in ${timeText}.`;
+    const text = `I just framed a question in the discourse: "${created.content}" Answer to earn rewards. Ends in ${timeText}.`;
     try {
       const result = await sdk.actions.composeCast({ text, embeds: [url] });
       if (!result?.cast) {
@@ -172,10 +172,10 @@ export function CreateQuestionForm() {
         <div className="flex flex-col gap-4">
           <div>
             <p className="text-white text-lg font-semibold">
-              Your question is live!
+              Your question is live in the discourse!
             </p>
             <p className="text-white/80 text-sm">
-              Share it to get answers faster.
+              Share it to attract more answers.
             </p>
           </div>
           <div className="space-y-1">
@@ -188,7 +188,7 @@ export function CreateQuestionForm() {
           <button
             type="button"
             onClick={handleShare}
-            className="w-full py-3 px-6 rounded-xl font-semibold transition-all bg-gradient-to-b from-amber-400 to-orange-500 text-black shadow-lg shadow-amber-500/20 ring-1 ring-black/10 hover:brightness-105 hover:-translate-y-0.5"
+            className="cta-button w-full"
           >
             Share question
           </button>
@@ -210,7 +210,7 @@ export function CreateQuestionForm() {
                 setForm((s) => ({ ...s, questionContent: e.target.value }))
               }
               maxLength={100}
-              placeholder="Ask a question (max 100 chars)"
+              placeholder="Frame the discourse (max 100 chars)"
               className="w-full rounded-md border border-gray-700 bg-black p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
             <div className="text-right text-xs text-gray-400">
@@ -269,12 +269,12 @@ export function CreateQuestionForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 px-6 rounded-xl font-semibold transition-all bg-gradient-to-b from-amber-400 to-orange-500 text-black shadow-lg shadow-amber-500/20 ring-1 ring-black/10 hover:brightness-105 hover:-translate-y-0.5"
+              className="cta-button w-full disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Creating…' : 'Create question'}
             </button>
             <p className="text-xs text-gray-400">
-              Create question for 1 USDC and earn 10% of reward pool.
+              Earn 10% of all submission fees.
             </p>
           </div>
         </>

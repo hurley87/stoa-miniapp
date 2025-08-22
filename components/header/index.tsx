@@ -13,26 +13,18 @@ export default function AppHeader() {
       className="fixed inset-x-0 top-0 z-50 border-b border-white/10"
     >
       <div className="mx-auto max-w-2xl">
-        <div className="flex items-center justify-between rounded-2xl px-4 py-2.5">
-          <Link
-            href="/"
-            aria-label="Home"
-            className="glass-button inline-flex h-10 w-10 items-center justify-center rounded-xl"
-          >
+        <div className="flex items-center justify-between rounded-2xl px-4 py-2">
+          <Link href="/" aria-label="Home">
             <Image
-              src="/logo.svg"
+              src="/logo.png"
               alt="Stoa Logo"
-              className="h-5 w-5"
+              className="h-8 w-8"
               width={20}
               height={20}
             />
           </Link>
 
-          <Link
-            href="/about"
-            aria-label="About"
-            className="glass-button inline-flex h-10 w-10 items-center justify-center rounded-xl text-slate-300 hover:text-white transition-colors"
-          >
+          <Link href="/about" aria-label="About">
             <svg
               className="h-6 w-6"
               fill="none"

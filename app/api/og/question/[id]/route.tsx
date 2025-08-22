@@ -61,7 +61,7 @@ export async function GET(
 
     const timeLeft = formatTimeLeft(question.end_time);
 
-    const logoImage = await loadImage(`${appUrl}/logo.svg`);
+    const logoImage = await loadImage(`${appUrl}/logo.png`);
     const fontData = await loadGoogleFont(
       'Inter',
       `${question.content} ${timeLeft} Stoa Question #${question.question_id} stoa.xyz`
