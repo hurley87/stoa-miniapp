@@ -76,24 +76,24 @@ body {
   .cta-button {
     background: linear-gradient(
       135deg,
-      #e6dfc9 0%,   /* light beige (stone highlight) */
-      #d0c5a5 40%,  /* warm sandstone midtone */
-      #9ca6a9 100%  /* slate blue-gray shadow */
+      #e6dfc9 0%,
+      /* light beige (stone highlight) */ #d0c5a5 40%,
+      /* warm sandstone midtone */ #9ca6a9 100% /* slate blue-gray shadow */
     );
-    color: #1A1A1A;        /* deep charcoal text */
+    color: #1a1a1a; /* deep charcoal text */
     border: none;
     border-radius: 0.75rem; /* rounded but not too modern */
-    padding: 0.75rem 1.5rem;
+    padding: 1rem 1.5rem;
     font-weight: 600;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2),
-                0 2px 6px rgba(0,0,0,0.25);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      0 2px 6px rgba(0, 0, 0, 0.25);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
 
   .cta-button:hover {
     transform: translateY(-2px);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.25),
-                0 4px 12px rgba(0,0,0,0.3);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      0 4px 12px rgba(0, 0, 0, 0.3);
   }
 }
 

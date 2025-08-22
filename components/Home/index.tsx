@@ -39,10 +39,8 @@ export default function Home() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-between px-4 pt-10 pb-24">
         <div />
-        <div className="flex flex-col items-center justify-center gap-4">
-          <div className="glass-panel rounded-2xl p-3">
-            <Image src="/logo.png" alt="logo" width={128} height={128} />
-          </div>
+        <div className="flex flex-col items-center justify-center gap-0">
+          <Image src="/logo.png" alt="logo" width={128} height={128} />
           <div className="flex flex-col items-center justify-center gap-1">
             <p className="text-slate-100 text-3xl font-semibold tracking-tight">
               Stoa
@@ -133,7 +131,7 @@ export default function Home() {
           background:
             'radial-gradient(1200px 600px at 50% -200px, rgba(251, 191, 36, 0.08), transparent 60%), linear-gradient(180deg, #0b1120 0%, #0a0f1f 100%)',
         }}
-        className="fixed bottom-0 right-0 left-0 p-4 border-t border-white/10"
+        className="fixed bottom-0 right-0 left-0 px-4 py-6 border-t border-white/10"
       >
         <Link href="/new">
           <button className="cta-button w-full">Create a Question</button>
