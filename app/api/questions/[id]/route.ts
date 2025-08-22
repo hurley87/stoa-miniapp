@@ -40,7 +40,25 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(data, {
+    // Ensure total_submissions reflects current answers count
+    const { count, error: countError } = await supabase
+      .from('answers')
+      .select('*', { count: 'exact', head: true })
+      .eq('question_id', questionId);
+
+    if (countError) {
+      console.error('Supabase count error:', countError);
+    }
+
+    const merged = {
+      ...data,
+      total_submissions:
+        typeof count === 'number'
+          ? count
+          : (data as any).total_submissions ?? 0,
+    };
+
+    return NextResponse.json(merged, {
       headers: {
         'Cache-Control': 'no-store, no-cache, max-age=0, must-revalidate',
       },
