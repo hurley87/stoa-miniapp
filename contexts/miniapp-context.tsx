@@ -1,7 +1,7 @@
-"use client";
-import { AddMiniAppResult } from "@farcaster/miniapp-core/dist/actions/AddMiniApp";
-import { MiniAppContext } from "@farcaster/miniapp-core/dist/context";
-import { sdk } from "@farcaster/miniapp-sdk";
+'use client';
+import { AddMiniAppResult } from '@farcaster/miniapp-core/dist/actions/AddMiniApp';
+import { MiniAppContext } from '@farcaster/miniapp-core/dist/context';
+import { sdk } from '@farcaster/miniapp-sdk';
 import {
   createContext,
   useCallback,
@@ -9,9 +9,8 @@ import {
   useEffect,
   useState,
   type ReactNode,
-} from "react";
-import MiniAppWalletContext from "./miniapp-wallet-context";
-import MiniAppWalletProvider from "./miniapp-wallet-context";
+} from 'react';
+import MiniAppWalletProvider from './miniapp-wallet-context';
 
 interface MiniAppContextType {
   isMiniAppReady: boolean;
@@ -20,7 +19,9 @@ interface MiniAppContextType {
   addMiniApp: () => Promise<AddMiniAppResult | null>;
 }
 
-const FarcasterMiniAppContext = createContext<MiniAppContextType | undefined>(undefined);
+const FarcasterMiniAppContext = createContext<MiniAppContextType | undefined>(
+  undefined
+);
 
 export function MiniAppProvider({
   addMiniAppOnLoad,
@@ -39,12 +40,12 @@ export function MiniAppProvider({
       if (context) {
         setContext(context as MiniAppContext);
       } else {
-        setError("Failed to load Farcaster context");
+        setError('Failed to load Farcaster context');
       }
       await sdk.actions.ready();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to initialize SDK");
-      console.error("SDK initialization error:", err);
+      setError(err instanceof Error ? err.message : 'Failed to initialize SDK');
+      console.error('SDK initialization error:', err);
     } finally {
       setIsMiniAppReady(true);
     }
@@ -53,7 +54,7 @@ export function MiniAppProvider({
   useEffect(() => {
     if (!isMiniAppReady) {
       setMiniAppReady().then(() => {
-        console.log("MiniApp loaded");
+        console.log('MiniApp loaded');
       });
     }
   }, [isMiniAppReady, setMiniAppReady]);
@@ -66,7 +67,7 @@ export function MiniAppProvider({
       }
       return null;
     } catch (error) {
-      console.error("[error] adding frame", error);
+      console.error('[error] adding frame', error);
       return null;
     }
   }, []);
@@ -100,7 +101,7 @@ export function MiniAppProvider({
 export function useMiniApp() {
   const context = useContext(FarcasterMiniAppContext);
   if (context === undefined) {
-    throw new Error("useMiniApp must be used within a MiniAppProvider");
+    throw new Error('useMiniApp must be used within a MiniAppProvider');
   }
   return context;
 }

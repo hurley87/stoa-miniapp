@@ -163,17 +163,40 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
           ) : (
             <>
               {!showForm ? (
-                <button
-                  onClick={() => setShowForm(true)}
-                  disabled={timeLeft === 'ENDED'}
-                  className={`w-full ${
-                    timeLeft === 'ENDED'
-                      ? 'bg-slate-700 text-slate-400 cursor-not-allowed border border-slate-600 py-3 px-6 rounded-xl font-semibold transition-all'
-                      : 'cta-button'
-                  }`}
-                >
-                  {timeLeft === 'ENDED' ? 'Discourse Ended' : 'Answer'}
-                </button>
+                <div className="flex flex-col gap-4">
+                  <div className="rounded-xl border border-white/15 bg-white/5 p-4">
+                    <p className="text-white text-sm font-semibold">
+                      Why answer?
+                    </p>
+                    <ul className="mt-2 space-y-1 text-white/80 text-sm list-disc list-inside">
+                      <li>Earn from the reward pool</li>
+                      <li>80% of fees go to winners</li>
+                      <li>Build your onchain reputation</li>
+                    </ul>
+                    <div className="mt-3 text-white/70 text-xs">
+                      <p className="font-medium">How winners are chosen</p>
+                      <p className="mt-1">
+                        When the timer ends, an AI agent reviews every answer
+                        for accuracy, originality, and clarity. It scores,
+                        ranks, and then distributes rewards proportionally
+                        across the top answers. Fees split: 80% to winners, 10%
+                        to the question creator, 10% to the protocol. Ask.
+                        Answer. Earn.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowForm(true)}
+                    disabled={timeLeft === 'ENDED'}
+                    className={`w-full ${
+                      timeLeft === 'ENDED'
+                        ? 'bg-slate-700 text-slate-400 cursor-not-allowed border border-slate-600 py-3 px-6 rounded-xl font-semibold transition-all'
+                        : 'cta-button'
+                    }`}
+                  >
+                    {timeLeft === 'ENDED' ? 'Discourse Ended' : 'Answer'}
+                  </button>
+                </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {alreadySubmitted && (
