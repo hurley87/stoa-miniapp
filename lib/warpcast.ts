@@ -21,9 +21,10 @@ export async function getFarcasterManifest() {
   }
   return {
     accountAssociation: {
-      header: env.NEXT_PUBLIC_FARCASTER_HEADER,
-      payload: env.NEXT_PUBLIC_FARCASTER_PAYLOAD,
-      signature: env.NEXT_PUBLIC_FARCASTER_SIGNATURE,
+      header:
+        'eyJmaWQiOjEyNjUxMzMsInR5cGUiOiJhdXRoIiwia2V5IjoiMHgyNmU5NEQ1Njg5MjUyMUM0YzdCQkJEMWQ5Njk5NzI1OTMyNzk3RTlDIn0',
+      payload: 'eyJkb21haW4iOiJhcHAuc3RvYS5idWlsZCJ9',
+      signature: 'CwhA1CknZnOWFnU70fUrCdEhgWC027se5nA',
     },
     frame: {
       version: '1',
