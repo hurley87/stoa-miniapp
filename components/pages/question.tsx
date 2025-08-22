@@ -79,6 +79,8 @@ export default function QuestionPage({ idParam }: Props) {
     return () => clearInterval(interval);
   }, [question?.end_time]);
 
+  console.log('timeLeft', timeLeft);
+
   return (
     <div className="min-h-screen px-4 pt-16 pb-6">
       <div className="max-w-2xl mx-auto px-0">

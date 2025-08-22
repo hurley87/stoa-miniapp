@@ -163,6 +163,33 @@ export default function Home() {
                 </Link>
               </div>
             ))}
+            <div className="space-y-2">
+              <Link href={`/fake-question`}>
+                <div className="glass-card group relative overflow-hidden rounded-2xl p-4 sm:p-5">
+                  <div className="pointer-events-none absolute -top-20 right-1/2 h-40 w-40 translate-x-1/2 rounded-full bg-amber-500/10 blur-2xl group-hover:bg-amber-500/15" />
+                  {/* Question */}
+                  <h2 className="text-slate-100 leading-6 font-semibold">
+                    With AI automating much of junior developer work, what
+                    unique value (if any) do junior developers still bring to a
+                    team?
+                  </h2>
+
+                  {/* Stats */}
+                  <div className="mt-3 flex items-center gap-2">
+                    <span className="text-white/80 text-xs sm:text-sm font-medium bg-white/5 rounded-full px-2.5 py-1">
+                      4 submissions
+                    </span>
+                  </div>
+
+                  {/* Countdown - bottom right */}
+                  <div className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5">
+                    <span className="text-white/80 text-xs sm:text-sm font-medium bg-white/5 rounded-full px-2.5 py-1">
+                      ENDED
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            </div>
           </div>
         )}
       </div>
