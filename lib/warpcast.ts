@@ -40,8 +40,8 @@ export async function getFarcasterManifest() {
       subtitle: 'Onchain Forum for Learning', // 30 characters, no emojis or special characters, short description under app name
       description:
         'The chosen Logos ask the questions, the crowd answers, and AI distributes tokens to the best responses.', // 170 characters, no emojis or special characters, promotional message displayed on Mini App Page
-      primaryCategory: 'social',
-      tags: ['forum', 'learning', 'onchain', 'discourse', 'AI'], // up to 5 tags, filtering/search tags
+      primaryCategory: 'education',
+      tags: ['forum', 'learning', 'onchain', 'rewards', 'AI'], // up to 5 tags, filtering/search tags
       tagline: 'Ask. Answer. Earn.', // 30 characters, marketing tagline should be punchy and descriptive
       ogTitle: 'Stoa - Onchain Forum for Learning', // 30 characters, app name + short tag, Title case, no emojis
       ogDescription:
