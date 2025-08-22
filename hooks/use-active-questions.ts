@@ -26,7 +26,9 @@ export type Question = {
 };
 
 async function fetchActiveQuestions(): Promise<Question[]> {
-  const response = await fetch('/api/questions/active');
+  const response = await fetch('/api/questions/active', {
+    cache: 'no-store',
+  });
 
   if (!response.ok) {
     throw new Error('Failed to fetch active questions');
@@ -45,7 +47,9 @@ export function useActiveQuestions() {
 }
 
 async function fetchQuestion(questionId: number): Promise<Question> {
-  const response = await fetch(`/api/questions/${questionId}`);
+  const response = await fetch(`/api/questions/${questionId}`, {
+    cache: 'no-store',
+  });
   if (!response.ok) {
     throw new Error('Failed to fetch question');
   }
