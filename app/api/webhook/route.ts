@@ -1,32 +1,32 @@
-import { sendFrameNotification } from "@/lib/notification-client";
+import { sendFrameNotification } from '@/lib/notification-client';
 import {
   deleteUserNotificationDetails,
   setUserNotificationDetails,
-} from "@/lib/notifications";
-import { createPublicClient, http } from "viem";
-import { optimism } from "viem/chains";
+} from '@/lib/notifications';
+import { createPublicClient, http } from 'viem';
+import { optimism } from 'viem/chains';
 
-const KEY_REGISTRY_ADDRESS = "0x00000000Fc1237824fb747aBDE0FF18990E59b7e";
+const KEY_REGISTRY_ADDRESS = '0x00000000Fc1237824fb747aBDE0FF18990E59b7e';
 
 const KEY_REGISTRY_ABI = [
   {
     inputs: [
-      { name: "fid", type: "uint256" },
-      { name: "key", type: "bytes" },
+      { name: 'fid', type: 'uint256' },
+      { name: 'key', type: 'bytes' },
     ],
-    name: "keyDataOf",
+    name: 'keyDataOf',
     outputs: [
       {
         components: [
-          { name: "state", type: "uint8" },
-          { name: "keyType", type: "uint32" },
+          { name: 'state', type: 'uint8' },
+          { name: 'keyType', type: 'uint32' },
         ],
-        name: "",
-        type: "tuple",
+        name: '',
+        type: 'tuple',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
@@ -40,19 +40,19 @@ async function verifyFidOwnership(fid: number, appKey: `0x${string}`) {
     const result = await client.readContract({
       address: KEY_REGISTRY_ADDRESS,
       abi: KEY_REGISTRY_ABI,
-      functionName: "keyDataOf",
+      functionName: 'keyDataOf',
       args: [BigInt(fid), appKey],
     });
 
     return result.state === 1 && result.keyType === 1;
   } catch (error) {
-    console.error("Key Registry verification failed:", error);
+    console.error('Key Registry verification failed:', error);
     return false;
   }
 }
 
 function decode(encoded: string) {
-  return JSON.parse(Buffer.from(encoded, "base64url").toString("utf-8"));
+  return JSON.parse(Buffer.from(encoded, 'base64url').toString('utf-8'));
 }
 
 export async function POST(request: Request) {
@@ -69,37 +69,37 @@ export async function POST(request: Request) {
 
   if (!valid) {
     return Response.json(
-      { success: false, error: "Invalid FID ownership" },
+      { success: false, error: 'Invalid FID ownership' },
       { status: 401 }
     );
   }
 
   switch (event.event) {
-    case "frame_added":
+    case 'frame_added':
       console.log(
-        "frame_added",
-        "event.notificationDetails",
+        'frame_added',
+        'event.notificationDetails',
         event.notificationDetails
       );
       if (event.notificationDetails) {
         await setUserNotificationDetails(fid, event.notificationDetails);
         await sendFrameNotification({
           fid,
-          title: `Welcome to Farcaster Mini App Template`,
-          body: `Thank you for adding Farcaster Mini App Template`,
+          title: `Welcome to Stoa`,
+          body: `Ask questions, share answers, and earn rewards. Your forum for onchain learning starts here.`,
         });
       } else {
         await deleteUserNotificationDetails(fid);
       }
 
       break;
-    case "frame_removed": {
-      console.log("frame_removed");
+    case 'frame_removed': {
+      console.log('frame_removed');
       await deleteUserNotificationDetails(fid);
       break;
     }
-    case "notifications_enabled": {
-      console.log("notifications_enabled", event.notificationDetails);
+    case 'notifications_enabled': {
+      console.log('notifications_enabled', event.notificationDetails);
       await setUserNotificationDetails(fid, event.notificationDetails);
       await sendFrameNotification({
         fid,
@@ -109,8 +109,8 @@ export async function POST(request: Request) {
 
       break;
     }
-    case "notifications_disabled": {
-      console.log("notifications_disabled");
+    case 'notifications_disabled': {
+      console.log('notifications_disabled');
       await deleteUserNotificationDetails(fid);
 
       break;
