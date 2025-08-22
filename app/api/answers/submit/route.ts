@@ -35,13 +35,11 @@ export async function POST(request: NextRequest) {
 
     if (!existingUser) {
       // Create user if they don't exist
-      const { error: userError } = await supabase
-        .from('users')
-        .insert({
-          wallet: userWallet,
-          joined_at: new Date().toISOString(),
-          last_activity: new Date().toISOString()
-        });
+      const { error: userError } = await supabase.from('users').insert({
+        wallet: userWallet,
+        joined_at: new Date().toISOString(),
+        last_activity: new Date().toISOString(),
+      });
 
       if (userError) {
         console.error('Error creating user:', userError);
@@ -108,9 +106,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Update question submission count
-    await supabase.rpc('increment_submissions', {
-      question_id: questionId,
-    });
+    const { data: currentQuestion } = await supabase
+      .from('questions')
+      .select('total_submissions')
+      .eq('question_id', questionId)
+      .single();
+    
+    if (currentQuestion) {
+      const { error: updateError } = await supabase
+        .from('questions')
+        .update({ total_submissions: (currentQuestion.total_submissions || 0) + 1 })
+        .eq('question_id', questionId);
+        
+      if (updateError) {
+        console.error('Error updating submission count:', updateError);
+      }
+    }
 
     return NextResponse.json({
       success: true,
