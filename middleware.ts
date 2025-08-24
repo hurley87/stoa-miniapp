@@ -13,7 +13,12 @@ export default async function middleware(req: NextRequest) {
     req.nextUrl.pathname.includes('/api/og') ||
     req.nextUrl.pathname.includes('/api/webhook') ||
     // Allow public read access to questions endpoints
-    (req.method === 'GET' && req.nextUrl.pathname.startsWith('/api/questions'))
+    (req.method === 'GET' &&
+      req.nextUrl.pathname.startsWith('/api/questions')) ||
+    // Allow public read access to user profiles by address; keep /api/users/me protected
+    (req.method === 'GET' &&
+      req.nextUrl.pathname.startsWith('/api/users/') &&
+      !req.nextUrl.pathname.endsWith('/me'))
   ) {
     return NextResponse.next();
   }

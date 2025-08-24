@@ -21,19 +21,19 @@ export default function AboutPage() {
             </p>
             <p className="text-slate-400 leading-relaxed mb-3">
               Only selected{' '}
-              <strong className="text-amber-300">community leaders</strong> may pose
-              questions. Everyone else can answer them. Leaders guide quality discussions;
-              the community provides thoughtful answers.
+              <strong className="text-amber-300">community leaders</strong> may
+              pose questions. Everyone else can answer them. Leaders guide
+              quality discussions; the community provides thoughtful answers.
             </p>
             <p className="text-slate-400 leading-relaxed">
-              Through thoughtful questions and quality answers, you participate in
-              a system that rewards meaningful discourse.
+              Through thoughtful questions and quality answers, you participate
+              in a system that rewards meaningful discourse.
             </p>
           </section>
 
           <section className="py-8 first:pt-0">
             <h2 className="text-xl font-semibold mb-5 text-slate-100">
-              For the Logos (Question Creators)
+              For Question Creators
             </h2>
 
             <div className="mb-5">
@@ -204,8 +204,8 @@ export default function AboutPage() {
             </h2>
             <ul className="space-y-2 text-slate-400">
               <li>
-                • <strong>Curated questions</strong>: Only community leaders may ask,
-                ensuring fewer but higher-quality questions
+                • <strong>Curated questions</strong>: Only community leaders may
+                ask, ensuring fewer but higher-quality questions
               </li>
               <li>
                 • <strong>Quality answers</strong>: Answer fees prevent spam and
@@ -226,8 +226,8 @@ export default function AboutPage() {
               <strong>Stoa rewards thoughtful discourse.</strong>
             </p>
             <p className="text-slate-400 mb-4">
-              Community leaders spark discussions. Participants share thoughtful answers.
-              Quality contributions are rewarded.
+              Community leaders spark discussions. Participants share thoughtful
+              answers. Quality contributions are rewarded.
             </p>
             <p className="text-slate-400 mb-4 font-semibold">
               Think. Answer. Earn.

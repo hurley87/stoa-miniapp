@@ -2,8 +2,15 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useAccount } from 'wagmi';
+import { useUser } from '@/contexts/user-context';
 
 export default function AppHeader() {
+  const { address } = useAccount();
+  const { user } = useUser();
+  const pfp = user.data?.pfp_url;
+  const profileHref = address ? `/profile/${address}` : '/about';
+
   return (
     <div
       style={{
@@ -14,30 +21,51 @@ export default function AppHeader() {
     >
       <div className="mx-auto max-w-2xl">
         <div className="flex items-center justify-between rounded-2xl px-4 py-2">
-          <Link href="/" aria-label="Home">
-            <Image
-              src="/logo.png"
-              alt="Stoa Logo"
-              className="h-8 w-8"
-              width={20}
-              height={20}
-            />
+          <Link href={profileHref} aria-label="Profile">
+            <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white/15">
+              {pfp ? (
+                <Image
+                  src={pfp}
+                  alt="Profile"
+                  fill
+                  sizes="32px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-white/5 text-xs text-white/70">
+                  {address ? 'You' : '?'}
+                </div>
+              )}
+            </div>
           </Link>
-
           <Link href="/about" aria-label="About">
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
+            <div className="relative h-8 w-8 overflow-hidden rounded-full bg-white/5 flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="h-6 w-6 text-white/95 hover:text-white"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 10.5v5"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 7.5h.01"
+                />
+              </svg>
+            </div>
           </Link>
         </div>
       </div>

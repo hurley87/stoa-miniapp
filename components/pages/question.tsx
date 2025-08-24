@@ -15,8 +15,6 @@ export default function QuestionPage({ idParam }: Props) {
   const { data: question, isLoading, error } = useQuestion(questionId);
   const router = useRouter();
 
-  console.log('question', question);
-
   const [timeLeft, setTimeLeft] = useState('');
 
   const formatCountdown = (timeString: string) => {

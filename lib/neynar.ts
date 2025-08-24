@@ -64,3 +64,35 @@ export const fetchUser = async (fid: string): Promise<NeynarUser> => {
   }
   return users[0];
 };
+
+export const fetchUserByWallet = async (
+  address: string
+): Promise<NeynarUser | null> => {
+  const normalized = address.toLowerCase();
+  const url = `https://api.neynar.com/v2/farcaster/user/search?viewer_fid=0&q=${encodeURIComponent(
+    normalized
+  )}`;
+  const response = await fetch(url, {
+    headers: { 'x-api-key': env.NEYNAR_API_KEY! },
+    // Neynar search endpoint returns users whose username/display/bio/address matches
+  });
+  if (!response.ok) {
+    console.error(
+      'Failed to search Neynar users by wallet',
+      await response.json()
+    );
+    throw new NeynarError('Failed to search Neynar users by wallet');
+  }
+  const data = (await response.json()) as { result?: { users?: NeynarUser[] } };
+  const users = data?.result?.users ?? [];
+  if (!users.length) return null;
+  const match = users.find(
+    (u) =>
+      (u.verified_addresses?.eth_addresses ?? []).some(
+        (addr) => addr?.toLowerCase() === normalized
+      ) ||
+      u.custody_address?.toLowerCase() === normalized ||
+      u.verified_addresses?.primary?.eth_address?.toLowerCase() === normalized
+  );
+  return match ?? users[0] ?? null;
+};
