@@ -1,7 +1,8 @@
 import { Errors, createClient } from '@farcaster/quick-auth';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 import { env } from '@/lib/env';
-import { fetchUser, NeynarError } from '@/lib/neynar';
+import { fetchUser, NeynarError, NeynarUser } from '@/lib/neynar';
 import * as jose from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
 import { Address, zeroAddress } from 'viem';
@@ -9,6 +10,9 @@ import { Address, zeroAddress } from 'viem';
 export const dynamic = 'force-dynamic';
 
 const quickAuthClient = createClient();
+const supabaseUrl = process.env.SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!;
+const supabase = createSupabaseClient(supabaseUrl, supabaseServiceKey);
 
 export const POST = async (req: NextRequest) => {
   const { referrerFid: _referrerFid, token: farcasterToken } = await req.json();
@@ -41,9 +45,10 @@ export const POST = async (req: NextRequest) => {
     );
   }
 
-  let user;
+  let user: NeynarUser;
   try {
     user = await fetchUser(fid.toString());
+    console.log('user', user);
   } catch (e) {
     if (e instanceof NeynarError) {
       return NextResponse.json(
@@ -55,6 +60,68 @@ export const POST = async (req: NextRequest) => {
       { success: false, error: 'Failed to fetch user from Neynar' },
       { status: 500 }
     );
+  }
+
+  // Best-effort: upsert user profile into DB
+  try {
+    // Prefer the wallet from Neynar user data if available
+    const walletFromUser = user.verified_addresses?.primary?.eth_address;
+    const walletCandidate =
+      typeof walletFromUser === 'string' && walletFromUser
+        ? walletFromUser
+        : (walletAddress as string | undefined);
+    const wallet =
+      typeof walletCandidate === 'string' ? walletCandidate.toLowerCase() : '';
+
+    console.log('wallet', wallet);
+    if (wallet && wallet !== zeroAddress.toLowerCase()) {
+      const now = new Date().toISOString();
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('wallet')
+        .eq('wallet', wallet)
+        .single();
+
+      if (existingUser) {
+        console.log('existingUser', existingUser);
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({
+            username: user.username,
+            pfp: user.pfp_url,
+            last_activity: now,
+          })
+          .eq('wallet', wallet);
+        if (updateError) {
+          console.warn(
+            'Warning: failed to update user on sign-in',
+            updateError
+          );
+        }
+      } else {
+        console.log('inserting user', user);
+        const { error: insertError, data: newUser } = await supabase
+          .from('users')
+          .insert({
+            wallet,
+            username: user.username,
+            pfp: user.pfp_url,
+            joined_at: now,
+            last_activity: now,
+          })
+          .select()
+          .single();
+        console.log('newUser', newUser);
+        if (insertError) {
+          console.warn(
+            'Warning: failed to insert user on sign-in',
+            insertError
+          );
+        }
+      }
+    }
+  } catch (dbError) {
+    console.warn('Warning: user upsert on sign-in threw', dbError);
   }
 
   // Generate JWT token

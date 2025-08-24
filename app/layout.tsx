@@ -7,8 +7,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Stoa - Where Questions Shape Discourse',
-  description: 'Ask. Answer. Earn. A modern forum of ideas built onchain where the Logos frame discourse and the crowd carries it forward.',
+  title: 'Stoa - Get rewarded for thoughtful answers',
+  description: 'Share thoughtful answers to quality questions and earn rewards. Community leaders pose time-limited questions with transparent AI evaluation.',
 };
 
 export const viewport = {

@@ -1,8 +1,8 @@
-import { useApiMutation } from "@/hooks/use-api-mutation";
-import { useApiQuery } from "@/hooks/use-api-query";
-import { NeynarUser } from "@/lib/neynar";
-import sdk from "@farcaster/miniapp-sdk";
-import { QueryObserverResult } from "@tanstack/react-query";
+import { useApiMutation } from '@/hooks/use-api-mutation';
+import { useApiQuery } from '@/hooks/use-api-query';
+import { NeynarUser } from '@/lib/neynar';
+import sdk from '@farcaster/miniapp-sdk';
+import { QueryObserverResult } from '@tanstack/react-query';
 import {
   createContext,
   ReactNode,
@@ -11,8 +11,8 @@ import {
   useEffect,
   useMemo,
   useState,
-} from "react";
-import { useMiniApp } from "./miniapp-context";
+} from 'react';
+import { useMiniApp } from './miniapp-context';
 
 const UserProviderContext = createContext<
   | {
@@ -37,7 +37,7 @@ interface UserProviderProps {
 export const useUser = () => {
   const context = useContext(UserProviderContext);
   if (!context) {
-    throw new Error("useUser must be used within a UserProvider");
+    throw new Error('useUser must be used within a UserProvider');
   }
   return context;
 };
@@ -57,8 +57,8 @@ export const UserProvider = ({
     isLoading: isFetchingUser,
     error: userError,
   } = useApiQuery<NeynarUser>({
-    queryKey: ["user-query"],
-    url: "/api/users/me",
+    queryKey: ['user-query'],
+    url: '/api/users/me',
     refetchOnWindowFocus: false,
     isProtected: true,
     retry: false,
@@ -73,10 +73,11 @@ export const UserProvider = ({
   const { mutate: signIn } = useApiMutation<{
     user: NeynarUser;
   }>({
-    url: "/api/auth/sign-in",
-    method: "POST",
+    url: '/api/auth/sign-in',
+    method: 'POST',
     body: (variables) => variables,
     onSuccess: (data) => {
+      console.log('signIn success', data);
       setIsSignedIn(true);
       setIsLoading(false);
       refetchUser();
@@ -85,24 +86,24 @@ export const UserProvider = ({
 
   const handleSignIn = useCallback(async () => {
     try {
-      console.log("handleSignIn");
+      console.log('handleSignIn');
       setIsLoading(true);
       setError(null);
 
       if (!context) {
-        console.error("Not in mini app");
-        throw new Error("Not in mini app");
+        console.error('Not in mini app');
+        throw new Error('Not in mini app');
       }
 
       const referrerFid =
-        context.location?.type === "cast_embed"
+        context.location?.type === 'cast_embed'
           ? context.location.cast.author.fid
           : undefined;
 
       const result = await sdk.quickAuth.getToken();
 
       if (!result) {
-        throw new Error("No token from SIWF Quick Auth");
+        throw new Error('No token from SIWF Quick Auth');
       }
 
       await signIn({
@@ -111,7 +112,7 @@ export const UserProvider = ({
         token: result.token,
       });
     } catch {
-      setError(new Error("Failed to sign in"));
+      setError(new Error('Failed to sign in'));
     } finally {
       setIsLoading(false);
     }

@@ -3,7 +3,6 @@
 import { useUser } from '@/contexts/user-context';
 import { useActiveQuestions } from '@/hooks/use-active-questions';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 export default function Home() {
@@ -219,7 +218,7 @@ export default function Home() {
           </div>
         ) : questions?.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">
-            No questions in the discourse yet
+            No questions available yet
           </div>
         ) : (
           <div className="flex flex-col gap-4">

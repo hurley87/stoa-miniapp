@@ -105,7 +105,7 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
       const url = `${window.location.origin}/questions/${question.question_id}`;
       const timeText = formatTimeLeftForShare(timeLeft);
       const potentialEarnings = `${question.total_submissions} USDC`;
-      const text = `I may earn ${potentialEarnings} by contributing to this discourse. Rewards distributed in ${timeText}.`;
+      const text = `I may earn ${potentialEarnings} for my thoughtful answer. Rewards distributed in ${timeText}.`;
 
       const result = await sdk.actions.composeCast({
         text,
@@ -128,7 +128,7 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
     <div className="flex flex-col gap-4">
       {answerCheck?.hasAnswered && (
         <button onClick={handleShare} className="cta-button w-full">
-          Invite Friends To Answer
+          Share with Friends
         </button>
       )}
 
@@ -171,9 +171,9 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
                       Why answer?
                     </p>
                     <ul className="mt-2 space-y-1 text-white/80 text-sm list-disc list-inside">
-                      <li>Earn from the reward pool</li>
+      <li>Earn rewards for quality answers</li>
                       <li>80% of fees go to winners</li>
-                      <li>Build your onchain reputation</li>
+                      <li>Build your reputation through thoughtful contributions</li>
                     </ul>
                     <div className="mt-3 text-white/70 text-xs">
                       <p className="text-white text-sm font-semibold">
@@ -185,7 +185,7 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
                         ranks, and then distributes rewards proportionally
                         across the top answers. Fees split: 80% to winners, 10%
                         to the question creator, 10% to the protocol. Ask.
-                        Answer. Earn.
+                        Think. Answer. Earn.
                       </p>
                     </div>
                   </div>
@@ -198,7 +198,7 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
                         : 'cta-button'
                     }`}
                   >
-                    {timeLeft === 'ENDED' ? 'Discourse Ended' : 'Answer'}
+                    {timeLeft === 'ENDED' ? 'Question Ended' : 'Answer'}
                   </button>
                 </div>
               ) : (
@@ -206,7 +206,7 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
                   {alreadySubmitted && (
                     <div className="bg-purple-500/10 border border-purple-400/30 rounded-xl p-3">
                       <p className="text-purple-200 text-sm">
-                        You have already contributed to this discourse.
+                        You have already answered this question.
                         Submitting again will replace your previous answer
                         onchain (if contract allows) and will still incur the
                         submission cost.
@@ -216,7 +216,7 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
                   <textarea
                     value={answerText}
                     onChange={(e) => setAnswerText(e.target.value)}
-                    placeholder="Contribute to the discourse..."
+                    placeholder="Share your thoughtful answer..."
                     className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400/60 resize-none"
                     rows={8}
                     required

@@ -2,9 +2,9 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'How Stoa Works - A Modern Forum Built Onchain',
+  title: 'How Stoa Works - Earn Rewards for Thoughtful Answers',
   description:
-    'Stoa is a modern forum of ideas built onchain where the Logos frame discourse and the crowd carries it forward.',
+    'Learn how Stoa rewards quality discourse. Community leaders pose time-limited questions and the best answers earn rewards.',
 };
 
 export default function AboutPage() {
@@ -20,14 +20,14 @@ export default function AboutPage() {
               Stoa is a modern forum of ideas built onchain.
             </p>
             <p className="text-slate-400 leading-relaxed mb-3">
-              Only those chosen to join{' '}
-              <strong className="text-amber-300">the Logos</strong> may ask
-              questions. Everyone else can answer them. The Logos frame the
-              discourse; the crowd carries it forward.
+              Only selected{' '}
+              <strong className="text-amber-300">community leaders</strong> may pose
+              questions. Everyone else can answer them. Leaders guide quality discussions;
+              the community provides thoughtful answers.
             </p>
             <p className="text-slate-400 leading-relaxed">
-              By asking, answering, and earning, you take part in a system where
-              knowledge has real weight.
+              Through thoughtful questions and quality answers, you participate in
+              a system that rewards meaningful discourse.
             </p>
           </section>
 
@@ -65,13 +65,13 @@ export default function AboutPage() {
                 What You Earn
               </h3>
               <p className="text-slate-400 mb-3">
-                As a member of the Logos, you earn{' '}
+                As a community leader, you earn{' '}
                 <strong className="text-amber-300">
-                  10% of all submission fees
+                  10% of all answer fees
                 </strong>{' '}
-                for every question you ask. If 20 people each pay 10 tokens to
-                answer your question, you earn 20 tokens simply for curating the
-                discourse.
+                for every question you pose. If 20 people each pay 10 tokens to
+                answer your question, you earn 20 tokens for guiding quality
+                discussion.
               </p>
             </div>
 
@@ -82,7 +82,7 @@ export default function AboutPage() {
                   • You ask: &ldquo;What&#39;s the best way to invest $10,000
                   right now?&rdquo;
                 </li>
-                <li>• Set submission cost: 5 tokens</li>
+                <li>• Set answer fee: 5 tokens</li>
                 <li>• 30 people submit answers = 150 tokens collected</li>
                 <li>• You earn: 15 tokens (10% of all fees)</li>
                 <li>• The rest goes to reward the best answers</li>
@@ -128,7 +128,7 @@ export default function AboutPage() {
                 Reward System
               </h3>
               <ul className="space-y-1 text-slate-400 ml-4">
-                <li>• 80% of all submission fees flow into the reward pool</li>
+                <li>• 80% of all answer fees flow into the reward pool</li>
                 <li>
                   • Rewards are distributed by score, weighted by AI evaluation
                 </li>
@@ -204,12 +204,12 @@ export default function AboutPage() {
             </h2>
             <ul className="space-y-2 text-slate-400">
               <li>
-                • <strong>Questions with weight</strong>: Only Logos may ask,
-                ensuring fewer but better questions
+                • <strong>Curated questions</strong>: Only community leaders may ask,
+                ensuring fewer but higher-quality questions
               </li>
               <li>
-                • <strong>Skin in the game</strong>: Submission fees prevent
-                spam
+                • <strong>Quality answers</strong>: Answer fees prevent spam and
+                encourage thoughtful responses
               </li>
               <li>
                 • <strong>Onchain clarity</strong>: All payments and evaluations
@@ -223,14 +223,14 @@ export default function AboutPage() {
               The Bottom Line
             </h2>
             <p className="text-slate-400 mb-2">
-              <strong>Stoa is where questions shape discourse.</strong>
+              <strong>Stoa rewards thoughtful discourse.</strong>
             </p>
             <p className="text-slate-400 mb-4">
-              The Logos ignite debate. The crowd contends. The best answers are
-              rewarded.
+              Community leaders spark discussions. Participants share thoughtful answers.
+              Quality contributions are rewarded.
             </p>
             <p className="text-slate-400 mb-4 font-semibold">
-              Ask. Answer. Earn.
+              Think. Answer. Earn.
             </p>
           </section>
         </div>
@@ -243,7 +243,7 @@ export default function AboutPage() {
         className="fixed bottom-0 right-0 left-0 px-4 py-6 border-t border-white/10"
       >
         <Link href="/">
-          <button className="cta-button w-full">Browse questions</button>
+          <button className="cta-button w-full">Browse Questions</button>
         </Link>
       </div>
     </div>

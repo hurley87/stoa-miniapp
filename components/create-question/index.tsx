@@ -170,7 +170,7 @@ export function CreateQuestionForm() {
     if (!created) return;
     const url = `${window.location.origin}/questions/${created.id}`;
     const timeText = formatDurationForShare(created.durationSeconds);
-    const text = `I just framed a question in the discourse: "${created.content}" Answer to earn rewards. Ends in ${timeText}.`;
+    const text = `I just posed a question: "${created.content}" Share your best answer to earn rewards. Ends in ${timeText}.`;
     try {
       const result = await sdk.actions.composeCast({ text, embeds: [url] });
       if (!result?.cast) {
@@ -204,12 +204,12 @@ export function CreateQuestionForm() {
         <div className="rounded-xl border border-white/15 bg-white/5 p-4">
           <p className="text-white text-sm font-semibold">Why join the Logos</p>
           <ul className="mt-2 space-y-1 text-white/80 text-sm list-disc list-inside">
-            <li>Earn 10% of submission fees</li>
-            <li>Shape the Discourse through curation</li>
-            <li>Build reputation and reach in the Discourse</li>
+            <li>Earn 10% of all answer fees</li>
+            <li>Guide quality discussions through curation</li>
+            <li>Build reputation and influence thoughtful discussions</li>
           </ul>
           <p className="text-white/60 text-xs mt-2">
-            Example: $1 submission fee × 500 answers = $500 fees → you earn $50.
+            Example: $1 answer fee × 500 answers = $500 fees → you earn $50.
           </p>
         </div>
         <button
@@ -340,7 +340,7 @@ export function CreateQuestionForm() {
               {isSubmitting ? 'Creating…' : 'Create question'}
             </button>
             <p className="text-xs text-gray-400">
-              Earn 10% of all submission fees.
+              Earn 10% of all answer fees.
             </p>
           </div>
         </>
