@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { z } from 'zod';
 import { useAccount } from 'wagmi';
-import { Address } from 'viem';
 import { useCreateQuestionOnchain } from '@/hooks/use-create-question-onchain';
 import { useApiMutation } from '@/hooks/use-api-mutation';
 import { sdk } from '@farcaster/miniapp-sdk';
@@ -12,26 +11,80 @@ import Link from 'next/link';
 const ALLOWLISTED_CREATORS = [
   '0x26e94d56892521c4c7bbbd1d9699725932797e9c',
   '0x891161c0fdd4797c79400ca2256a967bd6198450',
+  '0xeFe07d20e9b15aCc922457060B93DA1052F60ea3',
 ].map((a) => a.toLowerCase());
 
 const isAllowedCreator = (addr?: string | null) => {
   if (!addr) return false;
-  console.log('addr', addr);
-  console.log('ALLOWLISTED_CREATORS', ALLOWLISTED_CREATORS);
-  console.log('includes', ALLOWLISTED_CREATORS.includes(addr.toLowerCase()));
   return ALLOWLISTED_CREATORS.includes(addr.toLowerCase());
 };
 
-const DURATIONS = [
-  { label: '1 hour', seconds: 60 * 60 },
-  { label: '1 day', seconds: 24 * 60 * 60 },
-  { label: '1 week', seconds: 7 * 24 * 60 * 60 },
+const DURATION_PRESETS = [
+  { label: '5min', seconds: 5 * 60 },
+  { label: '30min', seconds: 30 * 60 },
+  { label: '1hr', seconds: 60 * 60 },
+  { label: '6hr', seconds: 6 * 60 * 60 },
+  { label: '12hr', seconds: 12 * 60 * 60 },
+  { label: '24hr', seconds: 24 * 60 * 60 },
 ] as const;
+
+const MIN_DURATION = 60; // 1 minute
+const MAX_DURATION = 24 * 60 * 60; // 24 hours
+
+const formatDuration = (seconds: number): string => {
+  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 3600) {
+    const minutes = Math.floor(seconds / 60);
+    return `${minutes}m`;
+  }
+  if (seconds < 86400) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+  }
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  return hours > 0 ? `${days}d ${hours}h` : `${days}d`;
+};
+
+// Convert slider value (0-100) to duration in seconds using a non-linear scale
+const sliderToDuration = (value: number): number => {
+  // Use different scales for different ranges
+  if (value <= 20) {
+    // 0-20: 1min to 1hr (more granular for short durations)
+    return Math.floor(MIN_DURATION + (value / 20) * (3600 - MIN_DURATION));
+  } else if (value <= 60) {
+    // 20-60: 1hr to 6hr
+    return Math.floor(3600 + ((value - 20) / 40) * (6 * 3600 - 3600));
+  } else {
+    // 60-100: 6hr to 24hr
+    return Math.floor(
+      6 * 3600 + ((value - 60) / 40) * (MAX_DURATION - 6 * 3600)
+    );
+  }
+};
+
+// Convert duration in seconds to slider value (0-100)
+const durationToSlider = (seconds: number): number => {
+  if (seconds <= 3600) {
+    return Math.floor(((seconds - MIN_DURATION) / (3600 - MIN_DURATION)) * 20);
+  } else if (seconds <= 6 * 3600) {
+    return Math.floor(20 + ((seconds - 3600) / (6 * 3600 - 3600)) * 40);
+  } else {
+    return Math.floor(
+      60 + ((seconds - 6 * 3600) / (MAX_DURATION - 6 * 3600)) * 40
+    );
+  }
+};
+
+// Constants for the token and contract addresses
+const USDC_ADDRESS = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' as const;
+const DEFAULT_SEED_AMOUNT = '1000000' as const;
 
 const SUBMISSION_COSTS = [
   { label: '$1', usd: 1 },
-  { label: '$5', usd: 5 },
   { label: '$10', usd: 10 },
+  { label: '$100', usd: 100 },
 ] as const;
 
 const schema = z.object({
@@ -40,11 +93,15 @@ const schema = z.object({
     .trim()
     .min(1, 'Question is required')
     .max(150, 'Max 150 characters'),
-  durationSeconds: z.number().int().positive(),
+  durationSeconds: z
+    .number()
+    .int()
+    .min(MIN_DURATION, 'Duration must be at least 1 minute')
+    .max(MAX_DURATION, 'Duration must be at most 24 hours'),
   submissionCostUsd: z
     .number()
     .int()
-    .refine((v) => [1, 5, 10].includes(v), 'Invalid submission cost'),
+    .refine((v) => [1, 10, 100].includes(v), 'Invalid submission cost'),
 });
 
 type FormState = {
@@ -58,7 +115,7 @@ export function CreateQuestionForm() {
   const { create } = useCreateQuestionOnchain();
   const [form, setForm] = useState<FormState>({
     questionContent: '',
-    durationSeconds: DURATIONS[2].seconds,
+    durationSeconds: 60 * 60, // 1 hour default
     submissionCostUsd: SUBMISSION_COSTS[0].usd,
   });
   const [error, setError] = useState<string | null>(null);
@@ -72,9 +129,28 @@ export function CreateQuestionForm() {
 
   const canCreate = isAllowedCreator(address?.toLowerCase());
 
+  interface CreateQuestionRequest {
+    questionId: number;
+    questionContent: string;
+    txHash: string;
+    blockNumber?: number;
+    creator: string;
+    token: string;
+    submissionCost: string;
+    duration: number;
+    maxWinners: number;
+    seedAmount: string;
+    questionContract: string;
+  }
+
+  interface CreateQuestionResponse {
+    success: boolean;
+    question: { question_id?: number };
+  }
+
   const saveMutation = useApiMutation<
-    { success: boolean; question: { question_id?: number } },
-    any
+    CreateQuestionResponse,
+    CreateQuestionRequest
   >({
     url: '/api/questions/create',
     method: 'POST',
@@ -109,7 +185,7 @@ export function CreateQuestionForm() {
       const onchain = await create({
         questionContent: form.questionContent.trim(),
         durationSeconds: form.durationSeconds,
-        tokenAddress: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' as Address,
+        tokenAddress: USDC_ADDRESS,
         submissionCostUsd: form.submissionCostUsd,
         maxWinners: 3,
         seedAmount: BigInt(0),
@@ -122,11 +198,11 @@ export function CreateQuestionForm() {
         txHash: onchain.txHash,
         blockNumber: onchain.blockNumber,
         creator: address,
-        token: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+        token: USDC_ADDRESS,
         submissionCost: String(form.submissionCostUsd * 1_000_000),
         duration: form.durationSeconds,
         maxWinners: 3,
-        seedAmount: '1000000',
+        seedAmount: DEFAULT_SEED_AMOUNT,
         questionContract: onchain.questionContract,
       });
 
@@ -142,12 +218,16 @@ export function CreateQuestionForm() {
 
       setForm({
         questionContent: '',
-        durationSeconds: DURATIONS[2].seconds,
+        durationSeconds: 60 * 60, // 1 hour default
         submissionCostUsd: 1,
       });
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to create question';
+      let message = 'Failed to create question';
+      if (err instanceof Error) {
+        message = err.message;
+      } else if (typeof err === 'string') {
+        message = err;
+      }
       setError(message);
     } finally {
       setIsSubmitting(false);
@@ -284,24 +364,60 @@ export function CreateQuestionForm() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="block text-sm font-medium">Duration</label>
-            <div className="grid grid-cols-3 gap-2">
-              {DURATIONS.map((d) => (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <label className="block text-sm font-medium">Duration</label>
+              <span className="text-sm font-mono text-indigo-400">
+                {formatDuration(form.durationSeconds)}
+              </span>
+            </div>
+
+            {/* Slider */}
+            <div className="space-y-2">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={durationToSlider(form.durationSeconds)}
+                onChange={(e) => {
+                  const sliderValue = parseInt(e.target.value);
+                  const duration = sliderToDuration(sliderValue);
+                  setForm((s) => ({ ...s, durationSeconds: duration }));
+                }}
+                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                style={{
+                  background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${durationToSlider(
+                    form.durationSeconds
+                  )}%, #374151 ${durationToSlider(
+                    form.durationSeconds
+                  )}%, #374151 100%)`,
+                }}
+              />
+              <div className="flex justify-between text-xs text-gray-400">
+                <span>1min</span>
+                <span>1hr</span>
+                <span>6hr</span>
+                <span>24hr</span>
+              </div>
+            </div>
+
+            {/* Preset buttons */}
+            <div className="grid grid-cols-6 gap-2">
+              {DURATION_PRESETS.map((preset) => (
                 <button
-                  key={d.seconds}
+                  key={preset.seconds}
                   type="button"
                   onClick={() =>
-                    setForm((s) => ({ ...s, durationSeconds: d.seconds }))
+                    setForm((s) => ({ ...s, durationSeconds: preset.seconds }))
                   }
                   className={
-                    `rounded-md border p-2 text-sm ` +
-                    (form.durationSeconds === d.seconds
+                    `rounded-md border p-2 text-xs font-medium ` +
+                    (form.durationSeconds === preset.seconds
                       ? 'border-indigo-500 bg-indigo-600 text-white'
                       : 'border-gray-700 bg-black text-gray-200 hover:border-gray-500')
                   }
                 >
-                  {d.label}
+                  {preset.label}
                 </button>
               ))}
             </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { STOA_FACTORY_ADDRESS } from '@/lib/abis/StoaFactory';
+import { sendBulkNotification } from '@/lib/bulk-notifications';
 import { z } from 'zod';
 
 const BodySchema = z.object({
@@ -11,7 +12,7 @@ const BodySchema = z.object({
   creator: z.string().regex(/^0x[0-9a-fA-F]{40}$/),
   token: z.string().regex(/^0x[0-9a-fA-F]{40}$/),
   submissionCost: z.string().regex(/^\d+$/),
-  duration: z.union([z.literal(3600), z.literal(86400), z.literal(604800)]),
+  duration: z.number().int().min(60).max(24 * 60 * 60), // 1 minute to 24 hours
   maxWinners: z.literal(3),
   seedAmount: z.string().regex(/^\d+$/),
   questionContract: z.string().regex(/^0x[0-9a-fA-F]{40}$/),
@@ -122,6 +123,44 @@ export async function POST(req: NextRequest) {
     if (eventError) {
       // Non-fatal
       console.warn('Warning: could not store contract event', eventError);
+    }
+
+    // Send notifications to all users about the new question
+    try {
+      // Get creator's info for the notification
+      const { data: creatorUser } = await supabase
+        .from('users')
+        .select('fid, username')
+        .eq('wallet', body.creator.toLowerCase())
+        .single();
+
+      const creatorFid = creatorUser?.fid;
+      const creatorName = creatorUser?.username || 'Someone';
+      
+      // Format duration for display
+      const formatDuration = (seconds: number) => {
+        if (seconds < 3600) {
+          const minutes = Math.floor(seconds / 60);
+          return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
+        } else if (seconds < 86400) {
+          const hours = Math.floor(seconds / 3600);
+          return `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
+        } else {
+          const days = Math.floor(seconds / 86400);
+          return `${days} ${days === 1 ? 'day' : 'days'}`;
+        }
+      };
+
+      const durationText = formatDuration(body.duration);
+      
+      await sendBulkNotification({
+        title: 'New question posted!',
+        body: `${creatorName} asked: "${body.questionContent.substring(0, 80)}${body.questionContent.length > 80 ? '...' : ''}" - Answer within ${durationText}`,
+        excludeFid: creatorFid || undefined,
+      });
+    } catch (notificationError) {
+      // Non-fatal - don't fail the entire request if notifications fail
+      console.warn('Warning: failed to send notifications for new question', notificationError);
     }
 
     return NextResponse.json({ success: true, question: questionData });

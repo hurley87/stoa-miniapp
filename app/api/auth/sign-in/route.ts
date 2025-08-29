@@ -87,6 +87,7 @@ export const POST = async (req: NextRequest) => {
         const { error: updateError } = await supabase
           .from('users')
           .update({
+            fid,
             username: user.username,
             pfp: user.pfp_url,
             last_activity: now,
@@ -104,6 +105,7 @@ export const POST = async (req: NextRequest) => {
           .from('users')
           .insert({
             wallet,
+            fid,
             username: user.username,
             pfp: user.pfp_url,
             joined_at: now,
