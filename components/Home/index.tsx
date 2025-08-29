@@ -2,6 +2,7 @@
 
 import { useUser } from '@/contexts/user-context';
 import { useActiveQuestions } from '@/hooks/use-active-questions';
+import type { Question as ActiveQuestion } from '@/hooks/use-active-questions';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
@@ -34,6 +35,16 @@ export default function Home() {
     if (minutes > 0) return `${minutes}M ${seconds}S`;
     return `${seconds}S`;
   };
+
+  const truncateAddress = (addr: string) =>
+    addr && addr.startsWith('0x')
+      ? `${addr.slice(0, 6)}…${addr.slice(-4)}`
+      : addr;
+
+  const getDisplayName = (username: string | null, wallet: string) =>
+    username && username.trim().length > 0 ? username : truncateAddress(wallet);
+
+  const getInitial = (text: string) => (text?.[0] ?? '?').toUpperCase();
 
   if (!user.data) {
     const steps = [
@@ -222,38 +233,70 @@ export default function Home() {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            {questions?.map((question) => (
-              <div key={question.id} className="space-y-2">
-                <Link href={`/questions/${question.question_id}`}>
-                  <div className="glass-card group relative overflow-hidden rounded-2xl p-4 sm:p-5">
-                    <div className="pointer-events-none absolute -top-20 right-1/2 h-40 w-40 translate-x-1/2 rounded-full bg-amber-500/10 blur-2xl group-hover:bg-amber-500/15" />
-                    {/* Question */}
-                    <h2 className="text-slate-100 leading-6 font-semibold">
-                      {question.content}
-                    </h2>
+            {questions?.map((question: ActiveQuestion) => {
+              const displayName = getDisplayName(
+                question.creator_username ?? null,
+                question.creator
+              );
+              const pfpUrl = question.creator_pfp as string | null;
+              const initial = getInitial(displayName);
+              return (
+                <div key={question.id} className="space-y-2">
+                  <Link href={`/questions/${question.question_id}`}>
+                    <div className="glass-card group relative overflow-hidden rounded-2xl p-4 sm:p-5">
+                      <div className="pointer-events-none absolute -top-20 right-1/2 h-40 w-40 translate-x-1/2 rounded-full bg-amber-500/10 blur-2xl group-hover:bg-amber-500/15" />
 
-                    {/* Stats */}
-                    <div className="mt-3 flex items-center gap-2">
-                      <span className="text-white/80 text-xs sm:text-sm font-medium bg-white/5 rounded-full px-2.5 py-1">
-                        {question.total_submissions}{' '}
-                        {question.total_submissions === 1
-                          ? 'submission'
-                          : 'submissions'}
-                      </span>
-                    </div>
-
-                    {/* Countdown - bottom right */}
-                    <div className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5">
-                      <span className="text-white/80 text-xs sm:text-sm font-medium bg-white/5 rounded-full px-2.5 py-1">
-                        {formatCountdown(
-                          new Date(question.end_time).getTime() - now
+                      {/* Creator */}
+                      <div className="flex items-center gap-3">
+                        {pfpUrl ? (
+                          <img
+                            src={pfpUrl}
+                            alt={`${displayName}'s avatar`}
+                            className="h-8 w-8 rounded-full object-cover ring-1 ring-white/10"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-500/30 to-amber-300/20 ring-1 ring-white/10 flex items-center justify-center text-[11px] font-semibold text-slate-100">
+                            {initial}
+                          </div>
                         )}
-                      </span>
+                        <Link
+                          href={`/profile/${question.creator}`}
+                          className="text-slate-200 text-sm font-medium hover:text-white"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {displayName}
+                        </Link>
+                      </div>
+
+                      {/* Question */}
+                      <h2 className="mt-3 text-slate-100 leading-6 font-semibold">
+                        {question.content}
+                      </h2>
+
+                      {/* Stats */}
+                      <div className="mt-3 flex items-center gap-2">
+                        <span className="text-white/80 text-xs sm:text-sm font-medium bg-white/5 rounded-full px-2.5 py-1">
+                          {question.total_submissions}{' '}
+                          {question.total_submissions === 1
+                            ? 'submission'
+                            : 'submissions'}
+                        </span>
+                      </div>
+
+                      {/* Countdown - bottom right */}
+                      <div className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5">
+                        <span className="text-white/80 text-xs sm:text-sm font-medium bg-white/5 rounded-full px-2.5 py-1">
+                          {formatCountdown(
+                            new Date(question.end_time).getTime() - now
+                          )}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </div>
-            ))}
+                  </Link>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
