@@ -2,10 +2,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export type SubmitAnswerData = {
   questionId: number;
-  userWallet: string;
+  creatorId: number;
   content: string;
   contractAddress: string;
   txHash: string;
+  referrerAddress?: string | null;
 };
 
 async function submitAnswer(data: SubmitAnswerData) {
@@ -74,7 +75,7 @@ export function useSubmitAnswer() {
     onSuccess: (data, variables) => {
       // Invalidate and refetch relevant queries
       queryClient.invalidateQueries({
-        queryKey: ['answer-check', variables.questionId, variables.userWallet],
+        queryKey: ['answer-check', variables.questionId, variables.creatorId],
       });
       queryClient.invalidateQueries({
         queryKey: ['question', variables.questionId],
@@ -99,7 +100,7 @@ export function useSubmitAnswer() {
       }
       // Refresh to reflect server-side state (e.g., already submitted)
       queryClient.invalidateQueries({
-        queryKey: ['answer-check', variables.questionId, variables.userWallet],
+        queryKey: ['answer-check', variables.questionId, variables.creatorId],
       });
       queryClient.invalidateQueries({
         queryKey: ['question', variables.questionId],

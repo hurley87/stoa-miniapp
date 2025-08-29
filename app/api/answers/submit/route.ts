@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createHash } from 'crypto';
-import { Creator } from '@/lib/database.types';
 
 const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!;
@@ -11,9 +10,16 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { questionId, userWallet, content, contractAddress, txHash } = body;
+    const {
+      questionId,
+      creatorId,
+      content,
+      contractAddress,
+      txHash,
+      referrerAddress,
+    } = body;
 
-    if (!questionId || !userWallet || !content || !contractAddress || !txHash) {
+    if (!questionId || !creatorId || !content || !contractAddress || !txHash) {
       return NextResponse.json(
         { error: 'Missing required fields (including transaction hash)' },
         { status: 400 }
@@ -27,36 +33,23 @@ export async function POST(request: NextRequest) {
     // 3. Transaction was from the specified user wallet
     // 4. Payment was made correctly
 
-    // Ensure creator exists in creators table and get creator_id
-    let creatorId: number;
+    // Ensure creator exists in creators table using creator_id
     const { data: existingCreator } = await supabase
       .from('creators')
       .select('creator_id, wallet')
-      .eq('wallet', userWallet)
+      .eq('creator_id', creatorId)
       .single();
 
-    if (existingCreator) {
-      creatorId = existingCreator.creator_id;
-    } else {
-      // Create creator if they don't exist
-      const { data: newCreator, error: creatorError } = await supabase
-        .from('creators')
-        .insert({
-          wallet: userWallet,
-          joined_at: new Date().toISOString(),
-          last_activity: new Date().toISOString(),
-        })
-        .select('creator_id')
-        .single();
-
-      if (creatorError || !newCreator) {
-        console.error('Error creating creator:', creatorError);
-        return NextResponse.json(
-          { error: 'Failed to create creator' },
-          { status: 500 }
-        );
-      }
-      creatorId = newCreator.creator_id;
+    if (!existingCreator) {
+      // Cannot submit answer without a valid creator
+      // Creator must be registered through sign-in first
+      return NextResponse.json(
+        {
+          error:
+            'Invalid creator ID. You must sign in and complete your profile before submitting answers',
+        },
+        { status: 400 }
+      );
     }
 
     // Check if creator already answered this question
@@ -98,11 +91,12 @@ export async function POST(request: NextRequest) {
         question_id: questionId,
         contract_address: contractAddress,
         creator_id: creatorId,
-        responder: userWallet, // Keep for backward compatibility
+        responder: existingCreator.wallet, // Keep for backward compatibility
         answer_hash: answerHash,
         content,
         timestamp: new Date().toISOString(),
         submission_tx_hash: txHash,
+        referrer_address: referrerAddress || null,
       })
       .select()
       .single();
@@ -121,13 +115,15 @@ export async function POST(request: NextRequest) {
       .select('total_submissions')
       .eq('question_id', questionId)
       .single();
-    
+
     if (currentQuestion) {
       const { error: updateError } = await supabase
         .from('questions')
-        .update({ total_submissions: (currentQuestion.total_submissions || 0) + 1 })
+        .update({
+          total_submissions: (currentQuestion.total_submissions || 0) + 1,
+        })
         .eq('question_id', questionId);
-        
+
       if (updateError) {
         console.error('Error updating submission count:', updateError);
       }

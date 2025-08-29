@@ -6,6 +6,7 @@ import { base } from 'wagmi/chains';
 import { useAnswerCheck } from '@/hooks/use-answer-check';
 import { useOnchainSubmissionStatus } from '@/hooks/use-onchain-submission-status';
 import { useSubmitAnswerOnchain } from '@/hooks/use-submit-answer-onchain';
+import { useUser } from '@/contexts/user-context';
 import { sdk } from '@farcaster/miniapp-sdk';
 
 type QuestionLike = {
@@ -19,14 +20,22 @@ type QuestionLike = {
 type Props = {
   question: QuestionLike;
   timeLeft: string;
+  referrerAddress?: string | null;
 };
 
-export default function AnswerQuestion({ question, timeLeft }: Props) {
+export default function AnswerQuestion({
+  question,
+  timeLeft,
+  referrerAddress,
+}: Props) {
   const account = useAccount();
   const userWallet = account.address;
+  const { user } = useUser();
 
   const [answerText, setAnswerText] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+  const [isReferralAccordionOpen, setIsReferralAccordionOpen] = useState(false);
 
   const {
     connectors,
@@ -38,7 +47,7 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
 
   const { data: answerCheck, isLoading: checkingAnswer } = useAnswerCheck(
     question?.question_id,
-    userWallet
+    user.data?.creator?.creator_id
   );
 
   const { data: onchainStatus } = useOnchainSubmissionStatus(
@@ -63,6 +72,11 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
     e.preventDefault();
     if (!answerText.trim() || !userWallet || !question) return;
 
+    if (!user.data?.creator?.creator_id) {
+      alert('Please sign in to submit an answer');
+      return;
+    }
+
     try {
       await submitOnchain({
         questionId: question.question_id,
@@ -70,6 +84,8 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
         contractAddress: question.contract_address,
         tokenAddress: question.token_address,
         submissionCost: question.submission_cost,
+        creatorId: user.data.creator.creator_id,
+        referrerAddress,
       });
 
       setAnswerText('');
@@ -102,7 +118,9 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
 
   const handleShare = async () => {
     try {
-      const url = `${window.location.origin}/questions/${question.question_id}`;
+      const url = `${window.location.origin}/questions/${question.question_id}${
+        userWallet ? `?ref=${userWallet}` : ''
+      }`;
       const timeText = formatTimeLeftForShare(timeLeft);
       const potentialEarnings = `${question.total_submissions} USDC`;
       const text = `I may earn ${potentialEarnings} for my thoughtful answer. Rewards distributed in ${timeText}.`;
@@ -117,7 +135,9 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
       }
     } catch (err) {
       try {
-        const url = `${window.location.origin}/questions/${question.question_id}`;
+        const url = `${window.location.origin}/questions/${
+          question.question_id
+        }${userWallet ? `?ref=${userWallet}` : ''}`;
         await navigator.clipboard.writeText(url);
       } catch {}
       console.error('Error composing cast:', err);
@@ -127,9 +147,61 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
   return (
     <div className="flex flex-col gap-4">
       {answerCheck?.hasAnswered && (
-        <button onClick={handleShare} className="cta-button w-full">
-          Share with Friends
-        </button>
+        <>
+          <div className="rounded-xl border border-white/15 bg-white/5">
+            <button
+              onClick={() =>
+                setIsReferralAccordionOpen(!isReferralAccordionOpen)
+              }
+              className="w-full p-4 text-left flex items-center justify-between hover:bg-white/5 transition-colors rounded-xl"
+            >
+              <p className="text-white text-sm font-semibold">
+                Referral Program
+              </p>
+              <svg
+                className={`w-4 h-4 text-white/60 transition-transform duration-200 ${
+                  isReferralAccordionOpen ? 'rotate-180' : ''
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+            {isReferralAccordionOpen && (
+              <div className="px-4 pb-4 border-t border-white/10">
+                <div className="mt-3 space-y-3 text-white/80 text-sm">
+                  <p className="text-white text-sm font-semibold">
+                    Earn 5% referral fees
+                  </p>
+                  <ul className="space-y-1 list-disc list-inside">
+                    <li>Share questions with your referral link</li>
+                    <li>Earn 5% of every answer fee from people you refer</li>
+                    <li>Get paid automatically when rewards are distributed</li>
+                  </ul>
+                  {referrerAddress && (
+                    <div className="mt-3 p-3 rounded-lg bg-amber-500/10 border border-amber-400/20">
+                      <p className="text-amber-300 text-xs">
+                        💡 You were referred by {referrerAddress.slice(0, 6)}...
+                        {referrerAddress.slice(-4)}. They&apos;ll earn a 5%
+                        referral fee if you submit an answer!
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          <button onClick={handleShare} className="cta-button w-full">
+            Share and Earn
+          </button>
+        </>
       )}
 
       {userWallet ? (
@@ -166,28 +238,55 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
             <>
               {!showForm ? (
                 <div className="flex flex-col gap-4">
-                  <div className="rounded-xl border border-white/15 bg-white/5 p-4">
-                    <p className="text-white text-sm font-semibold">
-                      Why answer?
-                    </p>
-                    <ul className="mt-2 space-y-1 text-white/80 text-sm list-disc list-inside">
-      <li>Earn rewards for quality answers</li>
-                      <li>80% of fees go to winners</li>
-                      <li>Build your reputation through thoughtful contributions</li>
-                    </ul>
-                    <div className="mt-3 text-white/70 text-xs">
+                  <div className="rounded-xl border border-white/15 bg-white/5">
+                    <button
+                      onClick={() => setIsAccordionOpen(!isAccordionOpen)}
+                      className="w-full p-4 text-left flex items-center justify-between hover:bg-white/5 transition-colors rounded-xl"
+                    >
                       <p className="text-white text-sm font-semibold">
-                        How winners are chosen
+                        Why answer?
                       </p>
-                      <p className="mt-1">
-                        When the timer ends, an AI agent reviews every answer
-                        for accuracy, originality, and clarity. It scores,
-                        ranks, and then distributes rewards proportionally
-                        across the top answers. Fees split: 80% to winners, 10%
-                        to the question creator, 10% to the protocol. Ask.
-                        Think. Answer. Earn.
-                      </p>
-                    </div>
+                      <svg
+                        className={`w-4 h-4 text-white/60 transition-transform duration-200 ${
+                          isAccordionOpen ? 'rotate-180' : ''
+                        }`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+                    {isAccordionOpen && (
+                      <div className="px-4 pb-4 border-t border-white/10">
+                        <ul className="mt-3 space-y-1 text-white/80 text-sm list-disc list-inside">
+                          <li>Earn rewards for quality answers</li>
+                          <li>80% of fees go to winners</li>
+                          <li>
+                            Build your reputation through thoughtful
+                            contributions
+                          </li>
+                        </ul>
+                        <div className="mt-4 text-white/70 text-xs">
+                          <p className="text-white text-sm font-semibold">
+                            How winners are chosen
+                          </p>
+                          <p className="mt-1">
+                            When the timer ends, an AI agent reviews every
+                            answer for accuracy, originality, and clarity. It
+                            scores, ranks, and then distributes rewards
+                            proportionally across the top answers. Fees split:
+                            80% to winners, 10% to the question creator, 10% to
+                            the protocol. Ask. Think. Answer. Earn.
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <button
                     onClick={() => setShowForm(true)}
@@ -206,10 +305,10 @@ export default function AnswerQuestion({ question, timeLeft }: Props) {
                   {alreadySubmitted && (
                     <div className="bg-purple-500/10 border border-purple-400/30 rounded-xl p-3">
                       <p className="text-purple-200 text-sm">
-                        You have already answered this question.
-                        Submitting again will replace your previous answer
-                        onchain (if contract allows) and will still incur the
-                        submission cost.
+                        You have already answered this question. Submitting
+                        again will replace your previous answer onchain (if
+                        contract allows) and will still incur the submission
+                        cost.
                       </p>
                     </div>
                   )}

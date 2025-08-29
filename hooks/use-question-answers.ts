@@ -1,0 +1,25 @@
+import { useApiQuery } from './use-api-query';
+
+export interface QuestionAnswer {
+  id: number;
+  answer_index: number;
+  content: string;
+  timestamp: string;
+  score: number | null;
+  rank: number | null;
+  username: string | null;
+  pfp: string | null;
+  wallet: string | null;
+}
+
+/**
+ * Hook to fetch all answers for a specific question
+ */
+export function useQuestionAnswers(questionId: number | undefined) {
+  console.log('questionId', questionId);
+  return useApiQuery<QuestionAnswer[]>({
+    queryKey: ['question-answers', questionId],
+    url: `/api/answers/question/${questionId}`,
+    enabled: questionId !== undefined,
+  });
+}

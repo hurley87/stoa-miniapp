@@ -28,6 +28,15 @@ export interface NeynarUser {
     address: string;
     app?: unknown;
   }>;
+  creator?: {
+    creator_id: number;
+    wallet: string;
+    username: string;
+    pfp: string;
+    reputation: number;
+    total_questions_created: number;
+    total_answers_submitted: number;
+  };
   verified_accounts?: Array<{ platform: string; username: string }>;
   power_badge?: boolean;
   experimental?: { neynar_user_score?: number; deprecation_notice?: string };

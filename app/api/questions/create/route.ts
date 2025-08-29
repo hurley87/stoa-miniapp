@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { STOA_FACTORY_ADDRESS } from '@/lib/abis/StoaFactory';
 import { sendBulkNotification } from '@/lib/bulk-notifications';
-import { Creator } from '@/lib/database.types';
 import { z } from 'zod';
 
 const BodySchema = z.object({
@@ -10,10 +9,14 @@ const BodySchema = z.object({
   questionContent: z.string().trim().min(1).max(150),
   txHash: z.string().regex(/^0x[0-9a-fA-F]{64}$/),
   blockNumber: z.number().int().nonnegative().optional(),
-  creator: z.string().regex(/^0x[0-9a-fA-F]{40}$/),
+  creatorId: z.number().int().positive(),
   token: z.string().regex(/^0x[0-9a-fA-F]{40}$/),
   submissionCost: z.string().regex(/^\d+$/),
-  duration: z.number().int().min(60).max(24 * 60 * 60), // 1 minute to 24 hours
+  duration: z
+    .number()
+    .int()
+    .min(60)
+    .max(24 * 60 * 60), // 1 minute to 24 hours
   maxWinners: z.number().int().min(1).max(10),
   seedAmount: z.string().regex(/^\d+$/),
   questionContract: z.string().regex(/^0x[0-9a-fA-F]{40}$/),
@@ -36,35 +39,23 @@ export async function POST(req: NextRequest) {
     }
     const body = parsed.data;
 
-    // Ensure creator exists and get creator_id
-    let creatorId: number;
+    // Ensure creator exists using creator_id
     const { data: existingCreator } = await supabase
       .from('creators')
       .select('creator_id, wallet')
-      .eq('wallet', body.creator.toLowerCase())
+      .eq('creator_id', body.creatorId)
       .single();
 
-    if (existingCreator) {
-      creatorId = existingCreator.creator_id;
-    } else {
-      const { data: newCreator, error: creatorError } = await supabase
-        .from('creators')
-        .insert({
-          wallet: body.creator.toLowerCase(),
-          joined_at: new Date().toISOString(),
-          last_activity: new Date().toISOString(),
-        })
-        .select('creator_id')
-        .single();
-      
-      if (creatorError || !newCreator) {
-        console.error('Error creating creator:', creatorError);
-        return NextResponse.json(
-          { error: 'Failed to create creator' },
-          { status: 500 }
-        );
-      }
-      creatorId = newCreator.creator_id;
+    if (!existingCreator) {
+      // Cannot create question without a valid creator
+      // Creator must be registered through sign-in first
+      return NextResponse.json(
+        {
+          error:
+            'Invalid creator ID. Creator must sign in and complete profile before creating questions',
+        },
+        { status: 400 }
+      );
     }
 
     const startTime = new Date();
@@ -75,28 +66,19 @@ export async function POST(req: NextRequest) {
       endTime.getTime() + 7 * 24 * 60 * 60 * 1000
     );
 
-    // Get creator info for storing with question
-    const { data: creatorInfo } = await supabase
-      .from('creators')
-      .select('username, pfp')
-      .eq('creator_id', creatorId)
-      .single();
-
     const { data: questionData, error: questionError } = await supabase
       .from('questions')
       .insert({
         question_id: body.questionId,
         contract_address: body.questionContract.toLowerCase(),
-        creator_id: creatorId,
-        creator: body.creator.toLowerCase(), // Keep for backward compatibility
-        creator_username: creatorInfo?.username || null,
-        creator_pfp: creatorInfo?.pfp || null,
+        creator_id: body.creatorId,
+        creator: existingCreator.wallet, // Keep for backward compatibility
         content: body.questionContent,
         token_address: body.token.toLowerCase(),
         submission_cost: body.submissionCost,
         max_winners: body.maxWinners,
         duration: body.duration,
-        evaluator: body.creator.toLowerCase(),
+        evaluator: existingCreator.wallet,
         start_time: startTime.toISOString(),
         end_time: endTime.toISOString(),
         evaluation_deadline: evaluationDeadline.toISOString(),
@@ -123,7 +105,7 @@ export async function POST(req: NextRequest) {
     // Save contract event (best-effort)
     const eventData = {
       questionId: Number(body.questionId),
-      creator: (body.creator as string).toLowerCase(),
+      creator: existingCreator.wallet,
       questionContract: (body.questionContract as string).toLowerCase(),
       token: (body.token as string).toLowerCase(),
       submissionCost: String(body.submissionCost),
@@ -153,12 +135,12 @@ export async function POST(req: NextRequest) {
       const { data: creatorInfo } = await supabase
         .from('creators')
         .select('fid, username')
-        .eq('creator_id', creatorId)
+        .eq('creator_id', body.creatorId)
         .single();
 
       const creatorFid = creatorInfo?.fid;
       const creatorName = creatorInfo?.username || 'Someone';
-      
+
       // Format duration for display
       const formatDuration = (seconds: number) => {
         if (seconds < 3600) {
@@ -174,15 +156,20 @@ export async function POST(req: NextRequest) {
       };
 
       const durationText = formatDuration(body.duration);
-      
+
       await sendBulkNotification({
         title: 'New question posted!',
-        body: `${creatorName} asked: "${body.questionContent.substring(0, 80)}${body.questionContent.length > 80 ? '...' : ''}" - Answer within ${durationText}`,
+        body: `${creatorName} asked: "${body.questionContent.substring(0, 80)}${
+          body.questionContent.length > 80 ? '...' : ''
+        }" - Answer within ${durationText}`,
         excludeFid: creatorFid || undefined,
       });
     } catch (notificationError) {
       // Non-fatal - don't fail the entire request if notifications fail
-      console.warn('Warning: failed to send notifications for new question', notificationError);
+      console.warn(
+        'Warning: failed to send notifications for new question',
+        notificationError
+      );
     }
 
     return NextResponse.json({ success: true, question: questionData });

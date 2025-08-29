@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { useQuestion } from '@/hooks/use-active-questions';
 import AnswerQuestion from '@/components/answer-question';
+import Answers from '@/components/answers';
 
 type Props = { idParam: string };
 
@@ -11,11 +13,23 @@ export default function QuestionPage({ idParam }: Props) {
   const asNumber = Number(idParam);
   const isInvalidId = Number.isNaN(asNumber);
   const questionId = isInvalidId ? undefined : asNumber;
+  const searchParams = useSearchParams();
+  const referrerAddress = searchParams.get('ref');
 
   const { data: question, isLoading, error } = useQuestion(questionId);
   const router = useRouter();
 
   const [timeLeft, setTimeLeft] = useState('');
+
+  const truncateAddress = (addr: string) =>
+    addr && addr.startsWith('0x')
+      ? `${addr.slice(0, 6)}…${addr.slice(-4)}`
+      : addr;
+
+  const getDisplayName = (username: string | null, wallet: string) =>
+    username && username.trim().length > 0 ? username : truncateAddress(wallet);
+
+  const getInitial = (text: string) => (text?.[0] ?? '?').toUpperCase();
 
   const formatCountdown = (timeString: string) => {
     if (timeString === 'ENDED') {
@@ -99,7 +113,7 @@ export default function QuestionPage({ idParam }: Props) {
             Question not found
           </div>
         ) : (
-          <div className="flex w-full max-w-lg shrink-0 flex-col gap-y-4 text-white">
+          <div className="flex w-full max-w-lg shrink-0 flex-col gap-y-6 text-white">
             <div className="flex items-center justify-between">
               <button
                 type="button"
@@ -126,10 +140,47 @@ export default function QuestionPage({ idParam }: Props) {
                 {formatCountdown(timeLeft)}
               </div>
             </div>
-            <h3 className="text-xl font-semibold  text-slate-100">
+            {/* Creator */}
+            <div className="flex items-center gap-3">
+              {question.creator_pfp ? (
+                <img
+                  src={question.creator_pfp}
+                  alt={`${getDisplayName(
+                    question.creator_username,
+                    question.creator
+                  )}'s avatar`}
+                  className="h-10 w-10 rounded-full object-cover ring-1 ring-white/10"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-500/30 to-amber-300/20 ring-1 ring-white/10 flex items-center justify-center text-sm font-semibold text-slate-100">
+                  {getInitial(
+                    getDisplayName(question.creator_username, question.creator)
+                  )}
+                </div>
+              )}
+              <div className="flex flex-col">
+                <Link
+                  href={`/profile/${question.creator}`}
+                  className="text-slate-200 text-base font-medium hover:text-white transition-colors"
+                >
+                  {getDisplayName(question.creator_username, question.creator)}
+                </Link>
+                <span className="text-slate-400 text-sm">
+                  Asked this question
+                </span>
+              </div>
+            </div>
+
+            <h3 className="text-xl font-semibold text-slate-100">
               {question.content}
             </h3>
-            <AnswerQuestion question={question} timeLeft={timeLeft} />
+            <AnswerQuestion
+              question={question}
+              timeLeft={timeLeft}
+              referrerAddress={referrerAddress}
+            />
+
             <div className="flex justify-between">
               <div className="flex flex-col">
                 <span className="text-white/80 text-xs uppercase">
@@ -149,6 +200,8 @@ export default function QuestionPage({ idParam }: Props) {
                 </span>
               </div>
             </div>
+
+            <Answers questionId={question.question_id} />
           </div>
         )}
       </div>

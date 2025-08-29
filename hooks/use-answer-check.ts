@@ -14,10 +14,10 @@ export type AnswerCheckResponse = {
 
 async function checkUserAnswer(
   questionId: number,
-  userWallet: string
+  creatorId: number
 ): Promise<AnswerCheckResponse> {
   const response = await fetch(
-    `/api/answers/check?questionId=${questionId}&userWallet=${userWallet}`
+    `/api/answers/check?questionId=${questionId}&creatorId=${creatorId}`
   );
 
   if (!response.ok) {
@@ -29,15 +29,16 @@ async function checkUserAnswer(
 
 export function useAnswerCheck(
   questionId: number | undefined,
-  userWallet: string | undefined
+  creatorId: number | undefined
 ) {
   return useQuery({
-    queryKey: ['answer-check', questionId, userWallet],
-    queryFn: () => checkUserAnswer(questionId!, userWallet!),
+    queryKey: ['answer-check', questionId, creatorId],
+    queryFn: () => checkUserAnswer(questionId!, creatorId!),
     enabled:
-      !!userWallet &&
+      typeof creatorId === 'number' &&
       typeof questionId === 'number' &&
-      !Number.isNaN(questionId),
+      !Number.isNaN(questionId) &&
+      !Number.isNaN(creatorId),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

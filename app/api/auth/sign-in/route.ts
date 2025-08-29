@@ -3,7 +3,7 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 import { env } from '@/lib/env';
 import { fetchUser, NeynarError, NeynarUser } from '@/lib/neynar';
-import { Creator } from '@/lib/database.types';
+import { validateAndNormalizeCreator } from '@/lib/creator-validation';
 import * as jose from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
 import { Address, zeroAddress } from 'viem';
@@ -102,23 +102,49 @@ export const POST = async (req: NextRequest) => {
         }
       } else {
         console.log('inserting creator', user);
-        const { error: insertError, data: newCreator } = await supabase
-          .from('creators')
-          .insert({
+
+        try {
+          // Validate and normalize creator data
+          const creatorData = validateAndNormalizeCreator({
             wallet,
-            fid,
             username: user.username,
             pfp: user.pfp_url,
-            joined_at: now,
-            last_activity: now,
-          })
-          .select()
-          .single();
-        console.log('newCreator', newCreator);
-        if (insertError) {
-          console.warn(
-            'Warning: failed to insert creator on sign-in',
-            insertError
+            fid,
+          });
+
+          const { error: insertError, data: newCreator } = await supabase
+            .from('creators')
+            .insert({
+              wallet: creatorData.wallet,
+              fid: creatorData.fid,
+              username: creatorData.username,
+              pfp: creatorData.pfp,
+              joined_at: now,
+              last_activity: now,
+            })
+            .select()
+            .single();
+
+          console.log('newCreator', newCreator);
+          if (insertError) {
+            console.warn(
+              'Warning: failed to insert creator on sign-in',
+              insertError
+            );
+            return NextResponse.json(
+              { error: 'Failed to create user profile' },
+              { status: 500 }
+            );
+          }
+        } catch (validationError) {
+          console.warn('Creator validation failed:', validationError);
+          return NextResponse.json(
+            {
+              error: `Profile incomplete: ${
+                (validationError as Error).message
+              }`,
+            },
+            { status: 400 }
           );
         }
       }

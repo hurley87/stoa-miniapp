@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { useAccount } from 'wagmi';
 import { useCreateQuestionOnchain } from '@/hooks/use-create-question-onchain';
 import { useApiMutation } from '@/hooks/use-api-mutation';
+import { useUser } from '@/contexts/user-context';
 import { sdk } from '@farcaster/miniapp-sdk';
 import Link from 'next/link';
 
@@ -173,6 +174,7 @@ type FormState = {
 
 export function CreateQuestionForm() {
   const { address } = useAccount();
+  const { user } = useUser();
   const { create } = useCreateQuestionOnchain();
   const [form, setForm] = useState<FormState>({
     questionContent: '',
@@ -197,7 +199,7 @@ export function CreateQuestionForm() {
     questionContent: string;
     txHash: string;
     blockNumber?: number;
-    creator: string;
+    creatorId: number;
     token: string;
     submissionCost: string;
     duration: number;
@@ -243,6 +245,8 @@ export function CreateQuestionForm() {
       return;
     }
 
+    console.log('user', user);
+
     setIsSubmitting(true);
     try {
       // On-chain create
@@ -256,12 +260,16 @@ export function CreateQuestionForm() {
       });
 
       // DB save
+      if (!user.data?.creator?.creator_id) {
+        throw new Error('Creator ID not found. Please sign in again.');
+      }
+
       const saved = await saveMutation.mutateAsync({
         questionId: onchain.questionId,
         questionContent: form.questionContent.trim(),
         txHash: onchain.txHash,
         blockNumber: onchain.blockNumber,
-        creator: address,
+        creatorId: user.data.creator.creator_id,
         token: USDC_ADDRESS,
         submissionCost: String(form.submissionCostUsd * 1_000_000),
         duration: form.durationSeconds,
@@ -315,7 +323,7 @@ export function CreateQuestionForm() {
 
   const handleShare = async () => {
     if (!created) return;
-    const url = `${window.location.origin}/questions/${created.id}`;
+    const url = `${window.location.origin}/questions/${created.id}?ref=${address}`;
     const timeText = formatDurationForShare(created.durationSeconds);
     const text = `I just posed a question: "${created.content}" Share your best answer to earn rewards. Ends in ${timeText}.`;
     try {
@@ -424,7 +432,7 @@ export function CreateQuestionForm() {
               onClick={handleShare}
               className="cta-button w-full"
             >
-              Share Question
+              Share and Earn
             </button>
             <Link
               href={`/questions/${created.id}`}

@@ -10,21 +10,40 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function GET() {
   try {
+    // Fetch active questions with embedded creator meta in a single query
     const { data, error } = await supabase
       .from('questions')
-      .select('*')
+      .select(`*, creators:creators!fk_questions_creator (username, pfp)`)
       .eq('status', 'active')
       .order('start_time', { ascending: false });
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error('Supabase error (questions with creators):', error);
       return NextResponse.json(
         { error: 'Failed to fetch questions' },
         { status: 500 }
       );
     }
 
-    return NextResponse.json(data || [], {
+    if (!data || data.length === 0) {
+      return NextResponse.json([], {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, max-age=0, must-revalidate',
+        },
+      });
+    }
+
+    // Flatten embedded creator meta to preserve API response shape
+    type RowWithCreator = Record<string, unknown> & {
+      creators?: { username: string | null; pfp: string | null } | null;
+    };
+    const results = (data as RowWithCreator[]).map(({ creators, ...rest }) => ({
+      ...rest,
+      creator_username: creators?.username ?? null,
+      creator_pfp: creators?.pfp ?? null,
+    }));
+
+    return NextResponse.json(results, {
       headers: {
         'Cache-Control': 'no-store, no-cache, max-age=0, must-revalidate',
       },

@@ -13,6 +13,8 @@ export type SubmitAnswerOnchainParams = {
   contractAddress: string;
   tokenAddress: string;
   submissionCost: number;
+  creatorId: number;
+  referrerAddress?: string | null;
 };
 
 export function useSubmitAnswerOnchain() {
@@ -84,6 +86,8 @@ export function useSubmitAnswerOnchain() {
     contractAddress,
     tokenAddress,
     submissionCost,
+    creatorId,
+    referrerAddress,
   }: SubmitAnswerOnchainParams) => {
     if (!address || !publicClient) {
       setError('Wallet not connected');
@@ -164,12 +168,18 @@ export function useSubmitAnswerOnchain() {
       // 4. Submit answer to contract
       setStep('submitting');
 
-      // Submit answer using submitAnswer function
+      // Submit answer using appropriate function based on referrer presence
       const submissionTx = await writeContractAsync({
         address: contractAddress as `0x${string}`,
         abi: StoaQuestionABI,
-        functionName: 'submitAnswer',
-        args: [answerHash],
+        functionName:
+          referrerAddress && referrerAddress !== address
+            ? 'submitAnswerWithReferral'
+            : 'submitAnswer',
+        args:
+          referrerAddress && referrerAddress !== address
+            ? [answerHash, referrerAddress as `0x${string}`]
+            : [answerHash],
         chainId: base.id,
       }).catch((err) => {
         throw new Error(mapOnchainErrorToMessage(err));
@@ -192,16 +202,17 @@ export function useSubmitAnswerOnchain() {
 
       await submitAnswerMutation.mutateAsync({
         questionId,
-        userWallet: address,
+        creatorId,
         content,
         contractAddress,
         txHash: submissionTxHash,
+        referrerAddress,
       });
 
       setStep('completed');
       // Ensure UI updates immediately
       queryClient.invalidateQueries({
-        queryKey: ['answer-check', questionId, address],
+        queryKey: ['answer-check', questionId, creatorId],
       });
       queryClient.invalidateQueries({
         queryKey: ['onchain-submission', contractAddress, address],

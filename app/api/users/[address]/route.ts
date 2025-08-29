@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase';
-import { Creator } from '@/lib/database.types';
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: { address: string } }
 ) {
   const address = params.address;
+
+  // Validate wallet address format
   if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
-    return NextResponse.json({ error: 'Invalid address' }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid wallet address' }, { status: 400 });
   }
+
   try {
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase

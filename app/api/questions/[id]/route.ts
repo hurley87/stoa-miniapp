@@ -25,7 +25,15 @@ export async function GET(
 
     const { data, error } = await supabase
       .from('questions')
-      .select('*')
+      .select(
+        `
+        *,
+        creators:creators!fk_questions_creator (
+          username,
+          pfp
+        )
+      `
+      )
       .eq('question_id', questionId)
       .single();
 
@@ -56,6 +64,8 @@ export async function GET(
         typeof count === 'number'
           ? count
           : (data as any).total_submissions ?? 0,
+      creator_username: (data as any)?.creators?.username ?? null,
+      creator_pfp: (data as any)?.creators?.pfp ?? null,
     };
 
     return NextResponse.json(merged, {

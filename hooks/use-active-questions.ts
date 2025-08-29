@@ -5,6 +5,9 @@ export type Question = {
   question_id: number;
   contract_address: string;
   creator: string;
+  creator_id: number;
+  creator_username: string | null;
+  creator_pfp: string | null;
   content: string;
   token_address: string;
   submission_cost: number;
