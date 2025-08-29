@@ -84,8 +84,44 @@ const DEFAULT_SEED_AMOUNT = '1000000' as const;
 const SUBMISSION_COSTS = [
   { label: '$1', usd: 1 },
   { label: '$10', usd: 10 },
-  { label: '$100', usd: 100 },
+  { label: '$50', usd: 50 },
 ] as const;
+
+// More granular slider options
+const SLIDER_PRICE_OPTIONS = [
+  1, 2, 3, 5, 7, 10, 15, 20, 25, 30, 40, 50,
+] as const;
+
+// Helpers for mapping price values to slider indices/percentages (avoids drift between UI and value)
+const isValidPriceOption = (value: number): boolean =>
+  (SLIDER_PRICE_OPTIONS as readonly number[]).includes(value);
+
+// Note: priceIndex is currently unused after switching to a linear scale.
+// Keeping for potential future discrete-index UI affordances. Prefix with underscore to satisfy linter.
+const _priceIndex = (value: number): number =>
+  SLIDER_PRICE_OPTIONS.findIndex((p) => p === value);
+
+// Linear dollar-based positioning for visual uniformity
+const MIN_PRICE = SLIDER_PRICE_OPTIONS[0];
+const MAX_PRICE = SLIDER_PRICE_OPTIONS[SLIDER_PRICE_OPTIONS.length - 1];
+const pricePercentLinear = (value: number): number =>
+  ((value - MIN_PRICE) / (MAX_PRICE - MIN_PRICE)) * 100;
+
+const getNearestAllowedPrice = (value: number): number => {
+  let nearest: number = SLIDER_PRICE_OPTIONS[0] as number;
+  let smallestDiff = Math.abs(value - nearest);
+  for (const option of SLIDER_PRICE_OPTIONS) {
+    const diff = Math.abs(value - option);
+    if (diff < smallestDiff) {
+      smallestDiff = diff;
+      nearest = option;
+    }
+  }
+  return nearest;
+};
+
+// Tick labels to render along the slider at their true positions
+const TICK_VALUES = [1, 25, 50] as const;
 
 const MIN_WINNERS = 1;
 const MAX_WINNERS = 10;
@@ -114,7 +150,7 @@ const schema = z.object({
   submissionCostUsd: z
     .number()
     .int()
-    .refine((v) => [1, 10, 100].includes(v), 'Invalid submission cost'),
+    .refine((v) => isValidPriceOption(v), 'Invalid submission cost'),
   maxWinners: z
     .number()
     .int()
@@ -299,7 +335,7 @@ export function CreateQuestionForm() {
   if (!canCreate) {
     return (
       <div className="mx-auto w-full max-w-lg flex flex-col gap-6 pb-6">
-        <div className="glass-card rounded-xl p-6">
+        <div className="">
           <h2 className="text-white text-xl font-semibold mb-3">
             Only Logos may ask
           </h2>
@@ -315,7 +351,7 @@ export function CreateQuestionForm() {
           )}
         </div>
 
-        <div className="glass-card rounded-xl p-6">
+        <div className="">
           <h3 className="text-white font-semibold mb-3">Why join the Logos</h3>
           <ul className="space-y-2 text-white/70 text-sm">
             <li className="flex items-start gap-2">
@@ -360,7 +396,7 @@ export function CreateQuestionForm() {
   return (
     <div className="mx-auto w-full max-w-lg py-4">
       {created ? (
-        <div className="glass-card rounded-xl p-6 space-y-6">
+        <div className=" space-y-6">
           <div className="text-center">
             <h2 className="text-white text-xl font-semibold mb-2">
               Question Posted Successfully!
@@ -399,12 +435,8 @@ export function CreateQuestionForm() {
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="glass-card rounded-xl p-6">
-            <h2 className="text-white text-lg font-semibold mb-4">
-              Frame the Discourse
-            </h2>
-
+        <form onSubmit={handleSubmit} className="flex flex-col gap-12">
+          <div className="rounded-xl">
             <div className="space-y-3">
               <label className="block text-sm font-medium text-white/80">
                 Your Question
@@ -430,7 +462,10 @@ export function CreateQuestionForm() {
             </div>
           </div>
 
-          <div className="glass-card rounded-xl p-6">
+          {/* Separator */}
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+          <div className="">
             <label className="block text-sm font-medium text-white/80 mb-3">
               Evaluation Instructions
             </label>
@@ -446,7 +481,7 @@ export function CreateQuestionForm() {
             />
             <div className="flex justify-between text-xs mt-2">
               <span className="text-white/50">
-                Guide the AI evaluator's decision making
+                Guide the AI evaluator&#39;s decision making
               </span>
               <span className="text-white/60">
                 {form.evaluationPrompt.length}/1000
@@ -454,7 +489,10 @@ export function CreateQuestionForm() {
             </div>
           </div>
 
-          <div className="glass-card rounded-xl p-6">
+          {/* Separator */}
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+          <div className="">
             <div className="flex items-center justify-between mb-4">
               <label className="block text-sm font-medium text-white/80">
                 Answer Period
@@ -516,9 +554,14 @@ export function CreateQuestionForm() {
             </div>
           </div>
 
-          <div className="glass-card rounded-xl p-6">
+          {/* Separator */}
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+          <div className="">
             <div className="flex items-center justify-between mb-4">
-              <label className="block text-sm font-medium text-white/80">Answer Fee</label>
+              <label className="block text-sm font-medium text-white/80">
+                Answer Fee
+              </label>
               <span className="text-sm font-mono text-amber-400">
                 ${form.submissionCostUsd}
               </span>
@@ -527,25 +570,34 @@ export function CreateQuestionForm() {
             <div className="space-y-4">
               <input
                 type="range"
-                min="0"
-                max="2"
-                value={SUBMISSION_COSTS.findIndex(c => c.usd === form.submissionCostUsd)}
+                min={MIN_PRICE}
+                max={MAX_PRICE}
+                step={1}
+                value={form.submissionCostUsd}
                 onChange={(e) => {
-                  const index = parseInt(e.target.value);
-                  const cost = SUBMISSION_COSTS[index];
-                  if (cost) {
-                    setForm((s) => ({ ...s, submissionCostUsd: cost.usd }));
-                  }
+                  const raw = parseInt(e.target.value);
+                  const price = getNearestAllowedPrice(raw);
+                  setForm((s) => ({ ...s, submissionCostUsd: price }));
                 }}
                 className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer transition-all"
                 style={{
-                  background: `linear-gradient(to right, #f59e0b 0%, #f59e0b ${(SUBMISSION_COSTS.findIndex(c => c.usd === form.submissionCostUsd) / (SUBMISSION_COSTS.length - 1)) * 100}%, rgba(255,255,255,0.1) ${(SUBMISSION_COSTS.findIndex(c => c.usd === form.submissionCostUsd) / (SUBMISSION_COSTS.length - 1)) * 100}%, rgba(255,255,255,0.1) 100%)`
+                  background: `linear-gradient(to right, #f59e0b 0%, #f59e0b ${pricePercentLinear(
+                    form.submissionCostUsd
+                  )}%, rgba(255,255,255,0.1) ${pricePercentLinear(
+                    form.submissionCostUsd
+                  )}%, rgba(255,255,255,0.1) 100%)`,
                 }}
               />
-              <div className="flex justify-between text-xs text-white/50">
-                <span>$1</span>
-                <span>$10</span>
-                <span>$100</span>
+              <div className="relative h-5">
+                {TICK_VALUES.map((v) => (
+                  <span
+                    key={v}
+                    className="absolute -translate-x-1/2 transform text-xs text-white/50"
+                    style={{ left: `${pricePercentLinear(v)}%` }}
+                  >
+                    ${v}
+                  </span>
+                ))}
               </div>
 
               <div className="grid grid-cols-3 gap-2">
@@ -570,16 +622,19 @@ export function CreateQuestionForm() {
             </div>
           </div>
 
-          <div className="glass-card rounded-xl p-6">
-            <label className="block text-sm font-medium text-white/80 mb-4">Max Winners</label>
+          {/* Separator */}
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+          <div className="">
+            <label className="block text-sm font-medium text-white/80 mb-4">
+              Max Winners
+            </label>
             <div className="grid grid-cols-5 gap-2">
               {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
                 <button
                   key={num}
                   type="button"
-                  onClick={() =>
-                    setForm((s) => ({ ...s, maxWinners: num }))
-                  }
+                  onClick={() => setForm((s) => ({ ...s, maxWinners: num }))}
                   className={
                     `glass-button rounded-lg p-3 text-sm font-medium transition-all ` +
                     (form.maxWinners === num
@@ -594,7 +649,7 @@ export function CreateQuestionForm() {
           </div>
 
           {error && (
-            <div className="glass-card rounded-xl p-4 border border-rose-500/30 bg-rose-950/20">
+            <div className="rounded-xl p-4 border border-rose-500/30 bg-rose-950/20">
               <p className="text-rose-300 text-sm">{error}</p>
             </div>
           )}

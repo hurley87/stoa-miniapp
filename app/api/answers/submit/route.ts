@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createHash } from 'crypto';
+import { Creator } from '@/lib/database.types';
 
 const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!;
@@ -26,36 +27,44 @@ export async function POST(request: NextRequest) {
     // 3. Transaction was from the specified user wallet
     // 4. Payment was made correctly
 
-    // Ensure user exists in users table
-    const { data: existingUser } = await supabase
-      .from('users')
-      .select('wallet')
+    // Ensure creator exists in creators table and get creator_id
+    let creatorId: number;
+    const { data: existingCreator } = await supabase
+      .from('creators')
+      .select('creator_id, wallet')
       .eq('wallet', userWallet)
       .single();
 
-    if (!existingUser) {
-      // Create user if they don't exist
-      const { error: userError } = await supabase.from('users').insert({
-        wallet: userWallet,
-        joined_at: new Date().toISOString(),
-        last_activity: new Date().toISOString(),
-      });
+    if (existingCreator) {
+      creatorId = existingCreator.creator_id;
+    } else {
+      // Create creator if they don't exist
+      const { data: newCreator, error: creatorError } = await supabase
+        .from('creators')
+        .insert({
+          wallet: userWallet,
+          joined_at: new Date().toISOString(),
+          last_activity: new Date().toISOString(),
+        })
+        .select('creator_id')
+        .single();
 
-      if (userError) {
-        console.error('Error creating user:', userError);
+      if (creatorError || !newCreator) {
+        console.error('Error creating creator:', creatorError);
         return NextResponse.json(
-          { error: 'Failed to create user' },
+          { error: 'Failed to create creator' },
           { status: 500 }
         );
       }
+      creatorId = newCreator.creator_id;
     }
 
-    // Check if user already answered this question
+    // Check if creator already answered this question
     const { data: existingAnswer } = await supabase
       .from('answers')
       .select('id')
       .eq('question_id', questionId)
-      .eq('responder', userWallet)
+      .eq('creator_id', creatorId)
       .single();
 
     if (existingAnswer) {
@@ -88,7 +97,8 @@ export async function POST(request: NextRequest) {
         answer_index: nextIndex,
         question_id: questionId,
         contract_address: contractAddress,
-        responder: userWallet,
+        creator_id: creatorId,
+        responder: userWallet, // Keep for backward compatibility
         answer_hash: answerHash,
         content,
         timestamp: new Date().toISOString(),

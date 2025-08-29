@@ -1,28 +1,24 @@
 import { getUserNotificationDetails } from "@/lib/notifications";
 import { sendFrameNotification } from "@/lib/notification-client";
 import { createClient } from '@supabase/supabase-js';
+import { CreatorWithFid } from '@/lib/database.types';
 
 const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-interface UserWithFid {
-  fid: number;
-  username: string | null;
-}
-
-export async function getAllUsersWithFids(): Promise<UserWithFid[]> {
-  const { data: users, error } = await supabase
-    .from('users')
-    .select('fid, username')
+export async function getAllCreatorsWithFids(): Promise<CreatorWithFid[]> {
+  const { data: creators, error } = await supabase
+    .from('creators')
+    .select('creator_id, fid, username')
     .not('fid', 'is', null);
   
   if (error) {
-    console.error('Error fetching users with FIDs:', error);
+    console.error('Error fetching creators with FIDs:', error);
     return [];
   }
   
-  return users || [];
+  return creators || [];
 }
 
 export async function sendBulkNotification({
@@ -34,12 +30,12 @@ export async function sendBulkNotification({
   body: string;
   excludeFid?: number; // Don't notify the question creator
 }) {
-  const users = await getAllUsersWithFids();
+  const creators = await getAllCreatorsWithFids();
   
   // Filter out the question creator if provided
-  const targetUsers = excludeFid 
-    ? users.filter(user => user.fid !== excludeFid)
-    : users;
+  const targetCreators = excludeFid 
+    ? creators.filter(creator => creator.fid !== excludeFid)
+    : creators;
   
   const results = {
     success: 0,
@@ -50,13 +46,13 @@ export async function sendBulkNotification({
 
   // Send notifications in batches to avoid overwhelming the system
   const batchSize = 50;
-  for (let i = 0; i < targetUsers.length; i += batchSize) {
-    const batch = targetUsers.slice(i, i + batchSize);
+  for (let i = 0; i < targetCreators.length; i += batchSize) {
+    const batch = targetCreators.slice(i, i + batchSize);
     
-    const batchPromises = batch.map(async (user) => {
+    const batchPromises = batch.map(async (creator) => {
       try {
         const result = await sendFrameNotification({
-          fid: user.fid,
+          fid: creator.fid,
           title,
           body,
         });
@@ -73,25 +69,25 @@ export async function sendBulkNotification({
             break;
           case 'error':
             results.error++;
-            console.error(`Notification error for FID ${user.fid}:`, result.error);
+            console.error(`Notification error for FID ${creator.fid}:`, result.error);
             break;
         }
       } catch (error) {
         results.error++;
-        console.error(`Failed to send notification to FID ${user.fid}:`, error);
+        console.error(`Failed to send notification to FID ${creator.fid}:`, error);
       }
     });
     
     await Promise.all(batchPromises);
     
     // Small delay between batches to be respectful to the notification service
-    if (i + batchSize < targetUsers.length) {
+    if (i + batchSize < targetCreators.length) {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
   }
   
   console.log('Bulk notification results:', {
-    totalUsers: targetUsers.length,
+    totalCreators: targetCreators.length,
     ...results,
   });
   

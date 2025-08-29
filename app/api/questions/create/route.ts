@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { STOA_FACTORY_ADDRESS } from '@/lib/abis/StoaFactory';
 import { sendBulkNotification } from '@/lib/bulk-notifications';
+import { Creator } from '@/lib/database.types';
 import { z } from 'zod';
 
 const BodySchema = z.object({
@@ -35,26 +36,35 @@ export async function POST(req: NextRequest) {
     }
     const body = parsed.data;
 
-    // Ensure user exists
-    const { data: existingUser } = await supabase
-      .from('users')
-      .select('wallet')
+    // Ensure creator exists and get creator_id
+    let creatorId: number;
+    const { data: existingCreator } = await supabase
+      .from('creators')
+      .select('creator_id, wallet')
       .eq('wallet', body.creator.toLowerCase())
       .single();
 
-    if (!existingUser) {
-      const { error: userError } = await supabase.from('users').insert({
-        wallet: body.creator.toLowerCase(),
-        joined_at: new Date().toISOString(),
-        last_activity: new Date().toISOString(),
-      });
-      if (userError) {
-        console.error('Error creating user:', userError);
+    if (existingCreator) {
+      creatorId = existingCreator.creator_id;
+    } else {
+      const { data: newCreator, error: creatorError } = await supabase
+        .from('creators')
+        .insert({
+          wallet: body.creator.toLowerCase(),
+          joined_at: new Date().toISOString(),
+          last_activity: new Date().toISOString(),
+        })
+        .select('creator_id')
+        .single();
+      
+      if (creatorError || !newCreator) {
+        console.error('Error creating creator:', creatorError);
         return NextResponse.json(
-          { error: 'Failed to create user' },
+          { error: 'Failed to create creator' },
           { status: 500 }
         );
       }
+      creatorId = newCreator.creator_id;
     }
 
     const startTime = new Date();
@@ -65,12 +75,22 @@ export async function POST(req: NextRequest) {
       endTime.getTime() + 7 * 24 * 60 * 60 * 1000
     );
 
+    // Get creator info for storing with question
+    const { data: creatorInfo } = await supabase
+      .from('creators')
+      .select('username, pfp')
+      .eq('creator_id', creatorId)
+      .single();
+
     const { data: questionData, error: questionError } = await supabase
       .from('questions')
       .insert({
         question_id: body.questionId,
         contract_address: body.questionContract.toLowerCase(),
-        creator: body.creator.toLowerCase(),
+        creator_id: creatorId,
+        creator: body.creator.toLowerCase(), // Keep for backward compatibility
+        creator_username: creatorInfo?.username || null,
+        creator_pfp: creatorInfo?.pfp || null,
         content: body.questionContent,
         token_address: body.token.toLowerCase(),
         submission_cost: body.submissionCost,
@@ -127,17 +147,17 @@ export async function POST(req: NextRequest) {
       console.warn('Warning: could not store contract event', eventError);
     }
 
-    // Send notifications to all users about the new question
+    // Send notifications to all creators about the new question
     try {
       // Get creator's info for the notification
-      const { data: creatorUser } = await supabase
-        .from('users')
+      const { data: creatorInfo } = await supabase
+        .from('creators')
         .select('fid, username')
-        .eq('wallet', body.creator.toLowerCase())
+        .eq('creator_id', creatorId)
         .single();
 
-      const creatorFid = creatorUser?.fid;
-      const creatorName = creatorUser?.username || 'Someone';
+      const creatorFid = creatorInfo?.fid;
+      const creatorName = creatorInfo?.username || 'Someone';
       
       // Format duration for display
       const formatDuration = (seconds: number) => {

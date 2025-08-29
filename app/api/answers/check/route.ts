@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { Creator } from '@/lib/database.types'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,11 +22,25 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // First get creator_id from wallet
+    const { data: creator } = await supabase
+      .from('creators')
+      .select('creator_id')
+      .eq('wallet', userWallet.toLowerCase())
+      .single()
+    
+    if (!creator) {
+      return NextResponse.json({ 
+        hasAnswered: false,
+        answer: null
+      })
+    }
+
     const { data, error } = await supabase
       .from('answers')
       .select('id, content, score, rank')
       .eq('question_id', questionId)
-      .eq('responder', userWallet)
+      .eq('creator_id', creator.creator_id)
       .single()
 
     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned

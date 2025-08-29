@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase';
+import { Creator } from '@/lib/database.types';
 
 export async function GET(
   _request: NextRequest,
@@ -12,15 +13,15 @@ export async function GET(
   try {
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
-      .from('users')
+      .from('creators')
       .select(
-        'wallet, username, pfp, reputation, total_questions_created, total_answers_submitted'
+        'creator_id, wallet, username, pfp, reputation, total_questions_created, total_answers_submitted'
       )
       .eq('wallet', address.toLowerCase())
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('Supabase error fetching user by wallet', error);
+      console.error('Supabase error fetching creator by wallet', error);
       return NextResponse.json(
         { error: 'Failed to fetch user profile' },
         { status: 500 }
@@ -42,7 +43,7 @@ export async function GET(
     };
     return NextResponse.json(profile);
   } catch (err) {
-    console.error('Unexpected error fetching user by wallet', err);
+    console.error('Unexpected error fetching creator by wallet', err);
     return NextResponse.json(
       { error: 'Failed to fetch user profile' },
       { status: 500 }

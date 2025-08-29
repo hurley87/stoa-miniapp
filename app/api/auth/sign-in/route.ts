@@ -3,6 +3,7 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 import { env } from '@/lib/env';
 import { fetchUser, NeynarError, NeynarUser } from '@/lib/neynar';
+import { Creator } from '@/lib/database.types';
 import * as jose from 'jose';
 import { NextRequest, NextResponse } from 'next/server';
 import { Address, zeroAddress } from 'viem';
@@ -76,16 +77,16 @@ export const POST = async (req: NextRequest) => {
     console.log('wallet', wallet);
     if (wallet && wallet !== zeroAddress.toLowerCase()) {
       const now = new Date().toISOString();
-      const { data: existingUser } = await supabase
-        .from('users')
-        .select('wallet')
+      const { data: existingCreator } = await supabase
+        .from('creators')
+        .select('creator_id, wallet')
         .eq('wallet', wallet)
         .single();
 
-      if (existingUser) {
-        console.log('existingUser', existingUser);
+      if (existingCreator) {
+        console.log('existingCreator', existingCreator);
         const { error: updateError } = await supabase
-          .from('users')
+          .from('creators')
           .update({
             fid,
             username: user.username,
@@ -95,14 +96,14 @@ export const POST = async (req: NextRequest) => {
           .eq('wallet', wallet);
         if (updateError) {
           console.warn(
-            'Warning: failed to update user on sign-in',
+            'Warning: failed to update creator on sign-in',
             updateError
           );
         }
       } else {
-        console.log('inserting user', user);
-        const { error: insertError, data: newUser } = await supabase
-          .from('users')
+        console.log('inserting creator', user);
+        const { error: insertError, data: newCreator } = await supabase
+          .from('creators')
           .insert({
             wallet,
             fid,
@@ -113,10 +114,10 @@ export const POST = async (req: NextRequest) => {
           })
           .select()
           .single();
-        console.log('newUser', newUser);
+        console.log('newCreator', newCreator);
         if (insertError) {
           console.warn(
-            'Warning: failed to insert user on sign-in',
+            'Warning: failed to insert creator on sign-in',
             insertError
           );
         }
