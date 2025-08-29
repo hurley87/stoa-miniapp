@@ -13,9 +13,10 @@ const BodySchema = z.object({
   token: z.string().regex(/^0x[0-9a-fA-F]{40}$/),
   submissionCost: z.string().regex(/^\d+$/),
   duration: z.number().int().min(60).max(24 * 60 * 60), // 1 minute to 24 hours
-  maxWinners: z.literal(3),
+  maxWinners: z.number().int().min(1).max(10),
   seedAmount: z.string().regex(/^\d+$/),
   questionContract: z.string().regex(/^0x[0-9a-fA-F]{40}$/),
+  evaluationPrompt: z.string().trim().min(10).max(1000),
 });
 
 const supabaseUrl = process.env.SUPABASE_URL!;
@@ -86,6 +87,7 @@ export async function POST(req: NextRequest) {
         creator_fees_collected: '0',
         status: 'active',
         creation_tx_hash: body.txHash,
+        evaluation_prompt: body.evaluationPrompt,
       })
       .select()
       .single();

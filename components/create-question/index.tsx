@@ -87,6 +87,19 @@ const SUBMISSION_COSTS = [
   { label: '$100', usd: 100 },
 ] as const;
 
+const MIN_WINNERS = 1;
+const MAX_WINNERS = 10;
+
+const DEFAULT_EVALUATION_PROMPT = `You are an expert evaluator tasked with ranking answers to the given question. 
+
+Evaluate each answer based on:
+- Accuracy and factual correctness
+- Completeness and depth of response
+- Clarity and coherence
+- Relevance to the question
+
+Rank the answers from best to worst, providing a score from 1-10 for each answer and explaining your reasoning for the ranking.`;
+
 const schema = z.object({
   questionContent: z
     .string()
@@ -102,12 +115,24 @@ const schema = z.object({
     .number()
     .int()
     .refine((v) => [1, 10, 100].includes(v), 'Invalid submission cost'),
+  maxWinners: z
+    .number()
+    .int()
+    .min(MIN_WINNERS, 'Must have at least 1 winner')
+    .max(MAX_WINNERS, 'Maximum 10 winners allowed'),
+  evaluationPrompt: z
+    .string()
+    .trim()
+    .min(10, 'Evaluation prompt must be at least 10 characters')
+    .max(1000, 'Max 1000 characters'),
 });
 
 type FormState = {
   questionContent: string;
   durationSeconds: number;
   submissionCostUsd: number;
+  maxWinners: number;
+  evaluationPrompt: string;
 };
 
 export function CreateQuestionForm() {
@@ -117,6 +142,8 @@ export function CreateQuestionForm() {
     questionContent: '',
     durationSeconds: 60 * 60, // 1 hour default
     submissionCostUsd: SUBMISSION_COSTS[0].usd,
+    maxWinners: 3, // Default to 3 winners
+    evaluationPrompt: DEFAULT_EVALUATION_PROMPT,
   });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -141,6 +168,7 @@ export function CreateQuestionForm() {
     maxWinners: number;
     seedAmount: string;
     questionContract: string;
+    evaluationPrompt: string;
   }
 
   interface CreateQuestionResponse {
@@ -187,7 +215,7 @@ export function CreateQuestionForm() {
         durationSeconds: form.durationSeconds,
         tokenAddress: USDC_ADDRESS,
         submissionCostUsd: form.submissionCostUsd,
-        maxWinners: 3,
+        maxWinners: form.maxWinners,
         seedAmount: BigInt(0),
       });
 
@@ -201,9 +229,10 @@ export function CreateQuestionForm() {
         token: USDC_ADDRESS,
         submissionCost: String(form.submissionCostUsd * 1_000_000),
         duration: form.durationSeconds,
-        maxWinners: 3,
+        maxWinners: form.maxWinners,
         seedAmount: DEFAULT_SEED_AMOUNT,
         questionContract: onchain.questionContract,
+        evaluationPrompt: form.evaluationPrompt.trim(),
       });
 
       const savedQuestionId = saved.question?.question_id ?? onchain.questionId;
@@ -220,6 +249,8 @@ export function CreateQuestionForm() {
         questionContent: '',
         durationSeconds: 60 * 60, // 1 hour default
         submissionCostUsd: 1,
+        maxWinners: 3, // Default to 3 winners
+        evaluationPrompt: DEFAULT_EVALUATION_PROMPT,
       });
     } catch (err) {
       let message = 'Failed to create question';
@@ -267,113 +298,173 @@ export function CreateQuestionForm() {
 
   if (!canCreate) {
     return (
-      <div className="mx-auto w-full max-w-md flex flex-col gap-4 pb-6">
-        <div className="rounded-xl border border-white/15 bg-white/5 p-4">
-          <p className="text-white text-lg font-semibold">Only Logos may ask</p>
+      <div className="mx-auto w-full max-w-lg flex flex-col gap-6 pb-6">
+        <div className="glass-card rounded-xl p-6">
+          <h2 className="text-white text-xl font-semibold mb-3">
+            Only Logos may ask
+          </h2>
           {address ? (
-            <p className="text-white/80 text-sm mt-1">
-              This wallet ({address.slice(0, 6)}…{address.slice(-4)}) isn’t on
-              Logos. DM Stoa to apply.
+            <p className="text-white/70 mb-4">
+              This wallet ({address.slice(0, 6)}…{address.slice(-4)}) isn&#39;t
+              on Logos. DM Stoa to apply.
             </p>
           ) : (
-            <p className="text-white/80 text-sm mt-1">
+            <p className="text-white/70 mb-4">
               Connect a Logos wallet to ask. DM Stoa to apply.
             </p>
           )}
         </div>
-        <div className="rounded-xl border border-white/15 bg-white/5 p-4">
-          <p className="text-white text-sm font-semibold">Why join the Logos</p>
-          <ul className="mt-2 space-y-1 text-white/80 text-sm list-disc list-inside">
-            <li>Earn 10% of all answer fees</li>
-            <li>Guide quality discussions through curation</li>
-            <li>Build reputation and influence thoughtful discussions</li>
+
+        <div className="glass-card rounded-xl p-6">
+          <h3 className="text-white font-semibold mb-3">Why join the Logos</h3>
+          <ul className="space-y-2 text-white/70 text-sm">
+            <li className="flex items-start gap-2">
+              <span className="text-amber-400 mt-0.5">•</span>
+              <span>Earn 10% of all answer fees</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-amber-400 mt-0.5">•</span>
+              <span>Guide quality discussions through curation</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-amber-400 mt-0.5">•</span>
+              <span>Build reputation and influence thoughtful discussions</span>
+            </li>
           </ul>
-          <p className="text-white/60 text-xs mt-2">
-            Example: $1 answer fee × 500 answers = $500 fees → you earn $50.
-          </p>
+          <div className="mt-4 p-3 rounded-lg bg-white/5 border border-white/10">
+            <p className="text-white/60 text-xs">
+              Example: $1 answer fee × 500 answers = $500 fees → you earn $50.
+            </p>
+          </div>
         </div>
-        <button
-          type="button"
-          onClick={() => sdk.actions.viewProfile({ fid: 1265133 })}
-          className="cta-button w-full"
-        >
-          DM Stoa
-        </button>
-        <Link
-          href="/"
-          className="w-full text-center py-3 px-6 rounded-xl font-semibold border border-white/20 text-white hover:bg-white/10"
-        >
-          Explore the Discourse
-        </Link>
+
+        <div className="flex flex-col gap-3">
+          <button
+            type="button"
+            onClick={() => sdk.actions.viewProfile({ fid: 1265133 })}
+            className="cta-button w-full"
+          >
+            DM Stoa
+          </button>
+          <Link
+            href="/"
+            className="glass-button w-full text-center py-3 px-6 rounded-xl font-medium text-white transition-all"
+          >
+            Explore the Discourse
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="mx-auto w-full max-w-md flex flex-col gap-6 py-4"
-    >
+    <div className="mx-auto w-full max-w-lg py-4">
       {created ? (
-        <div className="flex flex-col gap-4">
-          <div>
-            <p className="text-white text-lg font-semibold">
-              Your question is live in the discourse!
-            </p>
-            <p className="text-white/80 text-sm">
-              Share it to attract more answers.
-            </p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-white/90 text-sm">{created.content}</p>
-            <p className="text-white/60 text-xs">
-              Ends in {formatDurationForShare(created.durationSeconds)} •
-              Submission cost ${created.submissionCostUsd}
+        <div className="glass-card rounded-xl p-6 space-y-6">
+          <div className="text-center">
+            <h2 className="text-white text-xl font-semibold mb-2">
+              Question Posted Successfully!
+            </h2>
+            <p className="text-white/70">
+              Your question is now live in the discourse
             </p>
           </div>
-          <button
-            type="button"
-            onClick={handleShare}
-            className="cta-button w-full"
-          >
-            Share question
-          </button>
-          <Link
-            href={`/questions/${created.id}`}
-            className="w-full text-center py-3 px-6 rounded-xl font-semibold border border-white/20 text-white hover:bg-white/10"
-          >
-            View question
-          </Link>
-        </div>
-      ) : (
-        <>
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">Question</label>
-            <textarea
-              rows={3}
-              value={form.questionContent}
-              onChange={(e) =>
-                setForm((s) => ({ ...s, questionContent: e.target.value }))
-              }
-              maxLength={150}
-              placeholder="Frame the discourse (max 150 chars)"
-              className="w-full rounded-md border border-gray-700 bg-black p-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-            <div className="text-right text-xs text-gray-400">
-              {form.questionContent.length}/150
+
+          <div className="glass-panel rounded-lg p-4">
+            <p className="text-white/90 mb-2">{created.content}</p>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-white/60">
+                Ends in {formatDurationForShare(created.durationSeconds)}
+              </span>
+              <span className="text-white/60">
+                ${created.submissionCostUsd} to answer
+              </span>
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <label className="block text-sm font-medium">Duration</label>
-              <span className="text-sm font-mono text-indigo-400">
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={handleShare}
+              className="cta-button w-full"
+            >
+              Share Question
+            </button>
+            <Link
+              href={`/questions/${created.id}`}
+              className="glass-button w-full text-center py-3 px-6 rounded-xl font-medium text-white transition-all"
+            >
+              View Question
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="glass-card rounded-xl p-6">
+            <h2 className="text-white text-lg font-semibold mb-4">
+              Frame the Discourse
+            </h2>
+
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-white/80">
+                Your Question
+              </label>
+              <textarea
+                rows={3}
+                value={form.questionContent}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, questionContent: e.target.value }))
+                }
+                maxLength={150}
+                placeholder="What would you like to know?"
+                className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400/60 resize-none transition-all"
+              />
+              <div className="flex justify-between text-xs">
+                <span className="text-white/50">
+                  Clear, engaging questions get better answers
+                </span>
+                <span className="text-white/60">
+                  {form.questionContent.length}/150
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="glass-card rounded-xl p-6">
+            <label className="block text-sm font-medium text-white/80 mb-3">
+              Evaluation Instructions
+            </label>
+            <textarea
+              rows={6}
+              value={form.evaluationPrompt}
+              onChange={(e) =>
+                setForm((s) => ({ ...s, evaluationPrompt: e.target.value }))
+              }
+              maxLength={1000}
+              placeholder="How should the AI evaluate and rank answers to your question?"
+              className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400/60 resize-none text-sm transition-all"
+            />
+            <div className="flex justify-between text-xs mt-2">
+              <span className="text-white/50">
+                Guide the AI evaluator's decision making
+              </span>
+              <span className="text-white/60">
+                {form.evaluationPrompt.length}/1000
+              </span>
+            </div>
+          </div>
+
+          <div className="glass-card rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <label className="block text-sm font-medium text-white/80">
+                Answer Period
+              </label>
+              <span className="text-sm font-mono text-amber-400">
                 {formatDuration(form.durationSeconds)}
               </span>
             </div>
 
-            {/* Slider */}
-            <div className="space-y-2">
+            <div className="space-y-4">
               <input
                 type="range"
                 min="0"
@@ -384,84 +475,152 @@ export function CreateQuestionForm() {
                   const duration = sliderToDuration(sliderValue);
                   setForm((s) => ({ ...s, durationSeconds: duration }));
                 }}
-                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer transition-all"
                 style={{
-                  background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${durationToSlider(
+                  background: `linear-gradient(to right, #f59e0b 0%, #f59e0b ${durationToSlider(
                     form.durationSeconds
-                  )}%, #374151 ${durationToSlider(
+                  )}%, rgba(255,255,255,0.1) ${durationToSlider(
                     form.durationSeconds
-                  )}%, #374151 100%)`,
+                  )}%, rgba(255,255,255,0.1) 100%)`,
                 }}
               />
-              <div className="flex justify-between text-xs text-gray-400">
+              <div className="flex justify-between text-xs text-white/50">
                 <span>1min</span>
                 <span>1hr</span>
                 <span>6hr</span>
                 <span>24hr</span>
               </div>
+
+              <div className="grid grid-cols-6 gap-2">
+                {DURATION_PRESETS.map((preset) => (
+                  <button
+                    key={preset.seconds}
+                    type="button"
+                    onClick={() =>
+                      setForm((s) => ({
+                        ...s,
+                        durationSeconds: preset.seconds,
+                      }))
+                    }
+                    className={
+                      `glass-button rounded-lg p-2 text-xs font-medium transition-all ` +
+                      (form.durationSeconds === preset.seconds
+                        ? 'bg-amber-500/20 border-amber-400/40 text-amber-300'
+                        : 'text-white/70 hover:text-white')
+                    }
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="glass-card rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <label className="block text-sm font-medium text-white/80">Answer Fee</label>
+              <span className="text-sm font-mono text-amber-400">
+                ${form.submissionCostUsd}
+              </span>
             </div>
 
-            {/* Preset buttons */}
-            <div className="grid grid-cols-6 gap-2">
-              {DURATION_PRESETS.map((preset) => (
+            <div className="space-y-4">
+              <input
+                type="range"
+                min="0"
+                max="2"
+                value={SUBMISSION_COSTS.findIndex(c => c.usd === form.submissionCostUsd)}
+                onChange={(e) => {
+                  const index = parseInt(e.target.value);
+                  const cost = SUBMISSION_COSTS[index];
+                  if (cost) {
+                    setForm((s) => ({ ...s, submissionCostUsd: cost.usd }));
+                  }
+                }}
+                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer transition-all"
+                style={{
+                  background: `linear-gradient(to right, #f59e0b 0%, #f59e0b ${(SUBMISSION_COSTS.findIndex(c => c.usd === form.submissionCostUsd) / (SUBMISSION_COSTS.length - 1)) * 100}%, rgba(255,255,255,0.1) ${(SUBMISSION_COSTS.findIndex(c => c.usd === form.submissionCostUsd) / (SUBMISSION_COSTS.length - 1)) * 100}%, rgba(255,255,255,0.1) 100%)`
+                }}
+              />
+              <div className="flex justify-between text-xs text-white/50">
+                <span>$1</span>
+                <span>$10</span>
+                <span>$100</span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                {SUBMISSION_COSTS.map((c) => (
+                  <button
+                    key={c.usd}
+                    type="button"
+                    onClick={() =>
+                      setForm((s) => ({ ...s, submissionCostUsd: c.usd }))
+                    }
+                    className={
+                      `glass-button rounded-lg p-2 text-xs font-medium transition-all ` +
+                      (form.submissionCostUsd === c.usd
+                        ? 'bg-amber-500/20 border-amber-400/40 text-amber-300'
+                        : 'text-white/70 hover:text-white')
+                    }
+                  >
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="glass-card rounded-xl p-6">
+            <label className="block text-sm font-medium text-white/80 mb-4">Max Winners</label>
+            <div className="grid grid-cols-5 gap-2">
+              {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
                 <button
-                  key={preset.seconds}
+                  key={num}
                   type="button"
                   onClick={() =>
-                    setForm((s) => ({ ...s, durationSeconds: preset.seconds }))
+                    setForm((s) => ({ ...s, maxWinners: num }))
                   }
                   className={
-                    `rounded-md border p-2 text-xs font-medium ` +
-                    (form.durationSeconds === preset.seconds
-                      ? 'border-indigo-500 bg-indigo-600 text-white'
-                      : 'border-gray-700 bg-black text-gray-200 hover:border-gray-500')
+                    `glass-button rounded-lg p-3 text-sm font-medium transition-all ` +
+                    (form.maxWinners === num
+                      ? 'bg-amber-500/20 border-amber-400/40 text-amber-300'
+                      : 'text-white/70 hover:text-white')
                   }
                 >
-                  {preset.label}
+                  {num}
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="block text-sm font-medium">Submission cost</label>
-            <div className="grid grid-cols-3 gap-2">
-              {SUBMISSION_COSTS.map((c) => (
-                <button
-                  key={c.usd}
-                  type="button"
-                  onClick={() =>
-                    setForm((s) => ({ ...s, submissionCostUsd: c.usd }))
-                  }
-                  className={
-                    `rounded-md border p-2 text-sm ` +
-                    (form.submissionCostUsd === c.usd
-                      ? 'border-indigo-500 bg-indigo-600 text-white'
-                      : 'border-gray-700 bg-black text-gray-200 hover:border-gray-500')
-                  }
-                >
-                  {c.label}
-                </button>
-              ))}
+          {error && (
+            <div className="glass-card rounded-xl p-4 border border-rose-500/30 bg-rose-950/20">
+              <p className="text-rose-300 text-sm">{error}</p>
             </div>
-          </div>
+          )}
 
-          {error && <p className="text-sm text-red-400">{error}</p>}
-          <div className="flex flex-col gap-2">
+          <div className="space-y-4">
             <button
               type="submit"
               disabled={isSubmitting}
               className="cta-button w-full disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'Creating…' : 'Create question'}
+              {isSubmitting ? (
+                <span className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-black/60 border-t-transparent mr-2" />
+                  Creating Question...
+                </span>
+              ) : (
+                'Create Question'
+              )}
             </button>
-            <p className="text-xs text-gray-400">
-              Earn 10% of all answer fees.
+            <p className="text-white/60 text-xs text-center">
+              Earn 10% of all answer fees
             </p>
           </div>
-        </>
+        </form>
       )}
-    </form>
+    </div>
   );
 }
 
