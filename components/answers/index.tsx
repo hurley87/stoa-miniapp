@@ -130,9 +130,6 @@ export default function Answers({ questionId }: AnswersProps) {
                   </span>
                 </div>
 
-                {/* Answer content is hidden */}
-                <p className="text-white/60 text-sm italic">Answer submitted</p>
-
                 {answer.score !== null && answer.score > 0 && (
                   <div className="mt-2">
                     <span className="inline-flex items-center bg-green-500/20 text-green-300 px-2 py-1 rounded-lg text-xs font-medium">
