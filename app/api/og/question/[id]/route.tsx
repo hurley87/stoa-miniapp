@@ -45,9 +45,6 @@ export async function GET(
     }
     const appUrl = env.NEXT_PUBLIC_URL;
 
-    console.log('appUrl', appUrl);
-    console.log('id', id);
-
     const res = await fetch(`${appUrl}/api/questions/${id}`, {
       cache: 'no-store',
     });
@@ -57,8 +54,6 @@ export async function GET(
     const question = (await res.json()) as Question;
 
     const timeLeft = formatTimeLeft(question.end_time);
-
-    // Use absolute URL for images; avoid base64 embedding to prevent parser issues
 
     return new ImageResponse(
       (
