@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useQuestion } from '@/hooks/use-active-questions';
 import AnswerQuestion from '@/components/answer-question';
 import Answers from '@/components/answers';
+import Countdown from '@/components/countdown';
 
 type Props = { idParam: string };
 
@@ -19,8 +19,6 @@ export default function QuestionPage({ idParam }: Props) {
   const { data: question, isLoading, error } = useQuestion(questionId);
   const router = useRouter();
 
-  const [timeLeft, setTimeLeft] = useState('');
-
   const truncateAddress = (addr: string) =>
     addr && addr.startsWith('0x')
       ? `${addr.slice(0, 6)}…${addr.slice(-4)}`
@@ -30,68 +28,6 @@ export default function QuestionPage({ idParam }: Props) {
     username && username.trim().length > 0 ? username : truncateAddress(wallet);
 
   const getInitial = (text: string) => (text?.[0] ?? '?').toUpperCase();
-
-  const formatCountdown = (timeString: string) => {
-    if (timeString === 'ENDED') {
-      return <span className="text-red-400">ENDED</span>;
-    }
-
-    const parts = timeString.split(' ');
-    return (
-      <span className="flex items-baseline space-x-1">
-        {parts.map((part, index) => {
-          const number = part.slice(0, -1);
-          const letter = part.slice(-1);
-          return (
-            <span key={index} className="flex items-baseline">
-              <span className="text-base sm:text-lg font-bold">{number}</span>
-              <span className="text-[10px] sm:text-xs uppercase ml-0.5">
-                {letter}
-              </span>
-            </span>
-          );
-        })}
-      </span>
-    );
-  };
-
-  useEffect(() => {
-    if (!question?.end_time) return;
-    const updateCountdown = () => {
-      const now = new Date().getTime();
-      const endTime = new Date(question.end_time).getTime();
-      const difference = endTime - now;
-
-      if (difference > 0) {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor(
-          (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-        );
-        const minutes = Math.floor(
-          (difference % (1000 * 60 * 60)) / (1000 * 60)
-        );
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-        if (days > 0) {
-          setTimeLeft(`${days}D ${hours}H ${minutes}M ${seconds}S`);
-        } else if (hours > 0) {
-          setTimeLeft(`${hours}H ${minutes}M ${seconds}S`);
-        } else if (minutes > 0) {
-          setTimeLeft(`${minutes}M ${seconds}S`);
-        } else {
-          setTimeLeft(`${seconds}S`);
-        }
-      } else {
-        setTimeLeft('ENDED');
-      }
-    };
-
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
-    return () => clearInterval(interval);
-  }, [question?.end_time]);
-
-  console.log('timeLeft', timeLeft);
 
   return (
     <div className="min-h-screen px-4 pt-16 pb-6">
@@ -136,9 +72,7 @@ export default function QuestionPage({ idParam }: Props) {
                 </svg>
                 <span className="hidden sm:inline">Back</span>
               </button>
-              <div className="text-slate-300 font-medium tracking-tight uppercase">
-                {formatCountdown(timeLeft)}
-              </div>
+              {question.end_time && <Countdown endTime={question.end_time} />}
             </div>
             {/* Creator */}
             <div className="flex items-center gap-3">
@@ -177,7 +111,6 @@ export default function QuestionPage({ idParam }: Props) {
             </h3>
             <AnswerQuestion
               question={question}
-              timeLeft={timeLeft}
               referrerAddress={referrerAddress}
             />
 

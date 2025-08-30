@@ -15,19 +15,15 @@ type QuestionLike = {
   contract_address: string;
   token_address: string;
   total_submissions: number;
+  end_time: string;
 };
 
 type Props = {
   question: QuestionLike;
-  timeLeft: string;
   referrerAddress?: string | null;
 };
 
-export default function AnswerQuestion({
-  question,
-  timeLeft,
-  referrerAddress,
-}: Props) {
+export default function AnswerQuestion({ question, referrerAddress }: Props) {
   const account = useAccount();
   const userWallet = account.address;
   const { user } = useUser();
@@ -97,31 +93,65 @@ export default function AnswerQuestion({
 
   const formatUSDC = (amount: number) => (amount / 1e6).toFixed(2);
 
-  const formatTimeLeftForShare = (value: string) => {
-    if (!value || value === 'ENDED') return 'soon';
-    const parts = value.split(' ');
-    const first = parts[0];
-    if (!first) return 'soon';
-    const num = Number(first.slice(0, -1));
-    const unit = first.slice(-1);
-    if (Number.isNaN(num) || num <= 0) return 'soon';
-    const unitMap: Record<string, [singular: string, plural: string]> = {
-      D: ['day', 'days'],
-      H: ['hour', 'hours'],
-      M: ['minute', 'minutes'],
-      S: ['second', 'seconds'],
-    };
-    const words = unitMap[unit] ?? ['second', 'seconds'];
-    const label = num === 1 ? words[0] : words[1];
-    return `${num} ${label}`;
+  const getTimeLeft = () => {
+    if (!question?.end_time) return '';
+
+    const now = new Date().getTime();
+    const endTime = new Date(question.end_time).getTime();
+    const difference = endTime - now;
+
+    if (difference <= 0) return 'ENDED';
+
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(
+      (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+    if (days > 0) {
+      return `${days}D ${hours}H ${minutes}M ${seconds}S`;
+    } else if (hours > 0) {
+      return `${hours}H ${minutes}M ${seconds}S`;
+    } else if (minutes > 0) {
+      return `${minutes}M ${seconds}S`;
+    } else {
+      return `${seconds}S`;
+    }
   };
+
+  const isQuestionEnded = () => {
+    if (!question?.end_time) return false;
+    return new Date().getTime() >= new Date(question.end_time).getTime();
+  };
+
 
   const handleShare = async () => {
     try {
       const url = `${window.location.origin}/questions/${question.question_id}${
         userWallet ? `?ref=${userWallet}` : ''
       }`;
-      const timeText = formatTimeLeftForShare(timeLeft);
+      const timeLeft = getTimeLeft();
+      let timeText = 'soon';
+      if (timeLeft && timeLeft !== 'ENDED') {
+        const parts = timeLeft.split(' ');
+        const first = parts[0];
+        if (first) {
+          const num = Number(first.slice(0, -1));
+          const unit = first.slice(-1);
+          if (!Number.isNaN(num) && num > 0) {
+            const unitMap: Record<string, [singular: string, plural: string]> = {
+              D: ['day', 'days'],
+              H: ['hour', 'hours'],
+              M: ['minute', 'minutes'],
+              S: ['second', 'seconds'],
+            };
+            const words = unitMap[unit] ?? ['second', 'seconds'];
+            const label = num === 1 ? words[0] : words[1];
+            timeText = `${num} ${label}`;
+          }
+        }
+      }
       const potentialEarnings = `${question.total_submissions} USDC`;
       const text = `I may earn ${potentialEarnings} for my thoughtful answer. Rewards distributed in ${timeText}.`;
 
@@ -290,14 +320,14 @@ export default function AnswerQuestion({
                   </div>
                   <button
                     onClick={() => setShowForm(true)}
-                    disabled={timeLeft === 'ENDED'}
+                    disabled={isQuestionEnded()}
                     className={`w-full ${
-                      timeLeft === 'ENDED'
+                      isQuestionEnded()
                         ? 'bg-slate-700 text-slate-400 cursor-not-allowed border border-slate-600 py-3 px-6 rounded-xl font-semibold transition-all'
                         : 'cta-button'
                     }`}
                   >
-                    {timeLeft === 'ENDED' ? 'Question Ended' : 'Answer'}
+                    {isQuestionEnded() ? 'Question Ended' : 'Answer'}
                   </button>
                 </div>
               ) : (
@@ -326,7 +356,7 @@ export default function AnswerQuestion({
                       disabled={
                         !answerText.trim() ||
                         submittingOnchain ||
-                        timeLeft === 'ENDED'
+                        isQuestionEnded()
                       }
                       className="cta-button flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
