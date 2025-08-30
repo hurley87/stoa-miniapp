@@ -11,6 +11,8 @@ export default function AppHeader() {
   const pfp = user.data?.pfp_url;
   const profileHref = address ? `/profile/${address}` : '/about';
 
+  if (!user.data) return null;
+
   return (
     <div
       style={{
