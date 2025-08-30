@@ -60,88 +60,68 @@ export default function Answers({ questionId }: AnswersProps) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-white">
-          Answers ({answers.length})
-        </h3>
-      </div>
+    <div className="space-y-3">
+      {answers.map((answer) => {
+        console.log('Answer data:', answer); // Debug log
+        const displayName = getDisplayName(answer.username, answer.wallet);
+        console.log(
+          'Display name:',
+          displayName,
+          'Username:',
+          answer.username,
+          'Wallet:',
+          answer.wallet,
+          'PFP:',
+          answer.pfp
+        ); // Debug log
 
-      <div className="space-y-3">
-        {answers.map((answer) => {
-          console.log('Answer data:', answer); // Debug log
-          const displayName = getDisplayName(answer.username, answer.wallet);
-          console.log(
-            'Display name:',
-            displayName,
-            'Username:',
-            answer.username,
-            'Wallet:',
-            answer.wallet,
-            'PFP:',
-            answer.pfp
-          ); // Debug log
-
-          return (
-            <div
-              key={answer.id}
-              className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
-            >
-              {/* Profile Picture */}
-              <div className="flex-shrink-0">
-                {answer.pfp ? (
-                  <img
-                    src={answer.pfp}
-                    alt={`${displayName}'s avatar`}
-                    className="h-10 w-10 rounded-full object-cover ring-1 ring-white/10"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-500/30 to-amber-300/20 ring-1 ring-white/10 flex items-center justify-center text-sm font-semibold text-slate-100">
-                    {getInitial(displayName)}
-                  </div>
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    {answer.wallet ? (
-                      <Link
-                        href={`/profile/${answer.wallet}`}
-                        className="text-white font-medium hover:text-amber-300 transition-colors text-sm"
-                      >
-                        {displayName}
-                      </Link>
-                    ) : (
-                      <span className="text-white font-medium text-sm">
-                        {displayName}
-                      </span>
-                    )}
-                    {answer.rank && answer.rank <= 3 && (
-                      <span className="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-lg text-xs font-medium">
-                        #{answer.rank}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-white/60 text-xs flex-shrink-0">
-                    {formatRelativeTime(answer.timestamp)}
-                  </span>
+        return (
+          <div
+            key={answer.id}
+            className="flex items-center justify-between gap-3 p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+          >
+            {/* Profile Picture */}
+            <div className="flex-shrink-0">
+              {answer.pfp ? (
+                <img
+                  src={answer.pfp}
+                  alt={`${displayName}'s avatar`}
+                  className="h-10 w-10 rounded-full object-cover ring-1 ring-white/10"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-500/30 to-amber-300/20 ring-1 ring-white/10 flex items-center justify-center text-sm font-semibold text-slate-100">
+                  {getInitial(displayName)}
                 </div>
-
-                {answer.score !== null && answer.score > 0 && (
-                  <div className="mt-2">
-                    <span className="inline-flex items-center bg-green-500/20 text-green-300 px-2 py-1 rounded-lg text-xs font-medium">
-                      Score: {answer.score}
-                    </span>
-                  </div>
+              )}
+            </div>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2">
+                {answer.wallet ? (
+                  <Link
+                    href={`/profile/${answer.wallet}`}
+                    className="text-white font-medium hover:text-amber-300 transition-colors text-sm"
+                  >
+                    {displayName}
+                  </Link>
+                ) : (
+                  <span className="text-white font-medium text-sm">
+                    {displayName}
+                  </span>
+                )}
+                {answer.rank && answer.rank <= 3 && (
+                  <span className="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-lg text-xs font-medium">
+                    #{answer.rank}
+                  </span>
                 )}
               </div>
+              <span className="text-white/60 text-xs flex-shrink-0">
+                {formatRelativeTime(answer.timestamp)}
+              </span>
             </div>
-          );
-        })}
-      </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
