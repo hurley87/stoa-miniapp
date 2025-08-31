@@ -1,18 +1,50 @@
 'use client';
 
 import { useUser } from '@/contexts/user-context';
-import { useActiveQuestions } from '@/hooks/use-active-questions';
+import {
+  useActiveQuestions,
+  usePastQuestions,
+} from '@/hooks/use-active-questions';
 import type { Question as ActiveQuestion } from '@/hooks/use-active-questions';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function Home() {
   const { user, isLoading, signIn } = useUser();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const tab = searchParams.get('tab') || 'active';
+  const isActiveTab = tab === 'active';
+
   const {
-    data: questions,
-    isLoading: questionsLoading,
-    error: questionsError,
+    data: activeQuestions,
+    isLoading: activeQuestionsLoading,
+    error: activeQuestionsError,
   } = useActiveQuestions();
+
+  const {
+    data: pastQuestions,
+    isLoading: pastQuestionsLoading,
+    error: pastQuestionsError,
+  } = usePastQuestions();
+
+  const questions = isActiveTab ? activeQuestions : pastQuestions;
+  const questionsLoading = isActiveTab
+    ? activeQuestionsLoading
+    : pastQuestionsLoading;
+  const questionsError = isActiveTab
+    ? activeQuestionsError
+    : pastQuestionsError;
+
+  const handleTabChange = (newTab: 'active' | 'past') => {
+    if (newTab === 'active') {
+      router.push('/');
+    } else {
+      router.push('/?tab=past');
+    }
+  };
 
   // Single ticking clock for all cards to avoid multiple intervals
   const [now, setNow] = useState<number>(Date.now());
@@ -219,6 +251,31 @@ export default function Home() {
     <div className="min-h-screen px-4 pt-16 pb-36">
       {/* Content */}
       <div className="max-w-2xl mx-auto px-0">
+        {/* Tabs */}
+        <div className="mb-4">
+          <div className="flex bg-white/5 rounded-xl p-1">
+            <button
+              onClick={() => handleTabChange('active')}
+              className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                isActiveTab
+                  ? 'bg-amber-500/20 text-amber-300 shadow-sm'
+                  : 'text-slate-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              Active
+            </button>
+            <button
+              onClick={() => handleTabChange('past')}
+              className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                !isActiveTab
+                  ? 'bg-amber-500/20 text-amber-300 shadow-sm'
+                  : 'text-slate-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              Past
+            </button>
+          </div>
+        </div>
         {questionsLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-10 w-10 border-2 border-amber-400 border-t-transparent" />
@@ -229,7 +286,9 @@ export default function Home() {
           </div>
         ) : questions?.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">
-            No questions available yet
+            {isActiveTab
+              ? 'No active questions available yet'
+              : 'No past questions found'}
           </div>
         ) : (
           <div className="flex flex-col gap-4">
@@ -284,13 +343,34 @@ export default function Home() {
                         </span>
                       </div>
 
-                      {/* Countdown - bottom right */}
+                      {/* Countdown or Status - bottom right */}
                       <div className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5">
-                        <span className="text-white/80 text-xs sm:text-sm font-medium bg-white/5 rounded-full px-2.5 py-1">
-                          {formatCountdown(
-                            new Date(question.end_time).getTime() - now
-                          )}
-                        </span>
+                        {isActiveTab ? (
+                          <span className="text-white/80 text-xs sm:text-sm font-medium bg-white/5 rounded-full px-2.5 py-1">
+                            {formatCountdown(
+                              new Date(question.end_time).getTime() - now
+                            )}
+                          </span>
+                        ) : (
+                          <span
+                            className={`text-xs sm:text-sm font-medium rounded-full px-2.5 py-1 ${
+                              question.status === 'evaluated'
+                                ? 'text-emerald-300 bg-emerald-500/20'
+                                : question.status === 'ended'
+                                ? 'text-amber-300 bg-amber-500/20'
+                                : 'text-red-300 bg-red-500/20'
+                            }`}
+                          >
+                            {question.status === 'evaluated'
+                              ? 'Evaluated'
+                              : question.status === 'ended'
+                              ? 'Ended'
+                              : question.status === 'emergency'
+                              ? 'Emergency'
+                              : question.status.charAt(0).toUpperCase() +
+                                question.status.slice(1)}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </Link>

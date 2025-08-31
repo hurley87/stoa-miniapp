@@ -49,6 +49,26 @@ export function useActiveQuestions() {
   });
 }
 
+async function fetchPastQuestions(): Promise<Question[]> {
+  const response = await fetch('/api/questions/past', {
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch past questions');
+  }
+
+  return response.json();
+}
+
+export function usePastQuestions() {
+  return useQuery({
+    queryKey: ['questions', 'past'],
+    queryFn: fetchPastQuestions,
+    staleTime: 1000 * 60 * 10, // 10 minutes (past questions change less frequently)
+  });
+}
+
 async function fetchQuestion(questionId: number): Promise<Question> {
   const response = await fetch(`/api/questions/${questionId}`, {
     cache: 'no-store',
