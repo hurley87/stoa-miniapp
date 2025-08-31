@@ -1,4 +1,5 @@
 import { useReadContracts } from 'wagmi';
+import { getAddress } from 'viem';
 import { STOA_FACTORY_ADDRESS, STOA_FACTORY_ABI } from '@/lib/abis/StoaFactory';
 
 // Known addresses that might be whitelisted (can be expanded)
@@ -7,14 +8,14 @@ const KNOWN_ADDRESSES = [
   '0xeFe07d20e9b15aCc922457060B93DA1052F60ea3',
   '0x891161c0fdd4797c79400ca2256a967bd6198450',
   // Add more addresses as needed
-];
+].map((addr) => getAddress(addr)); // Ensure proper checksumming
 
 export function useWhitelistStatus() {
   const contracts = KNOWN_ADDRESSES.map((address) => ({
     address: STOA_FACTORY_ADDRESS,
     abi: STOA_FACTORY_ABI,
     functionName: 'isWhitelisted',
-    args: [address as `0x${string}`],
+    args: [address],
   }));
 
   const { data, isError, isLoading } = useReadContracts({
@@ -36,6 +37,7 @@ export function useWhitelistStatus() {
       result?.status === 'success'
         ? (result.result as unknown as boolean) === true
         : false;
+
     return {
       address: address.toLowerCase(),
       isWhitelisted,
@@ -53,14 +55,16 @@ export function useWhitelistStatus() {
 }
 
 export function useIsWhitelisted(address?: string) {
+  const normalizedAddress = address ? getAddress(address) : undefined;
+
   const { data, isError, isLoading } = useReadContracts({
-    contracts: address
+    contracts: normalizedAddress
       ? [
           {
             address: STOA_FACTORY_ADDRESS,
             abi: STOA_FACTORY_ABI,
             functionName: 'isWhitelisted',
-            args: [address as `0x${string}`],
+            args: [normalizedAddress],
           },
         ]
       : [],
