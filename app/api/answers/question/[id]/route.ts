@@ -24,7 +24,7 @@ export async function GET(
       );
     }
 
-    // Fetch answers with creator details
+    // Fetch answers with creator details and evaluation results
     const { data, error } = await supabase
       .from('answers')
       .select(
@@ -35,6 +35,12 @@ export async function GET(
         timestamp,
         score,
         rank,
+        reward_amount,
+        ai_reward_amount,
+        creator_reward_amount,
+        ai_reward_reason,
+        creator_reward_reason,
+        evaluation_status,
         creator_id,
         creators!fk_answers_creator (
           username,
@@ -87,6 +93,12 @@ export async function GET(
         timestamp: answer.timestamp,
         score: answer.score,
         rank: answer.rank,
+        reward_amount: answer.reward_amount,
+        ai_reward_amount: answer.ai_reward_amount,
+        creator_reward_amount: answer.creator_reward_amount,
+        ai_reward_reason: answer.ai_reward_reason,
+        creator_reward_reason: answer.creator_reward_reason,
+        evaluation_status: answer.evaluation_status,
         username: creator?.username || null,
         pfp: creator?.pfp || null,
         wallet: creator?.wallet || null,

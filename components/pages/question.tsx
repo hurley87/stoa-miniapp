@@ -772,7 +772,7 @@ export default function QuestionPage({ idParam }: Props) {
               </div>
             </div>
 
-            <Answers questionId={question.question_id} />
+            <Answers questionId={question.question_id} isEvaluated={isEvaluatedOnchain || question?.status === 'evaluated'} />
           </div>
         )}
       </div>

@@ -7,6 +7,12 @@ export interface QuestionAnswer {
   timestamp: string;
   score: number | null;
   rank: number | null;
+  reward_amount?: number;
+  ai_reward_amount?: number;
+  creator_reward_amount?: number;
+  ai_reward_reason?: string;
+  creator_reward_reason?: string;
+  evaluation_status?: string;
   username: string | null;
   pfp: string | null;
   wallet: string | null;
