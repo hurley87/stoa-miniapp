@@ -64,7 +64,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
         <div className="text-center">
           <h1 className="text-xl font-semibold mb-2">User Not Found</h1>
           <p className="text-white/60 mb-4">
-            The profile you're looking for doesn't exist.
+            The profile you&apos;re looking for doesn&apos;t exist.
           </p>
           <Link href="/" className="cta-button inline-block">
             Go Home

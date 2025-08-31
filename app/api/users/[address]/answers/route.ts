@@ -18,7 +18,8 @@ export async function GET(
     // Fetch user's answers with question details and creator info
     const { data: answers, error } = await supabase
       .from('answers')
-      .select(`
+      .select(
+        `
         id,
         content,
         score,
@@ -46,7 +47,8 @@ export async function GET(
             pfp
           )
         )
-      `)
+      `
+      )
       .eq('responder', address)
       .order('created_at', { ascending: false });
 
@@ -60,28 +62,42 @@ export async function GET(
 
     // Calculate summary statistics
     const totalAnswers = answers?.length || 0;
-    const totalEarnings = answers?.reduce((sum, answer) => {
-      const earnings = answer.creator_reward_amount || answer.ai_reward_amount || answer.reward_amount || 0;
-      return sum + parseFloat(earnings.toString());
-    }, 0) || 0;
-    
-    const scoredAnswers = answers?.filter(a => a.score > 0) || [];
-    const averageScore = scoredAnswers.length > 0 
-      ? scoredAnswers.reduce((sum, a) => sum + a.score, 0) / scoredAnswers.length 
-      : 0;
-    
-    const rankedAnswers = answers?.filter(a => a.rank && a.rank > 0) || [];
-    const topRankedAnswers = rankedAnswers.filter(a => a.rank === 1);
+    const totalEarnings =
+      answers?.reduce((sum, answer) => {
+        const earnings =
+          answer.creator_reward_amount ||
+          answer.ai_reward_amount ||
+          answer.reward_amount ||
+          0;
+        return sum + parseFloat(earnings.toString());
+      }, 0) || 0;
+
+    const scoredAnswers = answers?.filter((a) => a.score > 0) || [];
+    const averageScore =
+      scoredAnswers.length > 0
+        ? scoredAnswers.reduce((sum, a) => sum + a.score, 0) /
+          scoredAnswers.length
+        : 0;
+
+    const rankedAnswers = answers?.filter((a) => a.rank && a.rank > 0) || [];
+    const topRankedAnswers = rankedAnswers.filter((a) => a.rank === 1);
 
     // Flatten the nested creator data for easier frontend consumption
-    const formattedAnswers = answers?.map(answer => ({
-      ...answer,
-      question: answer.questions ? {
-        ...answer.questions,
-        creator_username: answer.questions.creators?.username || null,
-        creator_pfp: answer.questions.creators?.pfp || null,
-      } : null,
-    }));
+    const formattedAnswers = answers?.map((answer) => {
+      const question = answer.questions;
+      const creators =
+        question && 'creators' in question ? (question as any).creators : null;
+      return {
+        ...answer,
+        question: question
+          ? {
+              ...question,
+              creator_username: creators?.[0]?.username || null,
+              creator_pfp: creators?.[0]?.pfp || null,
+            }
+          : null,
+      };
+    });
 
     return NextResponse.json({
       answers: formattedAnswers,
@@ -92,14 +108,15 @@ export async function GET(
         scoredAnswers: scoredAnswers.length,
         rankedAnswers: rankedAnswers.length,
         topRankedAnswers: topRankedAnswers.length,
-        answersWithRewards: answers?.filter(a => 
-          (a.creator_reward_amount && a.creator_reward_amount > 0) ||
-          (a.ai_reward_amount && a.ai_reward_amount > 0) ||
-          (a.reward_amount && a.reward_amount > 0)
-        ).length || 0,
-      }
+        answersWithRewards:
+          answers?.filter(
+            (a) =>
+              (a.creator_reward_amount && a.creator_reward_amount > 0) ||
+              (a.ai_reward_amount && a.ai_reward_amount > 0) ||
+              (a.reward_amount && a.reward_amount > 0)
+          ).length || 0,
+      },
     });
-
   } catch (error) {
     console.error('API error:', error);
     return NextResponse.json(

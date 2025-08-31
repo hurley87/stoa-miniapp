@@ -6,19 +6,10 @@ import { useAccount } from 'wagmi';
 import { useCreateQuestionOnchain } from '@/hooks/use-create-question-onchain';
 import { useApiMutation } from '@/hooks/use-api-mutation';
 import { useUser } from '@/contexts/user-context';
+import { useIsWhitelisted } from '@/hooks/use-whitelist-status';
 import { sdk } from '@farcaster/miniapp-sdk';
 import Link from 'next/link';
-
-const ALLOWLISTED_CREATORS = [
-  '0x26e94d56892521c4c7bbbd1d9699725932797e9c',
-  '0x891161c0fdd4797c79400ca2256a967bd6198450',
-  '0xeFe07d20e9b15aCc922457060B93DA1052F60ea3',
-].map((a) => a.toLowerCase());
-
-const isAllowedCreator = (addr?: string | null) => {
-  if (!addr) return false;
-  return ALLOWLISTED_CREATORS.includes(addr.toLowerCase());
-};
+import WhitelistDisplay from '@/components/whitelist-display';
 
 const DURATION_PRESETS = [
   { label: '5min', seconds: 5 * 60 },
@@ -176,6 +167,8 @@ export function CreateQuestionForm() {
   const { address } = useAccount();
   const { user } = useUser();
   const { create } = useCreateQuestionOnchain();
+  const { isWhitelisted, isLoading: isCheckingWhitelist } =
+    useIsWhitelisted(address);
   const [form, setForm] = useState<FormState>({
     questionContent: '',
     durationSeconds: 60 * 60, // 1 hour default
@@ -192,7 +185,7 @@ export function CreateQuestionForm() {
     submissionCostUsd: number;
   } | null>(null);
 
-  const canCreate = isAllowedCreator(address?.toLowerCase());
+  const canCreate = isWhitelisted;
 
   interface CreateQuestionRequest {
     questionId: number;
@@ -238,9 +231,9 @@ export function CreateQuestionForm() {
       return;
     }
 
-    if (!isAllowedCreator(address)) {
+    if (!isWhitelisted) {
       setError(
-        "You can't create questions yet. Only Logos members can create questions. DM Stoa to apply to join."
+        "You can't create questions yet. Only whitelisted members can create questions. Check the whitelist below or contact an admin to apply."
       );
       return;
     }
@@ -397,6 +390,8 @@ export function CreateQuestionForm() {
             Explore the Discourse
           </Link>
         </div>
+        {/* Whitelist Display Section */}
+        <WhitelistDisplay className="mt-8" />
       </div>
     );
   }
