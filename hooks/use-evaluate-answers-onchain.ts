@@ -7,6 +7,7 @@ import { base } from 'wagmi/chains';
 export type EvaluateAnswersOnchainParams = {
   contractAddress: string;
   rankedIndices: number[];
+  questionId?: number;
 };
 
 export function useEvaluateAnswersOnchain() {
@@ -83,6 +84,29 @@ export function useEvaluateAnswersOnchain() {
 
       const evaluationTxHash = normalizeTxHash(evaluationTx);
       setTxHash(evaluationTxHash);
+
+      // Update question status to 'evaluated' and set evaluation fields
+      if (rankedIndices.length > 0) {
+        try {
+          const updateResponse = await fetch('/api/questions/update-evaluation-status', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              contractAddress,
+              evaluationTxHash,
+              evaluatedAt: new Date().toISOString(),
+            }),
+          });
+
+          if (!updateResponse.ok) {
+            console.error('Failed to update question evaluation status');
+          }
+        } catch (updateError) {
+          console.error('Error updating question status:', updateError);
+        }
+      }
 
       setStep('completed');
 
