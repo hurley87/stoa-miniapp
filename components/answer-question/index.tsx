@@ -185,9 +185,7 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
               }
               className="w-full p-4 text-left flex items-center justify-between hover:bg-white/5 transition-colors rounded-xl"
             >
-              <p className="text-white text-sm font-semibold">
-                Referral Program
-              </p>
+              <p className="text-white text-sm font-semibold">Referral program</p>
               <svg
                 className={`w-4 h-4 text-white/60 transition-transform duration-200 ${
                   isReferralAccordionOpen ? 'rotate-180' : ''
@@ -228,9 +226,7 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
               </div>
             )}
           </div>
-          <button onClick={handleShare} className="cta-button w-full">
-            Share and Earn
-          </button>
+          <button onClick={handleShare} className="cta-button w-full">Share and earn</button>
         </>
       )}
 

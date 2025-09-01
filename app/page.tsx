@@ -21,10 +21,10 @@ const frame = {
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'Stoa - Where Questions Shape Discourse',
+    title: 'Stoa — Where questions shape discourse',
     openGraph: {
-      title: 'Stoa - Where Questions Shape Discourse',
-      description: 'Ask. Answer. Earn. A modern forum of ideas built onchain.',
+      title: 'Stoa — Where questions shape discourse',
+      description: 'Ask. Answer. Earn. A forum of ideas built onchain.',
     },
     other: {
       'fc:frame': JSON.stringify(frame),

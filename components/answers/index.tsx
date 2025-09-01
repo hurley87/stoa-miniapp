@@ -291,9 +291,7 @@ export default function Answers({
                 {(answer.ai_reward_amount ?? 0) > 0 && (
                   <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-medium text-blue-300">
-                        AI Evaluation
-                      </h4>
+                      <h4 className="text-sm font-medium text-blue-300">AI evaluation</h4>
                       <span className="text-sm font-medium text-emerald-400">
                         $
                         {formatEarnings(
@@ -313,9 +311,7 @@ export default function Answers({
                 {(answer.creator_reward_amount ?? 0) > 0 && (
                   <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-medium text-amber-300">
-                        Creator Review
-                      </h4>
+                      <h4 className="text-sm font-medium text-amber-300">Creator review</h4>
                       <span className="text-sm font-medium text-emerald-400">
                         $
                         {formatEarnings(
@@ -343,9 +339,7 @@ export default function Answers({
                 <div className="mt-4 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-sm font-medium text-emerald-300 mb-1">
-                        Reward Available
-                      </h4>
+                      <h4 className="text-sm font-medium text-emerald-300 mb-1">Reward available</h4>
                       <p className="text-xs text-emerald-200/80">
                         You can claim $
                         {formatEarnings(claimableAmounts[answer.id].amount)}{' '}
@@ -363,7 +357,7 @@ export default function Answers({
                           Claiming...
                         </span>
                       ) : (
-                        'Claim Reward'
+                        'Claim reward'
                       )}
                     </button>
                   </div>
@@ -391,9 +385,7 @@ export default function Answers({
                       </svg>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-blue-300 mb-1">
-                        Reward Claimed
-                      </h4>
+                      <h4 className="text-sm font-medium text-blue-300 mb-1">Reward claimed</h4>
                       <p className="text-xs text-blue-200/80">
                         You have already claimed your reward for this answer
                       </p>

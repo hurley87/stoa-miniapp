@@ -72,13 +72,11 @@ export default function ProfilePage({ params }: ProfilePageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-xl font-semibold mb-2">User Not Found</h1>
+          <h1 className="text-xl font-semibold mb-2">User not found</h1>
           <p className="text-white/60 mb-4">
             The profile you&apos;re looking for doesn&apos;t exist.
           </p>
-          <Link href="/" className="cta-button inline-block">
-            Go Home
-          </Link>
+          <Link href="/" className="cta-button inline-block">Go home</Link>
         </div>
       </div>
     );
@@ -447,7 +445,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
         className="fixed bottom-0 right-0 left-0 px-4 py-6 border-t border-white/10"
       >
         <Link href="/">
-          <button className="cta-button w-full">Browse Questions</button>
+          <button className="cta-button w-full">Browse questions</button>
         </Link>
       </div>
     </>
