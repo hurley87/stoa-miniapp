@@ -285,9 +285,7 @@ export default function Home() {
           </div>
         ) : questions?.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">
-            {isActiveTab
-              ? 'No active questions available yet'
-              : 'No past questions found'}
+            {isActiveTab ? 'No active questions yet' : 'No past questions found'}
           </div>
         ) : (
           <div className="flex flex-col gap-4">
@@ -387,7 +385,7 @@ export default function Home() {
         className="fixed bottom-0 right-0 left-0 px-4 py-6 border-t border-white/10"
       >
         <Link href="/new">
-          <button className="cta-button w-full">Create a Question</button>
+          <button className="cta-button w-full">Create a question</button>
         </Link>
       </div>
     </div>

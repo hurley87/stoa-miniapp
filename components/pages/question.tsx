@@ -376,9 +376,7 @@ export default function QuestionPage({ idParam }: Props) {
                 >
                   {getDisplayName(question.creator_username, question.creator)}
                 </Link>
-                <span className="text-slate-400 text-sm">
-                  Asked this question
-                </span>
+                <span className="text-slate-400 text-sm">Asked this question</span>
               </div>
             </div>
 
@@ -391,9 +389,7 @@ export default function QuestionPage({ idParam }: Props) {
                 {isQuestionCreator() ? (
                   isEvaluatedOnchain ? (
                     <div className="bg-purple-500/10 border border-purple-400/30 rounded-xl p-4">
-                      <h4 className="text-purple-300 font-semibold mb-2">
-                        Question Already Evaluated
-                      </h4>
+                      <h4 className="text-purple-300 font-semibold mb-2">Question already evaluated</h4>
                       <p className="text-purple-200/80 text-sm">
                         This question has been evaluated and submitted to the
                         blockchain. Winners can now claim their rewards.
@@ -401,9 +397,7 @@ export default function QuestionPage({ idParam }: Props) {
                     </div>
                   ) : !evaluationResults ? (
                     <div className="bg-amber-500/10 border border-amber-400/30 rounded-xl p-4">
-                      <h4 className="text-amber-300 font-semibold mb-2">
-                        Question Ended - Ready for Evaluation
-                      </h4>
+                      <h4 className="text-amber-300 font-semibold mb-2">Question ended — ready for evaluation</h4>
                       <p className="text-amber-200/80 text-sm mb-4">
                         Your question has ended. Click below to evaluate the
                         answers and distribute rewards.
@@ -419,7 +413,7 @@ export default function QuestionPage({ idParam }: Props) {
                             Evaluating...
                           </span>
                         ) : (
-                          'Evaluate Answers'
+                          'Evaluate answers'
                         )}
                       </button>
                       {evaluationError && (
@@ -433,9 +427,7 @@ export default function QuestionPage({ idParam }: Props) {
                   ) : isReviewMode ? (
                     <div className="space-y-4">
                       <div className="bg-blue-500/10 border border-blue-400/30 rounded-xl p-4">
-                        <h4 className="text-blue-300 font-semibold mb-2">
-                          Review AI Evaluation
-                        </h4>
+                        <h4 className="text-blue-300 font-semibold mb-2">Review AI evaluation</h4>
                         <p className="text-blue-200/80 text-sm mb-3">
                           Review and modify the AI&apos;s evaluation below. You
                           can adjust reward amounts and reasons before

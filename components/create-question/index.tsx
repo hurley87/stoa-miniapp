@@ -361,11 +361,11 @@ export function CreateQuestionForm() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400 mt-0.5">•</span>
-              <span>Guide quality discussions through curation</span>
+              <span>Curate questions; guide quality discussion</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400 mt-0.5">•</span>
-              <span>Build reputation and influence thoughtful discussions</span>
+              <span>Build reputation and influence the discourse</span>
             </li>
           </ul>
           <div className="mt-4 p-3 rounded-lg bg-white/5 border border-white/10">
@@ -387,7 +387,7 @@ export function CreateQuestionForm() {
             href="/"
             className="glass-button w-full text-center py-3 px-6 rounded-xl font-medium text-white transition-all"
           >
-            Explore the Discourse
+            Explore the discourse
           </Link>
         </div>
         {/* Whitelist Display Section */}
@@ -401,12 +401,8 @@ export function CreateQuestionForm() {
       {created ? (
         <div className=" space-y-6">
           <div className="text-center">
-            <h2 className="text-white text-xl font-semibold mb-2">
-              Question Posted Successfully!
-            </h2>
-            <p className="text-white/70">
-              Your question is now live in the discourse
-            </p>
+            <h2 className="text-white text-xl font-semibold mb-2">Question posted</h2>
+            <p className="text-white/70">Your question is live in the discourse</p>
           </div>
 
           <div className="glass-panel rounded-lg p-4">
@@ -427,13 +423,13 @@ export function CreateQuestionForm() {
               onClick={handleShare}
               className="cta-button w-full"
             >
-              Share and Earn
+              Share and earn
             </button>
             <Link
               href={`/questions/${created.id}`}
               className="glass-button w-full text-center py-3 px-6 rounded-xl font-medium text-white transition-all"
             >
-              View Question
+              View question
             </Link>
           </div>
         </div>
@@ -442,7 +438,7 @@ export function CreateQuestionForm() {
           <div className="rounded-xl">
             <div className="space-y-3">
               <label className="block text-sm font-medium text-white/80">
-                Your Question
+                Your question
               </label>
               <textarea
                 rows={3}
@@ -451,13 +447,11 @@ export function CreateQuestionForm() {
                   setForm((s) => ({ ...s, questionContent: e.target.value }))
                 }
                 maxLength={150}
-                placeholder="What would you like to know?"
+                placeholder="Pose a clear, concrete question"
                 className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400/60 resize-none transition-all"
               />
               <div className="flex justify-between text-xs">
-                <span className="text-white/50">
-                  Clear, engaging questions get better answers
-                </span>
+                <span className="text-white/50">Clear prompts get better answers</span>
                 <span className="text-white/60">
                   {form.questionContent.length}/150
                 </span>
@@ -470,7 +464,7 @@ export function CreateQuestionForm() {
 
           <div className="">
             <label className="block text-sm font-medium text-white/80 mb-3">
-              Evaluation Instructions
+              Evaluation instructions
             </label>
             <textarea
               rows={6}
@@ -479,13 +473,11 @@ export function CreateQuestionForm() {
                 setForm((s) => ({ ...s, evaluationPrompt: e.target.value }))
               }
               maxLength={1000}
-              placeholder="How should the AI evaluate and rank answers to your question?"
+              placeholder="Tell the AI how to evaluate and rank answers"
               className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400/60 resize-none text-sm transition-all"
             />
             <div className="flex justify-between text-xs mt-2">
-              <span className="text-white/50">
-                Guide the AI evaluator&#39;s decision making
-              </span>
+              <span className="text-white/50">Guide the AI evaluator&#39;s decisions</span>
               <span className="text-white/60">
                 {form.evaluationPrompt.length}/1000
               </span>
@@ -497,9 +489,7 @@ export function CreateQuestionForm() {
 
           <div className="">
             <div className="flex items-center justify-between mb-4">
-              <label className="block text-sm font-medium text-white/80">
-                Answer Period
-              </label>
+              <label className="block text-sm font-medium text-white/80">Answer period</label>
               <span className="text-sm font-mono text-amber-400">
                 {formatDuration(form.durationSeconds)}
               </span>
@@ -562,9 +552,7 @@ export function CreateQuestionForm() {
 
           <div className="">
             <div className="flex items-center justify-between mb-4">
-              <label className="block text-sm font-medium text-white/80">
-                Answer Fee
-              </label>
+              <label className="block text-sm font-medium text-white/80">Answer fee</label>
               <span className="text-sm font-mono text-amber-400">
                 ${form.submissionCostUsd}
               </span>
@@ -629,9 +617,7 @@ export function CreateQuestionForm() {
           <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
 
           <div className="">
-            <label className="block text-sm font-medium text-white/80 mb-4">
-              Max Winners
-            </label>
+            <label className="block text-sm font-medium text-white/80 mb-4">Max winners</label>
             <div className="grid grid-cols-5 gap-2">
               {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
                 <button
@@ -666,10 +652,10 @@ export function CreateQuestionForm() {
               {isSubmitting ? (
                 <span className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-black/60 border-t-transparent mr-2" />
-                  Creating Question...
+                  Posting question...
                 </span>
               ) : (
-                'Create Question'
+                'Post question'
               )}
             </button>
             <p className="text-white/60 text-xs text-center">
