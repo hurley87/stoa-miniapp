@@ -161,17 +161,15 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                 <div className="text-2xl font-bold ">
                   {userAnswersData?.stats.totalAnswers || 0}
                 </div>
-                <div className="text-xs text-white/60 uppercase tracking-wide">
-                  Answers
-                </div>
+                <div className="text-xs text-white/60 uppercase tracking-wide">Replies</div> {/* copy:updated */}
+                
               </div>
               <div className="glass-card p-4 text-center">
                 <div className="text-2xl font-bold ">
                   {userQuestionsData?.stats.totalQuestions || 0}
                 </div>
-                <div className="text-xs text-white/60 uppercase tracking-wide">
-                  Questions
-                </div>
+                <div className="text-xs text-white/60 uppercase tracking-wide">Prompts</div> {/* copy:updated */}
+                
               </div>
               <div className="glass-card p-4 text-center">
                 <div className="text-2xl font-bold ">
@@ -209,7 +207,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                   : 'text-white/60 hover:text-white/80'
               }`}
             >
-              Answers ({userAnswersData?.stats.totalAnswers || 0})
+              Replies ({userAnswersData?.stats.totalAnswers || 0}) {/* copy:updated */}
             </button>
             <button
               onClick={() => setActiveTab('questions')}
@@ -219,7 +217,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                   : 'text-white/60 hover:text-white/80'
               }`}
             >
-              Questions ({userQuestionsData?.stats.totalQuestions || 0})
+              Prompts ({userQuestionsData?.stats.totalQuestions || 0}) {/* copy:updated */}
             </button>
           </div>
 
@@ -235,14 +233,12 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                   Failed to load answers
                 </div>
               ) : !userAnswersData?.answers.length ? (
-                <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">
-                  No answers yet
-                </div>
+                <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">No replies yet</div> {/* copy:updated */}
               ) : (
                 <div className="space-y-4">
                   {userAnswersData.answers.map((answer) => (
                     <div key={answer.id} className="glass-card p-4">
-                      {/* Question */}
+                      {/* Prompt */} {/* copy:updated */}
                       <div className="mb-3">
                         <Link
                           href={`/questions/${answer.question.question_id}`}
@@ -268,7 +264,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                         </div>
                       </div>
 
-                      {/* Answer */}
+                      {/* Reply */} {/* copy:updated */}
                       <div className="mb-3 p-3 bg-white/5 rounded-lg">
                         <p className="text-sm text-slate-300 leading-relaxed">
                           {truncateText(answer.content, 200)}
@@ -358,9 +354,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                   Failed to load questions
                 </div>
               ) : !userQuestionsData?.questions.length ? (
-                <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">
-                  No questions created yet
-                </div>
+                <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">No prompts created yet</div> {/* copy:updated */}
               ) : (
                 <div className="space-y-4">
                   {userQuestionsData.questions.map((question) => (
@@ -376,7 +370,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                           </h3>
                         </Link>
                         <div className="flex items-center gap-2 text-xs text-white/60">
-                          <span>Question #{question.question_id}</span>
+                          <span>Prompt #{question.question_id}</span> {/* copy:updated */}
                           <span>•</span>
                           <span className="px-2 py-1 rounded-full text-xs font-medium bg-white/10 text-white/70">
                             {question.status.charAt(0).toUpperCase() +
@@ -401,9 +395,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-white/60">
-                              Cost/Submission:
-                            </span>
+                            <span className="text-white/60">Entry Fee:</span> {/* copy:updated */}
                             <span className="font-semibold text-white">
                               $
                               {formatEarnings(
@@ -415,13 +407,11 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                         </div>
                       </div>
 
-                      {/* Reward Pool Info */}
+                      {/* Prize Pool Info */} {/* copy:updated */}
                       {parseFloat(question.total_reward_pool || '0') > 0 && (
                         <div className="mt-3 pt-3 border-t border-white/10">
                           <div className="text-xs text-white/60">
-                            <span className="font-medium">
-                              Total Reward Pool:{' '}
-                            </span>
+                            <span className="font-medium">Total Prize Pool: </span> {/* copy:updated */}
                             <span className="text-white">
                               $
                               {formatEarnings(

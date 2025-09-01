@@ -2,9 +2,9 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'How Stoa works — Ask. Answer. Earn.',
+  title: 'How Stoa works — Ask. Reply. Get Judged. Win.', // copy:updated
   description:
-    'A forum of ideas built onchain. Creators ask questions. Anyone can answer. The best answers earn rewards.',
+    'Stoa is an onchain game of prompts and replies. KOLs drop prompts. Reply Guys play. AI Judge ranks. Whitelisted Human Judges finalize.', // copy:updated
 };
 
 export default function AboutPage() {
@@ -16,44 +16,23 @@ export default function AboutPage() {
             <h2 className="text-xl font-semibold mb-3 text-slate-100">
               What is Stoa?
             </h2>
-            <p className="text-slate-400 leading-relaxed mb-3">
-              Stoa is a forum of ideas built onchain.
-            </p>
-            <p className="text-slate-400 leading-relaxed mb-3">
-              Question creators ask. Anyone may answer. Creators frame the
-              discourse; the crowd brings the signal.
-            </p>
-            <p className="text-slate-400 leading-relaxed">
-              Thoughtful questions. Quality answers. Rewards onchain.
-            </p>
+            <p className="text-slate-400 leading-relaxed mb-3">Stoa is an onchain game of prompts and replies.</p> // copy:updated
+            <p className="text-slate-400 leading-relaxed mb-3">KOLs (Prompt Creators) drop prompts. Reply Guys post replies. AI Judge ranks. Whitelisted Human Judges have the final say.</p> // copy:updated
+            <p className="text-slate-400 leading-relaxed">Start a game. Pay to reply. Get judged. Claim rewards.</p> // copy:updated
           </section>
 
           <section className="py-8 first:pt-0">
-            <h2 className="text-xl font-semibold mb-5 text-slate-100">
-              For creators
-            </h2>
+            <h2 className="text-xl font-semibold mb-5 text-slate-100">For KOLs (Prompt Creators)</h2> // copy:updated
 
             <div className="mb-5">
               <h3 className="text-base sm:text-lg font-semibold mb-2 text-white/90">
                 Frame the Discourse
               </h3>
               <ol className="list-decimal list-inside space-y-2 text-slate-400 ml-4">
-                <li>
-                  <strong>Choose your question</strong>: A topic worth debating
-                  or a problem worth solving
-                </li>
-                <li>
-                  <strong>Set the stakes</strong>: Define the answer fee (funds
-                  the reward pool)
-                </li>
-                <li>
-                  <strong>Choose duration</strong>: Decide how long answers are
-                  accepted
-                </li>
-                <li>
-                  <strong>Define winners</strong>: Select how many top answers
-                  are rewarded
-                </li>
+                <li><strong>Drop a prompt</strong>: A topic worth debating or a problem worth solving</li> // copy:updated
+                <li><strong>Set the stakes</strong>: Define the Entry Fee (funds the Prize Pool)</li> // copy:updated
+                <li><strong>Choose duration</strong>: Decide how long replies are accepted</li> // copy:updated
+                <li><strong>Define winners</strong>: Select how many top replies are rewarded</li> // copy:updated
               </ol>
             </div>
 
@@ -61,85 +40,52 @@ export default function AboutPage() {
               <h3 className="text-base sm:text-lg font-semibold mb-2 text-white/90">
                 What you earn
               </h3>
-              <p className="text-slate-400 mb-3">
-                Creators earn{' '}
-                <strong className="text-amber-300">
-                  10% of all answer fees
-                </strong>{' '}
-                on each question. If 20 people each pay 10 tokens to answer, you
-                earn 20 tokens for curating the discourse.
-              </p>
+              <p className="text-slate-400 mb-3">KOLs earn <strong className="text-amber-300">10% of all Entry Fees</strong> on each game. If 20 players each pay 10 tokens to reply, you earn 20 tokens.</p> // copy:updated
             </div>
 
             <div className="pl-4 border-l-2 border-amber-400/40">
               <h4 className="font-semibold mb-2 text-amber-200">Example</h4>
               <ul className="space-y-1 text-slate-400 text-sm leading-relaxed">
-                <li>
-                  • You ask: &ldquo;What&#39;s the best way to invest $10,000
-                  right now?&rdquo;
-                </li>
-                <li>• Set answer fee: 5 tokens</li>
-                <li>• 30 people submit answers = 150 tokens collected</li>
-                <li>• Creator share: 15 tokens (10% of fees)</li>
-                <li>• The rest rewards the best answers</li>
+                <li>• You drop: &ldquo;What should Base build next?&rdquo;</li> // copy:updated
+                <li>• Set Entry Fee: 5 tokens</li> // copy:updated
+                <li>• 30 replies = 150 tokens collected</li> // copy:updated
+                <li>• KOL share: 15 tokens (10% of fees)</li> // copy:updated
+                <li>• The rest funds the Prize Pool</li> // copy:updated
               </ul>
             </div>
           </section>
 
           <section className="py-8 first:pt-0">
-            <h2 className="text-xl font-semibold mb-5 text-slate-100">
-              For answerers
-            </h2>
+            <h2 className="text-xl font-semibold mb-5 text-slate-100">For Reply Guys (Players)</h2> // copy:updated
 
             <div className="mb-5">
               <h3 className="text-base sm:text-lg font-semibold mb-2 text-white/90">
                 How to earn
               </h3>
               <ol className="list-decimal list-inside space-y-2 text-slate-400 ml-4">
-                <li>
-                  <strong>Find questions</strong>: Browse open questions
-                </li>
-                <li>
-                  <strong>Pay to play</strong>: Submit your answer with the
-                  required fee
-                </li>
-                <li>
-                  <strong>Contribute knowledge</strong>: Offer depth,
-                  originality, and clarity
-                </li>
-                <li>
-                  <strong>AI judgement</strong>: AI reviews and ranks all
-                  answers
-                </li>
-                <li>
-                  <strong>Claim rewards</strong>: If your answer ranks among the
-                  best, you win your share
-                </li>
+                <li><strong>Find prompts</strong>: Browse open games</li> // copy:updated
+                <li><strong>Pay to Reply</strong>: Submit your reply with the Entry Fee</li> // copy:updated
+                <li><strong>Make your move</strong>: Offer depth, originality, and clarity</li> // copy:updated
+                <li><strong>Get Judged</strong>: AI Judge ranks; Whitelisted Human Judges finalize</li> // copy:updated
+                <li><strong>Claim Rewards</strong>: Rank high to earn from the Prize Pool</li> // copy:updated
               </ol>
             </div>
 
             <div className="mb-5">
-              <h3 className="text-base sm:text-lg font-semibold mb-2 text-white/90">
-                Reward system
-              </h3>
+              <h3 className="text-base sm:text-lg font-semibold mb-2 text-white/90">Prize system</h3> // copy:updated
               <ul className="space-y-1 text-slate-400 ml-4">
-                <li>• 80% of answer fees flow into the reward pool</li>
-                <li>
-                  • Rewards are distributed by score, weighted by AI evaluation
-                </li>
+                <li>• 75% of Entry Fees flow into the Prize Pool</li> {/* copy:updated */}
+                <li>• Rewards are ranked by AI Judge; Whitelisted Human Judges can adjust</li> {/* copy:updated */}
               </ul>
             </div>
 
             <div className="pl-4 border-l-2 border-amber-400/40">
               <h4 className="font-semibold mb-2 text-amber-200">Example</h4>
               <ul className="space-y-1 text-slate-400 text-sm leading-relaxed">
-                <li>• Question has 100 tokens in the reward pool</li>
-                <li>
-                  • Your answer ranks #1 out of 3 winners with scores: You=3,
-                  Second=2, Third=1
-                </li>
-                <li>• Total scores = 6</li>
-                <li>• Your reward = (3 ÷ 6) × 100 = 50 tokens</li>
+                <li>• Prompt has 100 tokens in the Prize Pool</li> {/* copy:updated */}
+                <li>• Your reply ranks #1 out of 3 winners with scores: You=3, Second=2, Third=1</li> {/* copy:updated */}
+                <li>• Total scores = 6</li> {/* copy:updated */}
+                <li>• Your reward = (3 ÷ 6) × 100 = 50 tokens</li> {/* copy:updated */}
               </ul>
             </div>
           </section>
@@ -148,22 +94,12 @@ export default function AboutPage() {
             <h2 className="text-xl font-semibold mb-3 text-slate-100">
               The money flow
             </h2>
-            <p className="text-slate-400 mb-3">
-              When someone submits an answer for 10 tokens:
-            </p>
+            <p className="text-slate-400 mb-3">When someone submits a reply for 10 tokens:</p> {/* copy:updated */}
             <ul className="space-y-2 text-slate-400 ml-4">
-              <li>
-                • <strong className="text-white">1 token</strong> → Stoa
-                protocol (keeps the forum running)
-              </li>
-              <li>
-                • <strong className="text-amber-300">1 token</strong> → Creator
-                (the question asker)
-              </li>
-              <li>
-                • <strong className="text-emerald-300">8 tokens</strong> →
-                Reward pool for the best answers
-              </li>
+              <li>• <strong className="text-white">10%</strong> → Protocol Treasury</li> {/* copy:updated */}
+              <li>• <strong className="text-amber-300">10%</strong> → KOL (Prompt Creator)</li> {/* copy:updated */}
+              <li>• <strong className="text-emerald-300">5%</strong> → Referrer (if provided)</li> {/* copy:updated */}
+              <li>• <strong className="text-emerald-300">75%</strong> → Prize Pool for the best replies</li> {/* copy:updated */}
             </ul>
           </section>
 
@@ -175,11 +111,11 @@ export default function AboutPage() {
               Once the timer expires, AI acts as judge:
             </p>
             <ul className="space-y-2 text-slate-400 ml-4 mb-3">
-              <li>• Reviews all answers</li>
-              <li>• Scores them for accuracy, originality, and clarity</li>
-              <li>• Ranks winners and distributes rewards</li>
+              <li>• Reviews all replies</li> {/* copy:updated */}
+              <li>• Scores them for accuracy, originality, and clarity</li> {/* copy:updated */}
+              <li>• Ranks winners and distributes rewards</li> {/* copy:updated */}
             </ul>
-            <p className="text-slate-400 mb-1">AI ensures evaluation is:</p>
+            <p className="text-slate-400 mb-1">AI ensures judging is:</p> {/* copy:updated */}
             <ul className="space-y-1 text-slate-400 ml-4">
               <li>
                 • <strong>Objective</strong>: No human bias
@@ -207,8 +143,7 @@ export default function AboutPage() {
                 encourage thoughtful responses
               </li>
               <li>
-                • <strong>Onchain clarity</strong>: All payments and evaluations
-                are transparent
+                • <strong>Onchain clarity</strong>: All payments and judging are transparent
               </li>
             </ul>
           </section>
@@ -217,16 +152,9 @@ export default function AboutPage() {
             <h2 className="text-xl font-semibold mb-2 text-slate-100">
               The bottom line
             </h2>
-            <p className="text-slate-400 mb-2">
-              <strong>Stoa rewards thoughtful discourse.</strong>
-            </p>
-            <p className="text-slate-400 mb-4">
-              Creators spark discussions. The crowd shares thoughtful answers.
-              Quality contributions are rewarded.
-            </p>
-            <p className="text-slate-400 mb-4 font-semibold">
-              Ask. Answer. Earn.
-            </p>
+            <p className="text-slate-400 mb-2"><strong>Stoa rewards smart moves.</strong></p> {/* copy:updated */}
+            <p className="text-slate-400 mb-4">KOLs drop prompts. Reply Guys make moves. The best replies get paid.</p> {/* copy:updated */}
+            <p className="text-slate-400 mb-4 font-semibold">Ask. Reply. Get Judged. Win.</p> {/* copy:updated */}
           </section>
         </div>
       </div>
@@ -238,7 +166,7 @@ export default function AboutPage() {
         className="fixed bottom-0 right-0 left-0 px-4 py-6 border-t border-white/10"
       >
         <Link href="/">
-          <button className="cta-button w-full">Browse questions</button>
+          <button className="cta-button w-full">Browse prompts</button> {/* copy:updated */}
         </Link>
       </div>
     </div>

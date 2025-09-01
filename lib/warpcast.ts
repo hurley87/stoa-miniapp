@@ -37,15 +37,15 @@ export async function getFarcasterManifest() {
       splashBackgroundColor: '#FFFFFF',
       webhookUrl: `${appUrl}/api/webhook`,
       // Metadata https://github.com/farcasterxyz/miniapps/discussions/191
-      subtitle: 'Onchain Forum for Learning', // 30 characters, no emojis or special characters, short description under app name
+      subtitle: 'Onchain Knowledge Game', // copy:updated
       description:
-        'Creators ask the questions, the crowd answers, and AI distributes tokens to the best responses.', // 170 characters, no emojis or special characters, promotional message displayed on Mini App Page
+        'KOLs drop prompts. Reply Guys play. AI Judge ranks. Whitelisted Human Judges finalize.', // copy:updated
       primaryCategory: 'education',
       tags: ['forum', 'learning', 'onchain', 'rewards', 'AI'], // up to 5 tags, filtering/search tags
-      tagline: 'Ask. Answer. Earn.', // 30 characters, marketing tagline should be punchy and descriptive
-      ogTitle: 'Stoa - Onchain Forum for Learning', // 30 characters, app name + short tag, Title case, no emojis
+      tagline: 'Ask. Reply. Get Judged. Win.', // copy:updated
+      ogTitle: 'Stoa — The Knowledge Game', // copy:updated
       ogDescription:
-        'Stoa is a forum where questions shape discourse and knowledge earns rewards.', // 100 characters, summarize core benefits in 1-2 lines
+        'Onchain prompts and replies. Pay to Reply. Get judged. Claim rewards.', // copy:updated
       screenshotUrls: [
         // 1284 x 2778, visual previews of the app, max 3 screenshots
         `${appUrl}/images/feed.png`,

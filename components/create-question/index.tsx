@@ -337,33 +337,29 @@ export function CreateQuestionForm() {
     return (
       <div className="mx-auto w-full max-w-lg flex flex-col gap-6 pb-6">
         <div className="">
-          <h2 className="text-white text-xl font-semibold mb-3">
-            Only approved creators may ask
-          </h2>
+          <h2 className="text-white text-xl font-semibold mb-3">Only approved KOLs may drop prompts</h2> // copy:updated
           {address ? (
             <p className="text-white/70 mb-4">
               This wallet ({address.slice(0, 6)}…{address.slice(-4)}) isn&#39;t
-              approved to create questions yet. DM Stoa to apply.
+              approved to drop prompts yet. DM Stoa to apply.
             </p>
           ) : (
             <p className="text-white/70 mb-4">
-              Connect a wallet to continue. DM Stoa to apply for creator access.
+              Connect a wallet to continue. DM Stoa to apply for KOL access.
             </p>
           )}
         </div>
 
         <div className="">
-          <h3 className="text-white font-semibold mb-3">
-            Why become a creator
-          </h3>
+          <h3 className="text-white font-semibold mb-3">Why become a KOL (Prompt Creator)</h3> // copy:updated
           <ul className="space-y-2 text-white/70 text-sm">
             <li className="flex items-start gap-2">
               <span className="text-amber-400 mt-0.5">•</span>
-              <span>Earn 10% of all answer fees</span>
+              <span>Earn 10% of all Entry Fees</span> {/* copy:updated */}
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400 mt-0.5">•</span>
-              <span>Curate questions; guide quality discussion</span>
+              <span>Curate prompts; guide quality discourse</span> {/* copy:updated */}
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400 mt-0.5">•</span>
@@ -371,9 +367,7 @@ export function CreateQuestionForm() {
             </li>
           </ul>
           <div className="mt-4 p-3 rounded-lg bg-white/5 border border-white/10">
-            <p className="text-white/60 text-xs">
-              Example: $1 answer fee × 500 answers = $500 fees → you earn $50.
-            </p>
+            <p className="text-white/60 text-xs">Example: $1 Entry Fee × 500 replies = $500 fees → you earn $50.</p> {/* copy:updated */}
           </div>
         </div>
 
@@ -403,12 +397,8 @@ export function CreateQuestionForm() {
       {created ? (
         <div className=" space-y-6">
           <div className="text-center">
-            <h2 className="text-white text-xl font-semibold mb-2">
-              Question posted
-            </h2>
-            <p className="text-white/70">
-              Your question is live in the discourse
-            </p>
+            <h2 className="text-white text-xl font-semibold mb-2">Prompt posted</h2> {/* copy:updated */}
+            <p className="text-white/70">Your prompt is live. The game is on.</p> {/* copy:updated */}
           </div>
 
           <div className="glass-panel rounded-lg p-4">
@@ -417,9 +407,7 @@ export function CreateQuestionForm() {
               <span className="text-white/60">
                 Ends in {formatDurationForShare(created.durationSeconds)}
               </span>
-              <span className="text-white/60">
-                ${created.submissionCostUsd} to answer
-              </span>
+              <span className="text-white/60">${created.submissionCostUsd} Entry Fee</span> {/* copy:updated */}
             </div>
           </div>
 
@@ -435,7 +423,7 @@ export function CreateQuestionForm() {
               href={`/questions/${created.id}`}
               className="glass-button w-full text-center py-3 px-6 rounded-xl font-medium text-white transition-all"
             >
-              View question
+              View prompt
             </Link>
           </div>
         </div>
@@ -443,9 +431,7 @@ export function CreateQuestionForm() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-12">
           <div className="rounded-xl">
             <div className="space-y-3">
-              <label className="block text-sm font-medium text-white/80">
-                Your question
-              </label>
+              <label className="block text-sm font-medium text-white/80">Your prompt</label> {/* copy:updated */}
               <textarea
                 rows={3}
                 value={form.questionContent}
@@ -453,13 +439,11 @@ export function CreateQuestionForm() {
                   setForm((s) => ({ ...s, questionContent: e.target.value }))
                 }
                 maxLength={150}
-                placeholder="Pose a clear, concrete question"
+                placeholder="Drop a clear, concrete prompt" {/* copy:updated */}
                 className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400/60 resize-none transition-all"
               />
               <div className="flex justify-between text-xs">
-                <span className="text-white/50">
-                  Clear prompts get better answers
-                </span>
+                <span className="text-white/50">Clear prompts get better replies</span> {/* copy:updated */}
                 <span className="text-white/60">
                   {form.questionContent.length}/150
                 </span>
@@ -499,9 +483,7 @@ export function CreateQuestionForm() {
 
           <div className="">
             <div className="flex items-center justify-between mb-4">
-              <label className="block text-sm font-medium text-white/80">
-                Answer period
-              </label>
+              <label className="block text-sm font-medium text-white/80">Reply window</label> {/* copy:updated */}
               <span className="text-sm font-mono text-amber-400">
                 {formatDuration(form.durationSeconds)}
               </span>
@@ -564,9 +546,7 @@ export function CreateQuestionForm() {
 
           <div className="">
             <div className="flex items-center justify-between mb-4">
-              <label className="block text-sm font-medium text-white/80">
-                Answer fee
-              </label>
+              <label className="block text-sm font-medium text-white/80">Entry Fee</label> {/* copy:updated */}
               <span className="text-sm font-mono text-amber-400">
                 ${form.submissionCostUsd}
               </span>
@@ -668,14 +648,14 @@ export function CreateQuestionForm() {
               {isSubmitting ? (
                 <span className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-black/60 border-t-transparent mr-2" />
-                  Posting question...
+                  Posting prompt...
                 </span>
               ) : (
-                'Post question'
+                'Drop prompt'
               )}
             </button>
             <p className="text-white/60 text-xs text-center">
-              Earn 10% of all answer fees
+              Earn 10% of all Entry Fees
             </p>
           </div>
         </form>

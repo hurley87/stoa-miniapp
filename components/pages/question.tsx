@@ -388,19 +388,17 @@ export default function QuestionPage({ idParam }: Props) {
               <div className="space-y-4">
                 {isQuestionCreator() ? (
                   isEvaluatedOnchain ? (
-                    <div className="bg-purple-500/10 border border-purple-400/30 rounded-xl p-4">
-                      <h4 className="text-purple-300 font-semibold mb-2">Question already evaluated</h4>
+                    <div className="bg-purple-500/10 border border-purple-400/30 rounded-xl p-4">{/* copy:updated */}
+                      <h4 className="text-purple-300 font-semibold mb-2">Prompt already judged</h4>
                       <p className="text-purple-200/80 text-sm">
-                        This question has been evaluated and submitted to the
-                        blockchain. Winners can now claim their rewards.
+                        This game has been judged onchain. Winners can now claim their rewards.
                       </p>
                     </div>
                   ) : !evaluationResults ? (
-                    <div className="bg-amber-500/10 border border-amber-400/30 rounded-xl p-4">
-                      <h4 className="text-amber-300 font-semibold mb-2">Question ended — ready for evaluation</h4>
+                    <div className="bg-amber-500/10 border border-amber-400/30 rounded-xl p-4">{/* copy:updated */}
+                      <h4 className="text-amber-300 font-semibold mb-2">Prompt ended — ready for judging</h4>
                       <p className="text-amber-200/80 text-sm mb-4">
-                        Your question has ended. Click below to evaluate the
-                        answers and distribute rewards.
+                        Your game has ended. Click below to run AI judging and distribute rewards.
                       </p>
                       <button
                         onClick={handleEvaluateAnswers}
@@ -413,7 +411,7 @@ export default function QuestionPage({ idParam }: Props) {
                             Evaluating...
                           </span>
                         ) : (
-                          'Evaluate answers'
+                          'Run AI Judging'
                         )}
                       </button>
                       {evaluationError && (
@@ -426,10 +424,10 @@ export default function QuestionPage({ idParam }: Props) {
                     </div>
                   ) : isReviewMode ? (
                     <div className="space-y-4">
-                      <div className="bg-blue-500/10 border border-blue-400/30 rounded-xl p-4">
-                        <h4 className="text-blue-300 font-semibold mb-2">Review AI evaluation</h4>
+                      <div className="bg-blue-500/10 border border-blue-400/30 rounded-xl p-4">{/* copy:updated */}
+                        <h4 className="text-blue-300 font-semibold mb-2">Review AI Judging</h4>
                         <p className="text-blue-200/80 text-sm mb-3">
-                          Review and modify the AI&apos;s evaluation below. You
+                          Review and modify the AI&apos;s scores below. You
                           can adjust reward amounts and reasons before
                           submitting.
                         </p>
@@ -508,10 +506,10 @@ export default function QuestionPage({ idParam }: Props) {
                               </div>
                             </div>
 
-                            {/* AI Evaluation (Read-only) */}
+                            {/* AI Judging (Read-only) */} {/* copy:updated */}
                             <div className="bg-slate-800/50 rounded-lg p-3 border-l-4 border-amber-400">
                               <div className="text-xs text-amber-300 font-semibold mb-1">
-                                AI Evaluation:
+                                AI Judging:
                               </div>
                               <div className="flex items-center justify-between mb-1">
                                 <span className="text-sm text-white/90">
@@ -583,17 +581,15 @@ export default function QuestionPage({ idParam }: Props) {
                             : 'bg-emerald-500/10 border border-emerald-400/30'
                         }`}
                       >
-                        <h4 className="text-emerald-300 font-semibold mb-2">
-                          {evaluationStep === 'completed'
-                            ? 'Evaluation Submitted!'
-                            : 'Review Complete'}
+                        <h4 className="text-emerald-300 font-semibold mb-2">{/* copy:updated */}
+                          {evaluationStep === 'completed' ? 'Judging Submitted!' : 'Review Complete'}
                         </h4>
                         <p className="text-emerald-200/80 text-sm mb-4">
                           {evaluationStep === 'completed' ? (
-                            'Your evaluation has been successfully submitted to the blockchain. Winners can now claim their rewards.'
+                            'Your judging has been successfully submitted onchain. Winners can now claim their rewards.'
                           ) : (
                             <>
-                              You have reviewed all answers.{' '}
+                              You have reviewed all replies.{' '}
                               {isFullyDistributed()
                                 ? 'Ready to submit to blockchain.'
                                 : 'Complete token distribution to submit.'}
@@ -618,7 +614,7 @@ export default function QuestionPage({ idParam }: Props) {
                                   : 'Processing...'}
                               </span>
                             ) : (
-                              'Submit to Blockchain'
+                              'Finalize Judging onchain'
                             )}
                           </button>
                         )}
@@ -635,8 +631,8 @@ export default function QuestionPage({ idParam }: Props) {
                       <div className="mt-2 rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex flex-col">
-                            <span className="text-white/80 text-xs uppercase">
-                              Total Evaluated
+                            <span className="text-white/80 text-xs uppercase">{/* copy:updated */}
+                              Total Judged
                             </span>
                             <span className="text-white text-lg font-bold">
                               {evaluationResults.length}
@@ -751,9 +747,7 @@ export default function QuestionPage({ idParam }: Props) {
               </div>
 
               <div className="flex flex-col text-right">
-                <span className="text-white/80 text-xs uppercase">
-                  Reward Pool
-                </span>
+                <span className="text-white/80 text-xs uppercase">Prize Pool</span> {/* copy:updated */}
                 <span className="text-white text-lg font-bold">
                   {isLoadingRewards ? (
                     <span className="animate-pulse">Loading...</span>
