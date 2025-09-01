@@ -83,12 +83,12 @@ export default function Home() {
       {
         id: 0,
         title: 'Welcome to Stoa',
-        kicker: 'Get rewarded for thoughtful answers',
+        kicker: 'Ask. Answer. Earn.',
         body: (
           <>
             <p className="text-slate-300 text-sm">
-              Stoa rewards thoughtful discourse. Community leaders pose
-              time-limited questions, and the best answers earn rewards.
+              A forum of ideas built onchain. Creators ask questions. Answerers
+              respond. The best answers earn rewards.
             </p>
           </>
         ),
@@ -96,7 +96,7 @@ export default function Home() {
       {
         id: 1,
         title: 'How it works',
-        kicker: 'Simple, rewarding process',
+        kicker: 'Where questions shape discourse',
         body: (
           <ul className="text-slate-300 text-sm space-y-2 text-left">
             <li className="flex items-start gap-2">
@@ -109,7 +109,7 @@ export default function Home() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400">•</span>
-              <span>Earn rewards for high-quality responses</span>
+              <span>Earn rewards for high‑quality responses</span>
             </li>
           </ul>
         ),
@@ -117,7 +117,7 @@ export default function Home() {
       {
         id: 2,
         title: 'How answers are rewarded',
-        kicker: 'AI-powered, bias-free evaluation',
+        kicker: 'Objective, consistent evaluation',
         body: (
           <>
             <ul className="text-slate-300 text-sm space-y-2 text-left">
@@ -127,7 +127,7 @@ export default function Home() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-amber-400">•</span>
-                <span>Get detailed feedback on your submission</span>
+                <span>Get clear feedback on your submission</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-amber-400">•</span>
@@ -140,7 +140,7 @@ export default function Home() {
               </p>
               <p className="text-slate-200 text-sm">
                 Feedback: Clear reasoning with citations. Consider
-                counterarguments.
+                counter‑arguments.
               </p>
               <div className="mt-2 text-slate-300 text-sm">
                 Reward:{' '}
@@ -185,7 +185,7 @@ export default function Home() {
                 href="/about"
                 className="underline decoration-amber-400/50 underline-offset-2 hover:text-slate-200"
               >
-                Learn more
+                Learn more about Stoa
               </Link>
               .
             </p>
@@ -287,7 +287,7 @@ export default function Home() {
         ) : questions?.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">
             {isActiveTab
-              ? 'No active questions available yet'
+              ? 'No active questions yet'
               : 'No past questions found'}
           </div>
         ) : (
@@ -388,7 +388,7 @@ export default function Home() {
         className="fixed bottom-0 right-0 left-0 px-4 py-6 border-t border-white/10"
       >
         <Link href="/new">
-          <button className="cta-button w-full">Create a Question</button>
+          <button className="cta-button w-full">Create a question</button>
         </Link>
       </div>
     </div>

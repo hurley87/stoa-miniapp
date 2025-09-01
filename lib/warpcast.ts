@@ -39,7 +39,7 @@ export async function getFarcasterManifest() {
       // Metadata https://github.com/farcasterxyz/miniapps/discussions/191
       subtitle: 'Onchain Forum for Learning', // 30 characters, no emojis or special characters, short description under app name
       description:
-        'The chosen Logos ask the questions, the crowd answers, and AI distributes tokens to the best responses.', // 170 characters, no emojis or special characters, promotional message displayed on Mini App Page
+        'Creators ask the questions, the crowd answers, and AI distributes tokens to the best responses.', // 170 characters, no emojis or special characters, promotional message displayed on Mini App Page
       primaryCategory: 'education',
       tags: ['forum', 'learning', 'onchain', 'rewards', 'AI'], // up to 5 tags, filtering/search tags
       tagline: 'Ask. Answer. Earn.', // 30 characters, marketing tagline should be punchy and descriptive

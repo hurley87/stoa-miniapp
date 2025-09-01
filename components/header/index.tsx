@@ -23,25 +23,11 @@ export default function AppHeader() {
     >
       <div className="mx-auto max-w-2xl">
         <div className="flex items-center justify-between rounded-2xl px-4 py-2">
-          <Link href={profileHref} aria-label="Profile">
-            <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white/15">
-              {pfp ? (
-                <Image
-                  src={pfp}
-                  alt="Profile"
-                  fill
-                  sizes="32px"
-                  className="object-cover"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-white/5 text-xs text-white/70">
-                  {address ? 'You' : '?'}
-                </div>
-              )}
-            </div>
+          <Link href="/">
+            <Image src="/logo.png" alt="Stoa" width={28} height={28} />
           </Link>
           <Link href="/about" aria-label="About">
-            <div className="relative h-8 w-8 overflow-hidden rounded-full bg-white/5 flex items-center justify-center">
+            <div className="relative h-8 w-8 overflow-hidden rounded-full bg-white/5 flex items-center justify-center border">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"

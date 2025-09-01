@@ -2,9 +2,9 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'How Stoa Works - Earn Rewards for Thoughtful Answers',
+  title: 'How Stoa works — Ask. Answer. Earn.',
   description:
-    'Learn how Stoa rewards quality discourse. Community leaders pose time-limited questions and the best answers earn rewards.',
+    'A forum of ideas built onchain. Creators ask questions. Anyone can answer. The best answers earn rewards.',
 };
 
 export default function AboutPage() {
@@ -17,61 +17,57 @@ export default function AboutPage() {
               What is Stoa?
             </h2>
             <p className="text-slate-400 leading-relaxed mb-3">
-              Stoa is a modern forum of ideas built onchain.
+              Stoa is a forum of ideas built onchain.
             </p>
             <p className="text-slate-400 leading-relaxed mb-3">
-              Only selected{' '}
-              <strong className="text-amber-300">community leaders</strong> may
-              pose questions. Everyone else can answer them. Leaders guide
-              quality discussions; the community provides thoughtful answers.
+              Question creators ask. Anyone may answer. Creators frame the
+              discourse; the crowd brings the signal.
             </p>
             <p className="text-slate-400 leading-relaxed">
-              Through thoughtful questions and quality answers, you participate
-              in a system that rewards meaningful discourse.
+              Thoughtful questions. Quality answers. Rewards onchain.
             </p>
           </section>
 
           <section className="py-8 first:pt-0">
             <h2 className="text-xl font-semibold mb-5 text-slate-100">
-              For Question Creators
+              For creators
             </h2>
 
             <div className="mb-5">
               <h3 className="text-base sm:text-lg font-semibold mb-2 text-white/90">
-                Creating a Question
+                Frame the Discourse
               </h3>
               <ol className="list-decimal list-inside space-y-2 text-slate-400 ml-4">
                 <li>
-                  <strong>Frame the Discourse</strong>: Choose a topic worth
-                  debating or a problem worth solving
+                  <strong>Choose your question</strong>: A topic worth debating
+                  or a problem worth solving
                 </li>
                 <li>
-                  <strong>Set the Stakes</strong>: Define the cost to answer
-                  (this funds the reward pool)
+                  <strong>Set the stakes</strong>: Define the answer fee (funds
+                  the reward pool)
                 </li>
                 <li>
-                  <strong>Choose Duration</strong>: Decide how long answers will
-                  be accepted
+                  <strong>Choose duration</strong>: Decide how long answers are
+                  accepted
                 </li>
                 <li>
-                  <strong>Define Winners</strong>: Select how many top answers
-                  will be rewarded
+                  <strong>Define winners</strong>: Select how many top answers
+                  are rewarded
                 </li>
               </ol>
             </div>
 
             <div className="mb-5">
               <h3 className="text-base sm:text-lg font-semibold mb-2 text-white/90">
-                What You Earn
+                What you earn
               </h3>
               <p className="text-slate-400 mb-3">
-                As a community leader, you earn{' '}
+                Creators earn{' '}
                 <strong className="text-amber-300">
                   10% of all answer fees
                 </strong>{' '}
-                for every question you pose. If 20 people each pay 10 tokens to
-                answer your question, you earn 20 tokens for guiding quality
-                discussion.
+                on each question. If 20 people each pay 10 tokens to answer, you
+                earn 20 tokens for curating the discourse.
               </p>
             </div>
 
@@ -84,40 +80,39 @@ export default function AboutPage() {
                 </li>
                 <li>• Set answer fee: 5 tokens</li>
                 <li>• 30 people submit answers = 150 tokens collected</li>
-                <li>• You earn: 15 tokens (10% of all fees)</li>
-                <li>• The rest goes to reward the best answers</li>
+                <li>• Creator share: 15 tokens (10% of fees)</li>
+                <li>• The rest rewards the best answers</li>
               </ul>
             </div>
           </section>
 
           <section className="py-8 first:pt-0">
             <h2 className="text-xl font-semibold mb-5 text-slate-100">
-              For Answerers
+              For answerers
             </h2>
 
             <div className="mb-5">
               <h3 className="text-base sm:text-lg font-semibold mb-2 text-white/90">
-                How to Earn
+                How to earn
               </h3>
               <ol className="list-decimal list-inside space-y-2 text-slate-400 ml-4">
                 <li>
-                  <strong>Find Questions</strong>: Browse what the Logos have
-                  set forth
+                  <strong>Find questions</strong>: Browse open questions
                 </li>
                 <li>
-                  <strong>Pay to Play</strong>: Submit your answer with the
+                  <strong>Pay to play</strong>: Submit your answer with the
                   required fee
                 </li>
                 <li>
-                  <strong>Contribute Knowledge</strong>: Offer depth,
+                  <strong>Contribute knowledge</strong>: Offer depth,
                   originality, and clarity
                 </li>
                 <li>
-                  <strong>AI Judgement</strong>: An AI agent reviews and ranks
-                  all answers
+                  <strong>AI judgement</strong>: AI reviews and ranks all
+                  answers
                 </li>
                 <li>
-                  <strong>Claim Rewards</strong>: If your answer ranks among the
+                  <strong>Claim rewards</strong>: If your answer ranks among the
                   best, you win your share
                 </li>
               </ol>
@@ -125,10 +120,10 @@ export default function AboutPage() {
 
             <div className="mb-5">
               <h3 className="text-base sm:text-lg font-semibold mb-2 text-white/90">
-                Reward System
+                Reward system
               </h3>
               <ul className="space-y-1 text-slate-400 ml-4">
-                <li>• 80% of all answer fees flow into the reward pool</li>
+                <li>• 80% of answer fees flow into the reward pool</li>
                 <li>
                   • Rewards are distributed by score, weighted by AI evaluation
                 </li>
@@ -151,7 +146,7 @@ export default function AboutPage() {
 
           <section className="py-8 first:pt-0">
             <h2 className="text-xl font-semibold mb-3 text-slate-100">
-              The Money Flow
+              The money flow
             </h2>
             <p className="text-slate-400 mb-3">
               When someone submits an answer for 10 tokens:
@@ -162,8 +157,8 @@ export default function AboutPage() {
                 protocol (keeps the forum running)
               </li>
               <li>
-                • <strong className="text-amber-300">1 token</strong> → Logos
-                member who asked the question
+                • <strong className="text-amber-300">1 token</strong> → Creator
+                (the question asker)
               </li>
               <li>
                 • <strong className="text-emerald-300">8 tokens</strong> →
@@ -174,7 +169,7 @@ export default function AboutPage() {
 
           <section className="py-8 first:pt-0">
             <h2 className="text-xl font-semibold mb-3 text-slate-100">
-              AI as Arbiter
+              AI as arbiter
             </h2>
             <p className="text-slate-400 mb-3">
               Once the timer expires, AI acts as judge:
@@ -204,8 +199,8 @@ export default function AboutPage() {
             </h2>
             <ul className="space-y-2 text-slate-400">
               <li>
-                • <strong>Curated questions</strong>: Only community leaders may
-                ask, ensuring fewer but higher-quality questions
+                • <strong>Curated questions</strong>: Fewer, higher‑quality
+                prompts
               </li>
               <li>
                 • <strong>Quality answers</strong>: Answer fees prevent spam and
@@ -220,17 +215,17 @@ export default function AboutPage() {
 
           <section className="py-8 first:pt-0 text-center">
             <h2 className="text-xl font-semibold mb-2 text-slate-100">
-              The Bottom Line
+              The bottom line
             </h2>
             <p className="text-slate-400 mb-2">
               <strong>Stoa rewards thoughtful discourse.</strong>
             </p>
             <p className="text-slate-400 mb-4">
-              Community leaders spark discussions. Participants share thoughtful
-              answers. Quality contributions are rewarded.
+              Creators spark discussions. The crowd shares thoughtful answers.
+              Quality contributions are rewarded.
             </p>
             <p className="text-slate-400 mb-4 font-semibold">
-              Think. Answer. Earn.
+              Ask. Answer. Earn.
             </p>
           </section>
         </div>
@@ -243,7 +238,7 @@ export default function AboutPage() {
         className="fixed bottom-0 right-0 left-0 px-4 py-6 border-t border-white/10"
       >
         <Link href="/">
-          <button className="cta-button w-full">Browse Questions</button>
+          <button className="cta-button w-full">Browse questions</button>
         </Link>
       </div>
     </div>

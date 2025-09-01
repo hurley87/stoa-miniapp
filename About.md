@@ -3,14 +3,14 @@
 ## What is Stoa?
 
 Stoa is a modern forum of ideas built onchain.  
-Only those chosen to join **the Logos** may ask questions. Everyone else can answer them.  
-The Logos frame the discourse; the crowd carries it forward.
+Question creators ask; anyone can answer.  
+Creators frame the discourse; the crowd carries it forward.
 
 By asking, answering, and earning, you take part in a system where knowledge has real weight.
 
 ---
 
-## For the Logos (Question Askers)
+## For creators (question askers)
 
 ### Creating a Question
 
@@ -21,7 +21,7 @@ By asking, answering, and earning, you take part in a system where knowledge has
 
 ### What You Earn
 
-As a member of the Logos, you earn **10% of all submission fees** for every question you ask.  
+As a creator, you earn **10% of all submission fees** for every question you ask.  
 If 20 people each pay 10 tokens to answer your question, you earn 20 tokens simply for curating the discourse.
 
 ---
@@ -30,7 +30,7 @@ If 20 people each pay 10 tokens to answer your question, you earn 20 tokens simp
 
 ### How to Earn
 
-1. **Find Questions**: Browse what the Logos have set forth
+1. **Find Questions**: Browse open questions
 2. **Pay to Play**: Submit your answer with the required fee
 3. **Contribute Knowledge**: Offer depth, originality, and clarity
 4. **AI Judgement**: An AI agent reviews and ranks all answers
@@ -48,7 +48,7 @@ If 20 people each pay 10 tokens to answer your question, you earn 20 tokens simp
 When someone submits an answer for 10 tokens:
 
 - **1 token** → Stoa protocol (keeps the forum running)
-- **1 token** → Logos member who asked the question
+- **1 token** → Creator who asked the question
 - **8 tokens** → Reward pool for the best answers
 
 ---
@@ -71,7 +71,7 @@ AI ensures evaluation is:
 
 ## Why Stoa?
 
-- **Questions with weight**: Only Logos may ask, ensuring fewer but better questions
+- **Questions with weight**: Fewer but better questions
 - **Skin in the game**: Submission fees prevent spam
 - **Onchain clarity**: All payments and evaluations are transparent
 
@@ -80,6 +80,6 @@ AI ensures evaluation is:
 ## The Bottom Line
 
 **Stoa is where questions shape discourse.**  
-The Logos ignite debate. The crowd contends. The best answers are rewarded.
+Creators ignite debate. The crowd contends. The best answers are rewarded.
 
 **Ask. Answer. Earn.**
