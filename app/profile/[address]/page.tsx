@@ -76,7 +76,9 @@ export default function ProfilePage({ params }: ProfilePageProps) {
           <p className="text-white/60 mb-4">
             The profile you&apos;re looking for doesn&apos;t exist.
           </p>
-          <Link href="/" className="cta-button inline-block">Go home</Link>
+          <Link href="/" className="cta-button inline-block">
+            Go home
+          </Link>
         </div>
       </div>
     );
