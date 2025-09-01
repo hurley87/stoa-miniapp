@@ -2,14 +2,10 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useAccount } from 'wagmi';
 import { useUser } from '@/contexts/user-context';
 
 export default function AppHeader() {
-  const { address } = useAccount();
   const { user } = useUser();
-  const pfp = user.data?.pfp_url;
-  const profileHref = address ? `/profile/${address}` : '/about';
 
   if (!user.data) return null;
 
@@ -26,35 +22,37 @@ export default function AppHeader() {
           <Link href="/">
             <Image src="/logo.png" alt="Stoa" width={28} height={28} />
           </Link>
-          <Link href="/about" aria-label="About">
-            <div className="relative h-8 w-8 overflow-hidden rounded-full bg-white/5 flex items-center justify-center border">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                className="h-6 w-6 text-white/95 hover:text-white"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 10.5v5"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 7.5h.01"
-                />
-              </svg>
-            </div>
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/about" aria-label="About">
+              <div className="relative h-8 w-8 overflow-hidden rounded-full bg-white/5 flex items-center justify-center border hover:bg-white/10 transition-colors">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="h-5 w-5 text-white/95 hover:text-white"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 10.5v5"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 7.5h.01"
+                  />
+                </svg>
+              </div>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

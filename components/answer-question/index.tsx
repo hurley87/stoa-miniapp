@@ -6,6 +6,8 @@ import { base } from 'wagmi/chains';
 import { useAnswerCheck } from '@/hooks/use-answer-check';
 import { useOnchainSubmissionStatus } from '@/hooks/use-onchain-submission-status';
 import { useSubmitAnswerOnchain } from '@/hooks/use-submit-answer-onchain';
+import { useUSDCBalance } from '@/hooks/use-usdc-balance';
+import { useContractSubmissionCost } from '@/hooks/use-contract-submission-cost';
 import { useUser } from '@/contexts/user-context';
 import { sdk } from '@farcaster/miniapp-sdk';
 
@@ -59,19 +61,48 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
     reset,
   } = useSubmitAnswerOnchain();
 
+  const { data: usdcBalance, isLoading: loadingBalance } = useUSDCBalance(
+    question?.token_address
+  );
+
+  const { data: contractSubmissionCost, isLoading: loadingSubmissionCost } =
+    useContractSubmissionCost(question?.contract_address);
+
   const alreadySubmitted =
     !!answerCheck?.hasAnswered ||
     !!onchainStatus?.hasSubmitted ||
     (onchainError?.toLowerCase().includes('already') ?? false);
+
+  // Use contract submission cost if available, fallback to database value
+  const submissionCostBigInt =
+    contractSubmissionCost || BigInt(question?.submission_cost || 0);
+  const hasInsufficientBalance =
+    usdcBalance !== undefined && usdcBalance < submissionCostBigInt;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!answerText.trim() || !userWallet || !question) return;
 
     if (!user.data?.creator?.creator_id) {
-      alert('Please sign in to submit an answer');
+      alert('Please sign in to post a reply');
       return;
     }
+
+    console.log('🚀 Submission Values Debug:', {
+      questionId: question.question_id,
+      dbSubmissionCost: question.submission_cost,
+      contractSubmissionCost: contractSubmissionCost?.toString(),
+      submissionCostBigInt: submissionCostBigInt.toString(),
+      submissionCostFormatted: formatUSDC(submissionCostBigInt),
+      userBalance: usdcBalance?.toString(),
+      userBalanceFormatted: formatUSDC(usdcBalance || BigInt(0)),
+      hasInsufficientBalance,
+      contractAddress: question.contract_address,
+      tokenAddress: question.token_address,
+      userWallet,
+      creatorId: user.data.creator.creator_id,
+      referrerAddress,
+    });
 
     try {
       await submitOnchain({
@@ -79,7 +110,7 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
         content: answerText.trim(),
         contractAddress: question.contract_address,
         tokenAddress: question.token_address,
-        submissionCost: question.submission_cost,
+        submissionCost: Number(submissionCostBigInt),
         creatorId: user.data.creator.creator_id,
         referrerAddress,
       });
@@ -91,7 +122,10 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
     }
   };
 
-  const formatUSDC = (amount: number) => (amount / 1e6).toFixed(2);
+  const formatUSDC = (amount: number | bigint) => {
+    const numAmount = typeof amount === 'bigint' ? Number(amount) : amount;
+    return (numAmount / 1e6).toFixed(2);
+  };
 
   const getTimeLeft = () => {
     if (!question?.end_time) return '';
@@ -125,7 +159,6 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
     return new Date().getTime() >= new Date(question.end_time).getTime();
   };
 
-
   const handleShare = async () => {
     try {
       const url = `${window.location.origin}/questions/${question.question_id}${
@@ -140,12 +173,13 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
           const num = Number(first.slice(0, -1));
           const unit = first.slice(-1);
           if (!Number.isNaN(num) && num > 0) {
-            const unitMap: Record<string, [singular: string, plural: string]> = {
-              D: ['day', 'days'],
-              H: ['hour', 'hours'],
-              M: ['minute', 'minutes'],
-              S: ['second', 'seconds'],
-            };
+            const unitMap: Record<string, [singular: string, plural: string]> =
+              {
+                D: ['day', 'days'],
+                H: ['hour', 'hours'],
+                M: ['minute', 'minutes'],
+                S: ['second', 'seconds'],
+              };
             const words = unitMap[unit] ?? ['second', 'seconds'];
             const label = num === 1 ? words[0] : words[1];
             timeText = `${num} ${label}`;
@@ -185,7 +219,9 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
               }
               className="w-full p-4 text-left flex items-center justify-between hover:bg-white/5 transition-colors rounded-xl"
             >
-              <p className="text-white text-sm font-semibold">Referral program</p>
+              <p className="text-white text-sm font-semibold">
+                Referral program
+              </p>
               <svg
                 className={`w-4 h-4 text-white/60 transition-transform duration-200 ${
                   isReferralAccordionOpen ? 'rotate-180' : ''
@@ -209,8 +245,8 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
                     Earn 5% referral fees
                   </p>
                   <ul className="space-y-1 list-disc list-inside">
-                    <li>Share questions with your referral link</li>
-                    <li>Earn 5% of every answer fee from people you refer</li>
+                    <li>Share prompts with your referral link</li>
+                    <li>Earn 5% of every Entry Fee from people you refer</li>
                     <li>Get paid automatically when rewards are distributed</li>
                   </ul>
                   {referrerAddress && (
@@ -218,7 +254,7 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
                       <p className="text-amber-300 text-xs">
                         💡 You were referred by {referrerAddress.slice(0, 6)}...
                         {referrerAddress.slice(-4)}. They&apos;ll earn a 5%
-                        referral fee if you submit an answer!
+                        referral fee if you post a reply!
                       </p>
                     </div>
                   )}
@@ -226,7 +262,9 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
               </div>
             )}
           </div>
-          <button onClick={handleShare} className="cta-button w-full">Share and earn</button>
+          <button onClick={handleShare} className="cta-button w-full">
+            Share and earn
+          </button>
         </>
       )}
 
@@ -270,7 +308,7 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
                       className="w-full p-4 text-left flex items-center justify-between hover:bg-white/5 transition-colors rounded-xl"
                     >
                       <p className="text-white text-sm font-semibold">
-                        Why answer?
+                        Why reply?
                       </p>
                       <svg
                         className={`w-4 h-4 text-white/60 transition-transform duration-200 ${
@@ -291,24 +329,20 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
                     {isAccordionOpen && (
                       <div className="px-4 pb-4 border-t border-white/10">
                         <ul className="mt-3 space-y-1 text-white/80 text-sm list-disc list-inside">
-                          <li>Earn rewards for quality answers</li>
-                          <li>80% of fees go to winners</li>
-                          <li>
-                            Build your reputation through thoughtful
-                            contributions
-                          </li>
+                          <li>Earn rewards for quality replies</li>
+                          <li>75% of Entry Fees go to the Prize Pool</li>
+                          <li>Build your reputation</li>
                         </ul>
                         <div className="mt-4 text-white/70 text-xs">
                           <p className="text-white text-sm font-semibold">
                             How winners are chosen
                           </p>
                           <p className="mt-1">
-                            When the timer ends, an AI agent reviews every
-                            answer for accuracy, originality, and clarity. It
-                            scores, ranks, and then distributes rewards
-                            proportionally across the top answers. Fees split:
-                            80% to winners, 10% to the question creator, 10% to
-                            the protocol. Ask. Think. Answer. Earn.
+                            When the timer ends, the AI Judge reviews every
+                            reply for accuracy, originality, and clarity. It
+                            ranks, then rewards top replies. Split: 75% Prize
+                            Pool, 10% KOL, 10% Protocol, 5% Referrer. Drop
+                            Prompts. Fire Back. Win Rewards.
                           </p>
                         </div>
                       </div>
@@ -323,7 +357,7 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
                         : 'cta-button'
                     }`}
                   >
-                    {isQuestionEnded() ? 'Question Ended' : 'Answer'}
+                    {isQuestionEnded() ? 'Prompt Ended' : 'Reply'}
                   </button>
                 </div>
               ) : (
@@ -331,17 +365,16 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
                   {alreadySubmitted && (
                     <div className="bg-purple-500/10 border border-purple-400/30 rounded-xl p-3">
                       <p className="text-purple-200 text-sm">
-                        You have already answered this question. Submitting
-                        again will replace your previous answer onchain (if
-                        contract allows) and will still incur the submission
-                        cost.
+                        You have already replied to this prompt. Posting again
+                        may replace your previous reply onchain (if contract
+                        allows) and will still incur the Entry Fee.
                       </p>
                     </div>
                   )}
                   <textarea
                     value={answerText}
                     onChange={(e) => setAnswerText(e.target.value)}
-                    placeholder="Share your thoughtful answer..."
+                    placeholder="Share your thoughtful reply..."
                     className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400/60 resize-none"
                     rows={8}
                     required
@@ -352,7 +385,8 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
                       disabled={
                         !answerText.trim() ||
                         submittingOnchain ||
-                        isQuestionEnded()
+                        isQuestionEnded() ||
+                        hasInsufficientBalance
                       }
                       className="cta-button flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -364,9 +398,13 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
                           {step === 'submitting' && 'Submitting...'}
                           {step === 'storing' && 'Storing...'}
                         </span>
+                      ) : hasInsufficientBalance ? (
+                        'Insufficient Balance (' +
+                        formatUSDC(submissionCostBigInt) +
+                        ' USDC needed)'
                       ) : (
-                        'Submit (' +
-                        formatUSDC(question.submission_cost) +
+                        'Post Reply (' +
+                        formatUSDC(submissionCostBigInt) +
                         ' USDC)'
                       )}
                     </button>
@@ -382,6 +420,18 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
                       Cancel
                     </button>
                   </div>
+                  {hasInsufficientBalance && (
+                    <div className="rounded-xl border border-rose-500/30 bg-rose-950/50 p-3">
+                      <p className="text-rose-200 text-sm">
+                        Insufficient USDC balance. You need{' '}
+                        {formatUSDC(submissionCostBigInt)} USDC but only have{' '}
+                        {loadingBalance
+                          ? '...'
+                          : formatUSDC(usdcBalance || BigInt(0))}{' '}
+                        USDC.
+                      </p>
+                    </div>
+                  )}
                   {onchainError && (
                     <div className="rounded-xl border border-rose-500/30 bg-rose-950/50 p-3">
                       <p className="text-rose-200 text-sm">{onchainError}</p>

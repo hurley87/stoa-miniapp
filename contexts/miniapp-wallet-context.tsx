@@ -40,7 +40,7 @@ const createAugmentedConnector = () => {
 export const config = createConfig({
   chains: [base],
   transports: {
-    [base.id]: http(),
+    [base.id]: http(process.env.NEXT_PUBLIC_RPC_URL),
   },
   connectors: [createAugmentedConnector()],
   ssr: true,

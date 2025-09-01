@@ -19,13 +19,19 @@ export function useQuestionEvaluated(contractAddress: string | undefined) {
           args: [],
         })) as boolean;
 
+        console.log('📋 Contract Evaluation Status:', {
+          contractAddress,
+          isEvaluated,
+          timestamp: new Date().toISOString()
+        });
+
         return isEvaluated;
       } catch (error) {
         console.error('Error fetching evaluation status:', error);
         return false;
       }
     },
-    staleTime: 60_000, // Cache for 60 seconds
-    refetchInterval: 30_000, // Auto-refetch every 30 seconds
+    staleTime: 5_000, // Cache for 5 seconds (reduced for debugging)
+    refetchInterval: 5_000, // Auto-refetch every 5 seconds (reduced for debugging)
   });
 }

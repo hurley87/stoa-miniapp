@@ -1,85 +1,60 @@
-# How Stoa Works: A Simple Guide
-
 ## What is Stoa?
 
-Stoa is a modern forum of ideas built onchain.  
-Question creators ask; anyone can answer.  
-Creators frame the discourse; the crowd carries it forward.
-
-By asking, answering, and earning, you take part in a system where knowledge has real weight.
-
----
-
-## For creators (question askers)
-
-### Creating a Question
-
-1. **Frame the Discourse**: Choose a topic worth debating or a problem worth solving
-2. **Set the Stakes**: Define the cost to answer (this funds the reward pool)
-3. **Choose Duration**: Decide how long answers will be accepted
-4. **Define Winners**: Select how many top answers will be rewarded
-
-### What You Earn
-
-As a creator, you earn **10% of all submission fees** for every question you ask.  
-If 20 people each pay 10 tokens to answer your question, you earn 20 tokens simply for curating the discourse.
+Stoa is an onchain game of prompts and replies.  
+KOLs drop though provoking prompts.  
+Reply Guys fire back with takes.  
+The best replies win rewards.
 
 ---
 
-## For Answerers
+## For KOLs (Creators)
 
-### How to Earn
+### Starting a Prompt
 
-1. **Find Questions**: Browse open questions
-2. **Pay to Play**: Submit your answer with the required fee
-3. **Contribute Knowledge**: Offer depth, originality, and clarity
-4. **AI Judgement**: An AI agent reviews and ranks all answers
-5. **Claim Rewards**: If your answer ranks among the best, you win your share
+1. **Drop a Prompt**: Ask the question or spark the debate
+2. **Set the Entry Fee**: Cost to reply = prize pool fuel
+3. **Set the Timer**: How long replies are accepted
+4. **Set the Winners**: Choose how many replies get paid
 
-### Reward System
+💡 **Anyone can apply to be a KOL.** Once approved, you can post prompts and earn from them.
 
-- 80% of all submission fees flow into the reward pool
-- Rewards are distributed by score, weighted by AI evaluation
-
----
-
-## The Money Flow
-
-When someone submits an answer for 10 tokens:
-
-- **1 token** → Stoa protocol (keeps the forum running)
-- **1 token** → Creator who asked the question
-- **8 tokens** → Reward pool for the best answers
+**KOL Reward:**  
+You earn **10% of all replies** for every prompt you post.
 
 ---
 
-## AI as Arbiter
+## For Reply Guys (Players)
 
-Once the timer expires, AI acts as judge:
+### How to Play
 
-- Reviews all answers
-- Scores them for accuracy, originality, and clarity
-- Ranks winners and distributes rewards
-
-AI ensures evaluation is:
-
-- **Objective**: No human bias
-- **Consistent**: Same rules for all
-- **Transparent**: Scores are visible onchain
+1. **Find a Prompt**: Browse open debates
+2. **Pay to Reply**: Enter with your take
+3. **Make It Count**: Wit, clarity, and originality win
+4. **AI Judge First**: Scores every reply
+5. **Human Judge Finalizes**: Whitelisted reviewers can adjust results
+6. **Claim Rewards**: If your reply ranks, you win tokens
 
 ---
 
-## Why Stoa?
+## Token Structure
 
-- **Questions with weight**: Fewer but better questions
-- **Skin in the game**: Submission fees prevent spam
-- **Onchain clarity**: All payments and evaluations are transparent
+When someone replies:
+
+- **10%** → Protocol Treasury (keeps Stoa alive)
+- **10%** → KOL (for starting the prompt)
+- **5%** → Referrer (if listed)
+- **75%** → Reward Pool (split among top replies)
 
 ---
 
-## The Bottom Line
+## Judging System
 
-**Stoa is where questions shape discourse.**  
-Creators ignite debate. The crowd contends. The best answers are rewarded.
+When the timer ends, replies are judged:
 
-**Ask. Answer. Earn.**
+- **AI Judge**: Scores for clarity, originality, and accuracy
+- **Human Judge**: Whitelisted reviewers have final say, adjusting rewards if needed
+
+This keeps judging:
+
+- **AI-assisted** for speed
+- **Human-verified** for fairness

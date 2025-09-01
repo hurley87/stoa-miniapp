@@ -7,6 +7,8 @@ import { useQuestion } from '@/hooks/use-active-questions';
 import { useTotalRewardValue } from '@/hooks/use-total-reward-value';
 import { useEvaluateAnswersOnchain } from '@/hooks/use-evaluate-answers-onchain';
 import { useQuestionEvaluated } from '@/hooks/use-question-evaluated';
+import { useClaimableAmount } from '@/hooks/use-claimable-amount';
+import { useClaimReward } from '@/hooks/use-claim-reward';
 import AnswerQuestion from '@/components/answer-question';
 import Answers from '@/components/answers';
 import Countdown from '@/components/countdown';
@@ -33,6 +35,8 @@ export default function QuestionPage({ idParam }: Props) {
     useTotalRewardValue(question?.contract_address);
   const { data: isEvaluatedOnchain, isLoading: isLoadingEvaluationStatus } =
     useQuestionEvaluated(question?.contract_address);
+
+  // Debug logs moved below declarations
   const router = useRouter();
   const { user } = useUser();
 
@@ -53,6 +57,17 @@ export default function QuestionPage({ idParam }: Props) {
     reset: resetOnchainEvaluation,
   } = useEvaluateAnswersOnchain();
 
+  // Claim rewards hooks
+  const { data: claimableAmount, isLoading: isLoadingClaimable } =
+    useClaimableAmount(question?.contract_address);
+  const {
+    claimReward,
+    step: claimStep,
+    error: claimError,
+    isLoading: isClaiming,
+    reset: resetClaim,
+  } = useClaimReward();
+
   const truncateAddress = (addr: string) =>
     addr && addr.startsWith('0x')
       ? `${addr.slice(0, 6)}…${addr.slice(-4)}`
@@ -70,6 +85,39 @@ export default function QuestionPage({ idParam }: Props) {
 
   const isQuestionCreator = () => {
     return user.data?.creator?.creator_id === question?.creator_id;
+  };
+
+  const formatUSDC = (amount: bigint) => {
+    return (Number(amount) / 1e6).toFixed(2);
+  };
+
+  // Debug logging (after declarations)
+  console.log('🔍 Evaluation Status Debug:', {
+    contractAddress: question?.contract_address,
+    isEvaluatedOnchain,
+    isLoadingEvaluationStatus,
+    questionStatus: question?.status,
+    questionId: question?.question_id,
+  });
+
+  console.log('🎁 Claimable Amount Debug:', {
+    contractAddress: question?.contract_address,
+    userAddress: user.data?.creator?.wallet,
+    claimableAmount: claimableAmount?.toString(),
+    claimableFormatted: claimableAmount ? formatUSDC(claimableAmount) : '0',
+    isLoadingClaimable,
+    showClaimButton: Boolean(
+      isEvaluatedOnchain && claimableAmount && claimableAmount > BigInt(0)
+    ),
+  });
+
+  const handleClaimReward = async () => {
+    if (!question?.contract_address) return;
+    try {
+      await claimReward(question.contract_address);
+    } catch (err) {
+      console.error('Failed to claim reward:', err);
+    }
   };
 
   const handleEvaluateAnswers = async () => {
@@ -266,6 +314,7 @@ export default function QuestionPage({ idParam }: Props) {
       await submitEvaluationOnchain({
         contractAddress: question.contract_address,
         rankedIndices,
+        questionId: question.question_id,
       });
     } catch (err) {
       console.error('Onchain evaluation error:', err);
@@ -306,7 +355,7 @@ export default function QuestionPage({ idParam }: Props) {
   }, [question, isEvaluatedOnchain, isLoadingEvaluationStatus]);
 
   return (
-    <div className="min-h-screen px-4 pt-16 pb-6">
+    <div className="min-h-screen px-4 pt-16 pb-28">
       <div className="max-w-2xl mx-auto px-0">
         {isInvalidId ? (
           <div className="rounded-xl border border-rose-500/30 bg-rose-950/50 p-4 text-rose-200">
@@ -376,7 +425,6 @@ export default function QuestionPage({ idParam }: Props) {
                 >
                   {getDisplayName(question.creator_username, question.creator)}
                 </Link>
-                <span className="text-slate-400 text-sm">Asked this question</span>
               </div>
             </div>
 
@@ -389,18 +437,69 @@ export default function QuestionPage({ idParam }: Props) {
                 {isQuestionCreator() ? (
                   isEvaluatedOnchain ? (
                     <div className="bg-purple-500/10 border border-purple-400/30 rounded-xl p-4">
-                      <h4 className="text-purple-300 font-semibold mb-2">Question already evaluated</h4>
+                      <h4 className="text-purple-300 font-semibold mb-2">
+                        Prompt already judged
+                      </h4>
                       <p className="text-purple-200/80 text-sm">
-                        This question has been evaluated and submitted to the
-                        blockchain. Winners can now claim their rewards.
+                        This game has been judged onchain. Winners can now claim
+                        their rewards.
                       </p>
+
+                      {claimableAmount !== undefined &&
+                        claimableAmount > BigInt(0) && (
+                          <div className="mt-4 pt-4 border-t border-emerald-400/20">
+                            <div className="flex items-center justify-between mb-3">
+                              <div>
+                                <p className="text-emerald-300 font-semibold">
+                                  🎉 You have rewards to claim!
+                                </p>
+                                <p className="text-emerald-200/60 text-sm">
+                                  {formatUSDC(claimableAmount)} USDC available
+                                </p>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={handleClaimReward}
+                              disabled={isClaiming}
+                              className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl transition-colors"
+                            >
+                              {isClaiming ? (
+                                <span className="flex items-center justify-center">
+                                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/60 border-t-transparent mr-2" />
+                                  Claiming...
+                                </span>
+                              ) : (
+                                `Claim ${formatUSDC(claimableAmount)} USDC`
+                              )}
+                            </button>
+
+                            {claimError && (
+                              <div className="mt-3 rounded-xl border border-rose-500/30 bg-rose-950/50 p-3">
+                                <p className="text-rose-200 text-sm">
+                                  {claimError}
+                                </p>
+                              </div>
+                            )}
+
+                            {claimStep === 'completed' && (
+                              <div className="mt-3 rounded-xl border border-emerald-500/30 bg-emerald-950/50 p-3">
+                                <p className="text-emerald-200 text-sm">
+                                  🎉 Reward claimed successfully!
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
                     </div>
                   ) : !evaluationResults ? (
                     <div className="bg-amber-500/10 border border-amber-400/30 rounded-xl p-4">
-                      <h4 className="text-amber-300 font-semibold mb-2">Question ended — ready for evaluation</h4>
+                      <h4 className="text-amber-300 font-semibold mb-2">
+                        Prompt ended — ready for judging
+                      </h4>
                       <p className="text-amber-200/80 text-sm mb-4">
-                        Your question has ended. Click below to evaluate the
-                        answers and distribute rewards.
+                        Your game has ended. Click below to run AI judging and
+                        distribute rewards.
                       </p>
                       <button
                         onClick={handleEvaluateAnswers}
@@ -413,7 +512,7 @@ export default function QuestionPage({ idParam }: Props) {
                             Evaluating...
                           </span>
                         ) : (
-                          'Evaluate answers'
+                          'Run AI Judging'
                         )}
                       </button>
                       {evaluationError && (
@@ -427,11 +526,12 @@ export default function QuestionPage({ idParam }: Props) {
                   ) : isReviewMode ? (
                     <div className="space-y-4">
                       <div className="bg-blue-500/10 border border-blue-400/30 rounded-xl p-4">
-                        <h4 className="text-blue-300 font-semibold mb-2">Review AI evaluation</h4>
+                        <h4 className="text-blue-300 font-semibold mb-2">
+                          Review AI Judging
+                        </h4>
                         <p className="text-blue-200/80 text-sm mb-3">
-                          Review and modify the AI&apos;s evaluation below. You
-                          can adjust reward amounts and reasons before
-                          submitting.
+                          Review and modify the AI&apos;s scores below. You can
+                          adjust reward amounts and reasons before submitting.
                         </p>
 
                         {/* Distribution Status */}
@@ -508,10 +608,10 @@ export default function QuestionPage({ idParam }: Props) {
                               </div>
                             </div>
 
-                            {/* AI Evaluation (Read-only) */}
+                            {/* AI Judging (Read-only) */}
                             <div className="bg-slate-800/50 rounded-lg p-3 border-l-4 border-amber-400">
                               <div className="text-xs text-amber-300 font-semibold mb-1">
-                                AI Evaluation:
+                                AI Judging:
                               </div>
                               <div className="flex items-center justify-between mb-1">
                                 <span className="text-sm text-white/90">
@@ -585,15 +685,15 @@ export default function QuestionPage({ idParam }: Props) {
                       >
                         <h4 className="text-emerald-300 font-semibold mb-2">
                           {evaluationStep === 'completed'
-                            ? 'Evaluation Submitted!'
+                            ? 'Judging Submitted!'
                             : 'Review Complete'}
                         </h4>
                         <p className="text-emerald-200/80 text-sm mb-4">
                           {evaluationStep === 'completed' ? (
-                            'Your evaluation has been successfully submitted to the blockchain. Winners can now claim their rewards.'
+                            'Your judging has been successfully submitted onchain. Winners can now claim their rewards.'
                           ) : (
                             <>
-                              You have reviewed all answers.{' '}
+                              You have reviewed all replies.{' '}
                               {isFullyDistributed()
                                 ? 'Ready to submit to blockchain.'
                                 : 'Complete token distribution to submit.'}
@@ -618,7 +718,7 @@ export default function QuestionPage({ idParam }: Props) {
                                   : 'Processing...'}
                               </span>
                             ) : (
-                              'Submit to Blockchain'
+                              'Finalize Judging onchain'
                             )}
                           </button>
                         )}
@@ -636,7 +736,7 @@ export default function QuestionPage({ idParam }: Props) {
                         <div className="flex items-center justify-between">
                           <div className="flex flex-col">
                             <span className="text-white/80 text-xs uppercase">
-                              Total Evaluated
+                              Total Judged
                             </span>
                             <span className="text-white text-lg font-bold">
                               {evaluationResults.length}
@@ -730,6 +830,53 @@ export default function QuestionPage({ idParam }: Props) {
                         ? 'This question has been evaluated and submitted to the blockchain. Winners can now claim their rewards.'
                         : 'This question has ended and is waiting to be evaluated by the creator. Results will be available once evaluation is complete.'}
                     </p>
+
+                    {claimableAmount !== undefined &&
+                      claimableAmount > BigInt(0) && (
+                        <div className="mt-4 pt-4 border-t border-emerald-400/20">
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <p className="text-emerald-300 font-semibold">
+                                🎉 You have rewards to claim!
+                              </p>
+                              <p className="text-emerald-200/60 text-sm">
+                                {formatUSDC(claimableAmount)} USDC available
+                              </p>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={handleClaimReward}
+                            disabled={isClaiming}
+                            className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl transition-colors"
+                          >
+                            {isClaiming ? (
+                              <span className="flex items-center justify-center">
+                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/60 border-t-transparent mr-2" />
+                                Claiming...
+                              </span>
+                            ) : (
+                              `Claim ${formatUSDC(claimableAmount)} USDC`
+                            )}
+                          </button>
+
+                          {claimError && (
+                            <div className="mt-3 rounded-xl border border-rose-500/30 bg-rose-950/50 p-3">
+                              <p className="text-rose-200 text-sm">
+                                {claimError}
+                              </p>
+                            </div>
+                          )}
+
+                          {claimStep === 'completed' && (
+                            <div className="mt-3 rounded-xl border border-emerald-500/30 bg-emerald-950/50 p-3">
+                              <p className="text-emerald-200 text-sm">
+                                🎉 Reward claimed successfully!
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
                   </div>
                 )}
               </div>
@@ -752,7 +899,7 @@ export default function QuestionPage({ idParam }: Props) {
 
               <div className="flex flex-col text-right">
                 <span className="text-white/80 text-xs uppercase">
-                  Reward Pool
+                  Prize Pool
                 </span>
                 <span className="text-white text-lg font-bold">
                   {isLoadingRewards ? (
@@ -764,9 +911,11 @@ export default function QuestionPage({ idParam }: Props) {
               </div>
             </div>
 
-            <Answers 
-              questionId={question.question_id} 
-              isEvaluated={isEvaluatedOnchain || question?.status === 'evaluated'}
+            <Answers
+              questionId={question.question_id}
+              isEvaluated={
+                isEvaluatedOnchain || question?.status === 'evaluated'
+              }
               contractAddress={question.contract_address}
             />
           </div>

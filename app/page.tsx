@@ -21,10 +21,13 @@ const frame = {
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: 'Stoa — Where questions shape discourse',
+   
+    title: 'Stoa — The Knowledge Game',
     openGraph: {
-      title: 'Stoa — Where questions shape discourse',
-      description: 'Ask. Answer. Earn. A forum of ideas built onchain.',
+     
+      title: 'Stoa — The Knowledge Game',
+     
+      description: 'Drop Prompts. Fire Back. Win Rewards.',
     },
     other: {
       'fc:frame': JSON.stringify(frame),

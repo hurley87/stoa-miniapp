@@ -1,5 +1,6 @@
 import Providers from '@/components/providers';
 import Header from '@/components/header';
+import Footer from '@/components/footer';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
@@ -7,8 +8,9 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Stoa - Get rewarded for thoughtful answers',
-  description: 'Share thoughtful answers to quality questions and earn rewards. Community leaders pose time-limited questions with transparent AI evaluation.',
+  title: 'Stoa - The onchain knowledge game',
+  description:
+    'Drop Prompts. Fire Back. Win Rewards. KOLs drop prompts, Reply Guys fire back. The best takes win rewards.',
 };
 
 export const viewport = {
@@ -26,6 +28,7 @@ export default function RootLayout({
         <Providers>
           <Header />
           {children}
+          <Footer />
         </Providers>
       </body>
     </html>

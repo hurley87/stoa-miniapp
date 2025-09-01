@@ -11,7 +11,7 @@ export type CreateQuestionParams = {
   tokenAddress?: Address; // default USDC
   submissionCostUsd?: number; // default 1 USD (USDC 6 decimals)
   maxWinners?: number; // default 3
-  seedAmount?: bigint; // default 0n
+  seedAmount?: bigint; // default BigInt(0)
 };
 
 export type CreateQuestionResult = {

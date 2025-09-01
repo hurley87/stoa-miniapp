@@ -113,10 +113,33 @@ export function useSubmitAnswerOnchain() {
           throw new Error(mapOnchainErrorToMessage(err));
         });
 
-      const submissionCostBigInt = parseUnits(
-        (submissionCost / 1e6).toString(),
-        6
-      ); // Convert to proper USDC amount
+      const submissionCostBigInt = BigInt(submissionCost); // submissionCost is already in raw USDC format (6 decimals)
+      // Check user's USDC balance
+      const balance = await publicClient
+        .readContract({
+          address: tokenAddress as `0x${string}`,
+          abi: ERC20ABI,
+          functionName: 'balanceOf',
+          args: [address],
+        })
+        .catch((err) => {
+          throw new Error(mapOnchainErrorToMessage(err));
+        });
+
+      console.log('🔍 Approval Debug:', {
+        submissionCost,
+        submissionCostBigInt: submissionCostBigInt.toString(),
+        userBalance: balance?.toString(),
+        currentAllowance: allowance?.toString(),
+        needsApproval: !allowance || allowance < submissionCostBigInt,
+        contractAddress,
+        tokenAddress
+      });
+
+      // Check if user has sufficient balance
+      if (balance < submissionCostBigInt) {
+        throw new Error(`Insufficient USDC balance. Need ${(Number(submissionCostBigInt) / 1e6).toFixed(2)} USDC, have ${(Number(balance) / 1e6).toFixed(2)} USDC`);
+      }
 
       // 3. Approve USDC spending if needed
       if (!allowance || allowance < submissionCostBigInt) {
@@ -219,6 +242,18 @@ export function useSubmitAnswerOnchain() {
       });
       queryClient.invalidateQueries({ queryKey: ['question', questionId] });
       queryClient.invalidateQueries({ queryKey: ['questions', 'active'] });
+      // Invalidate prize pool (total reward value) 
+      queryClient.invalidateQueries({
+        queryKey: ['total-reward-value', contractAddress],
+      });
+      // Invalidate user's USDC balance after spending
+      queryClient.invalidateQueries({
+        queryKey: ['usdc-balance', address, tokenAddress],
+      });
+      // Invalidate contract submission cost in case it changed
+      queryClient.invalidateQueries({
+        queryKey: ['contract-submission-cost', contractAddress],
+      });
       return { txHash: submissionTxHash };
     } catch (err) {
       const errorMessage =
@@ -239,6 +274,13 @@ export function useSubmitAnswerOnchain() {
         });
         queryClient.invalidateQueries({ queryKey: ['question', questionId] });
         queryClient.invalidateQueries({ queryKey: ['questions', 'active'] });
+        // Also invalidate prize pool and balance in case they were already updated
+        queryClient.invalidateQueries({
+          queryKey: ['total-reward-value', contractAddress],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['usdc-balance', address, tokenAddress],
+        });
       } else {
         setError(errorMessage);
         setStep('idle');

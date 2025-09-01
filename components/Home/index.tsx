@@ -83,12 +83,12 @@ export default function Home() {
       {
         id: 0,
         title: 'Welcome to Stoa',
-        kicker: 'Ask. Answer. Earn.',
+        kicker: 'Drop Prompts. Fire Back. Win Rewards.',
         body: (
           <>
             <p className="text-slate-300 text-sm">
-              A forum of ideas built onchain. Creators ask questions. Answerers
-              respond. The best answers earn rewards.
+              Stoa is the onchain game of prompts and replies. KOLs drop the
+              prompts. Reply Guys fire back. The best takes win rewards.
             </p>
           </>
         ),
@@ -96,42 +96,42 @@ export default function Home() {
       {
         id: 1,
         title: 'How it works',
-        kicker: 'Where questions shape discourse',
+        kicker: 'Where prompts become games',
         body: (
           <ul className="text-slate-300 text-sm space-y-2 text-left">
             <li className="flex items-start gap-2">
               <span className="text-amber-400">•</span>
-              <span>Browse open questions with live countdowns</span>
+              <span>Browse open games with live countdowns</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400">•</span>
-              <span>Submit your best answer before time expires</span>
+              <span>Pay to Reply before time expires</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400">•</span>
-              <span>Earn rewards for high‑quality responses</span>
+              <span>Win from the Prize Pool for top replies</span>
             </li>
           </ul>
         ),
       },
       {
         id: 2,
-        title: 'How answers are rewarded',
-        kicker: 'Objective, consistent evaluation',
+        title: 'How replies are rewarded',
+        kicker: 'Objective, consistent judging',
         body: (
           <>
             <ul className="text-slate-300 text-sm space-y-2 text-left">
               <li className="flex items-start gap-2">
                 <span className="text-amber-400">•</span>
-                <span>AI evaluates answers against clear criteria</span>
+                <span>AI Judge ranks replies against clear criteria</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-amber-400">•</span>
-                <span>Get clear feedback on your submission</span>
+                <span>Whitelisted Human Judges can adjust earnings</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-amber-400">•</span>
-                <span>Qualifying answers receive token rewards</span>
+                <span>Top replies receive token rewards</span>
               </li>
             </ul>
             <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4 text-left">
@@ -159,9 +159,6 @@ export default function Home() {
       <div className="min-h-screen flex flex-col px-4 pb-24">
         <div className="flex-1 w-full flex flex-col items-center justify-center">
           <div className="mt-8 max-w-md w-full text-center space-y-4">
-            <p className="text-amber-300/90 text-sm sm:text-base font-medium tracking-wide uppercase">
-              {steps[currentStep].kicker}
-            </p>
             <h2 className="text-slate-100 text-2xl sm:text-3xl font-semibold">
               {steps[currentStep].title}
             </h2>
@@ -287,8 +284,8 @@ export default function Home() {
         ) : questions?.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">
             {isActiveTab
-              ? 'No active questions yet'
-              : 'No past questions found'}
+              ? 'No open games yet. Be the first to Drop a Prompt.'
+              : 'No past games found'}
           </div>
         ) : (
           <div className="flex flex-col gap-4">
@@ -328,7 +325,7 @@ export default function Home() {
                         </Link>
                       </div>
 
-                      {/* Question */}
+                      {/* Prompt */}
                       <h2 className="mt-3 text-slate-100 leading-6 font-semibold">
                         {question.content}
                       </h2>
@@ -338,8 +335,8 @@ export default function Home() {
                         <span className="text-white/80 text-xs sm:text-sm font-medium bg-white/5 rounded-full px-2.5 py-1">
                           {question.total_submissions}{' '}
                           {question.total_submissions === 1
-                            ? 'submission'
-                            : 'submissions'}
+                            ? 'reply'
+                            : 'replies'}
                         </span>
                       </div>
 
@@ -362,7 +359,7 @@ export default function Home() {
                             }`}
                           >
                             {question.status === 'evaluated'
-                              ? 'Evaluated'
+                              ? 'Judged'
                               : question.status === 'ended'
                               ? 'Ended'
                               : question.status === 'emergency'
@@ -379,17 +376,6 @@ export default function Home() {
             })}
           </div>
         )}
-      </div>
-      <div
-        style={{
-          background:
-            'radial-gradient(1200px 600px at 50% -200px, rgba(251, 191, 36, 0.08), transparent 60%), linear-gradient(180deg, #0b1120 0%, #0a0f1f 100%)',
-        }}
-        className="fixed bottom-0 right-0 left-0 px-4 py-6 border-t border-white/10"
-      >
-        <Link href="/new">
-          <button className="cta-button w-full">Create a question</button>
-        </Link>
       </div>
     </div>
   );
