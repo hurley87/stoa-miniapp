@@ -83,55 +83,52 @@ export default function Home() {
       {
         id: 0,
         title: 'Welcome to Stoa',
-        kicker: 'Ask. Answer. Earn.',
+        kicker: 'Ask. Reply. Get Judged. Win.', // copy:updated
         body: (
           <>
-            <p className="text-slate-300 text-sm">
-              A forum of ideas built onchain. Creators ask questions. Answerers
-              respond. The best answers earn rewards.
-            </p>
+            <p className="text-slate-300 text-sm">An onchain game of prompts and replies. KOLs drop prompts. Reply Guys play. The best replies earn rewards.</p> // copy:updated
           </>
         ),
       },
       {
         id: 1,
         title: 'How it works',
-        kicker: 'Where questions shape discourse',
+        kicker: 'Where prompts become games', // copy:updated
         body: (
           <ul className="text-slate-300 text-sm space-y-2 text-left">
             <li className="flex items-start gap-2">
               <span className="text-amber-400">•</span>
-              <span>Browse open questions with live countdowns</span>
+              <span>Browse open prompts with live countdowns</span> {/* copy:updated */}
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400">•</span>
-              <span>Submit your best answer before time expires</span>
+              <span>Pay to Reply before time expires</span> {/* copy:updated */}
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400">•</span>
-              <span>Earn rewards for high‑quality responses</span>
+              <span>Earn from the Prize Pool for top replies</span> {/* copy:updated */}
             </li>
           </ul>
         ),
       },
       {
         id: 2,
-        title: 'How answers are rewarded',
-        kicker: 'Objective, consistent evaluation',
+        title: 'How replies are rewarded', // copy:updated
+        kicker: 'Objective, consistent judging', // copy:updated
         body: (
           <>
             <ul className="text-slate-300 text-sm space-y-2 text-left">
               <li className="flex items-start gap-2">
                 <span className="text-amber-400">•</span>
-                <span>AI evaluates answers against clear criteria</span>
+                <span>AI Judge ranks replies against clear criteria</span> {/* copy:updated */}
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-amber-400">•</span>
-                <span>Get clear feedback on your submission</span>
+                <span>Whitelisted Human Judges can adjust earnings</span> {/* copy:updated */}
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-amber-400">•</span>
-                <span>Qualifying answers receive token rewards</span>
+                <span>Top replies receive token rewards</span> {/* copy:updated */}
               </li>
             </ul>
             <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4 text-left">
@@ -286,9 +283,7 @@ export default function Home() {
           </div>
         ) : questions?.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">
-            {isActiveTab
-              ? 'No active questions yet'
-              : 'No past questions found'}
+            {isActiveTab ? 'No active prompts yet' : 'No past prompts found'} {/* copy:updated */}
           </div>
         ) : (
           <div className="flex flex-col gap-4">
@@ -328,7 +323,7 @@ export default function Home() {
                         </Link>
                       </div>
 
-                      {/* Question */}
+                      {/* Prompt */} // copy:updated
                       <h2 className="mt-3 text-slate-100 leading-6 font-semibold">
                         {question.content}
                       </h2>
@@ -362,7 +357,7 @@ export default function Home() {
                             }`}
                           >
                             {question.status === 'evaluated'
-                              ? 'Evaluated'
+                              ? 'Judged' // copy:updated
                               : question.status === 'ended'
                               ? 'Ended'
                               : question.status === 'emergency'
@@ -388,7 +383,7 @@ export default function Home() {
         className="fixed bottom-0 right-0 left-0 px-4 py-6 border-t border-white/10"
       >
         <Link href="/new">
-          <button className="cta-button w-full">Create a question</button>
+          <button className="cta-button w-full">Drop a Prompt</button> {/* copy:updated */}
         </Link>
       </div>
     </div>

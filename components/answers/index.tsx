@@ -144,7 +144,7 @@ export default function Answers({
     return (
       <div className="flex items-center justify-center py-8">
         <div className="animate-spin rounded-full h-6 w-6 border-2 border-amber-400 border-t-transparent" />
-        <span className="ml-2 text-white/80 text-sm">Loading answers...</span>
+        <span className="ml-2 text-white/80 text-sm">Loading replies...</span> {/* copy:updated */}
       </div>
     );
   }
@@ -152,7 +152,7 @@ export default function Answers({
   if (error) {
     return (
       <div className="rounded-xl border border-rose-500/30 bg-rose-950/50 p-4">
-        <p className="text-rose-200 text-sm">Failed to load answers</p>
+        <p className="text-rose-200 text-sm">Failed to load replies</p> {/* copy:updated */}
       </div>
     );
   }
@@ -160,9 +160,7 @@ export default function Answers({
   if (!answers || answers.length === 0) {
     return (
       <div className="rounded-xl border border-white/10 bg-white/5 p-6 text-center">
-        <p className="text-white/60 text-sm">
-          No answers yet. Be the first to contribute!
-        </p>
+        <p className="text-white/60 text-sm">No replies yet. Be the first to make a move!</p> {/* copy:updated */}
       </div>
     );
   }
@@ -187,7 +185,7 @@ export default function Answers({
 
         // Show different layouts based on evaluation status
         if (!isEvaluated) {
-          // Compact view for non-evaluated questions (original layout)
+          // Compact view for non-judged prompts (original layout) // copy:updated
           return (
             <div
               key={answer.id}
@@ -275,25 +273,23 @@ export default function Answers({
               </div>
             </div>
 
-            {/* Answer Content */}
+            {/* Reply Content */} {/* copy:updated */}
             <div className="p-3 bg-white/5 rounded-lg">
               <p className="text-sm text-slate-300 leading-relaxed">
                 {answer.content}
               </p>
             </div>
 
-            {/* Evaluation Results */}
+            {/* Judging Results */} {/* copy:updated */}
             {((answer.ai_reward_amount ?? 0) > 0 ||
               (answer.creator_reward_amount ?? 0) > 0 ||
               (answer.reward_amount ?? 0) > 0) && (
               <div className="space-y-3">
-                {/* AI Evaluation */}
+                {/* AI Judging */} {/* copy:updated */}
                 {(answer.ai_reward_amount ?? 0) > 0 && (
                   <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-medium text-blue-300">
-                        AI evaluation
-                      </h4>
+                      <h4 className="text-sm font-medium text-blue-300">AI judging</h4> {/* copy:updated */}
                       <span className="text-sm font-medium text-emerald-400">
                         $
                         {formatEarnings(
@@ -309,13 +305,11 @@ export default function Answers({
                   </div>
                 )}
 
-                {/* Creator Evaluation */}
+                {/* Human Judge Review */} {/* copy:updated */}
                 {(answer.creator_reward_amount ?? 0) > 0 && (
                   <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-medium text-amber-300">
-                        Creator review
-                      </h4>
+                      <h4 className="text-sm font-medium text-amber-300">Whitelisted Human Judge</h4> {/* copy:updated */}
                       <span className="text-sm font-medium text-emerald-400">
                         $
                         {formatEarnings(
