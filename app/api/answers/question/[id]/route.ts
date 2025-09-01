@@ -15,7 +15,6 @@ export async function GET(
   try {
     const idParam = context.params.id;
     const questionId = Number(idParam);
-    console.log('questionId', questionId);
 
     if (!idParam || Number.isNaN(questionId)) {
       return NextResponse.json(

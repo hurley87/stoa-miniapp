@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { CopyAddress } from '@/components/profile/copy-address';
 import { useUserAnswers } from '@/hooks/use-user-answers';
+import { useUserQuestions } from '@/hooks/use-user-questions';
 
 interface ProfilePageProps {
   params: { address: string };
@@ -33,12 +34,21 @@ export default function ProfilePage({ params }: ProfilePageProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'answers' | 'questions'>(
+    'answers'
+  );
 
   const {
     data: userAnswersData,
     isLoading: answersLoading,
     error: answersError,
   } = useUserAnswers(address?.toLowerCase());
+
+  const {
+    data: userQuestionsData,
+    isLoading: questionsLoading,
+    error: questionsError,
+  } = useUserQuestions(address?.toLowerCase());
 
   useEffect(() => {
     getUser(address.toLowerCase())
@@ -144,12 +154,12 @@ export default function ProfilePage({ params }: ProfilePageProps) {
         )}
 
         {/* Stats Section */}
-        {userAnswersData && (
+        {(userAnswersData || userQuestionsData) && (
           <section className="mt-8">
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               <div className="glass-card p-4 text-center">
                 <div className="text-2xl font-bold ">
-                  {userAnswersData.stats.totalAnswers}
+                  {userAnswersData?.stats.totalAnswers || 0}
                 </div>
                 <div className="text-xs text-white/60 uppercase tracking-wide">
                   Answers
@@ -157,23 +167,27 @@ export default function ProfilePage({ params }: ProfilePageProps) {
               </div>
               <div className="glass-card p-4 text-center">
                 <div className="text-2xl font-bold ">
-                  ${formatEarnings(userAnswersData.stats.totalEarnings)}
+                  {userQuestionsData?.stats.totalQuestions || 0}
                 </div>
                 <div className="text-xs text-white/60 uppercase tracking-wide">
-                  Earned
+                  Questions
                 </div>
               </div>
               <div className="glass-card p-4 text-center">
                 <div className="text-2xl font-bold ">
-                  {userAnswersData.stats.averageScore.toFixed(1)}
+                  $
+                  {formatEarnings(
+                    (userAnswersData?.stats.totalEarnings || 0) +
+                      (userQuestionsData?.stats.totalFeesEarned || 0)
+                  )}
                 </div>
                 <div className="text-xs text-white/60 uppercase tracking-wide">
-                  Avg Score
+                  Total Earned
                 </div>
               </div>
               <div className="glass-card p-4 text-center">
                 <div className="text-2xl font-bold ">
-                  {userAnswersData.stats.topRankedAnswers}
+                  {userAnswersData?.stats.topRankedAnswers || 0}
                 </div>
                 <div className="text-xs text-white/60 uppercase tracking-wide">
                   1st Place
@@ -183,124 +197,244 @@ export default function ProfilePage({ params }: ProfilePageProps) {
           </section>
         )}
 
-        {/* Answer History */}
+        {/* Tabbed Content */}
         <section className="mt-8">
-          <h2 className="text-lg font-semibold mb-4">Answer History</h2>
+          {/* Tab Navigation */}
+          <div className="flex gap-1 mb-6 p-1 bg-white/5 rounded-xl">
+            <button
+              onClick={() => setActiveTab('answers')}
+              className={`flex-1 py-3 px-4 text-sm font-medium rounded-lg transition-all ${
+                activeTab === 'answers'
+                  ? 'bg-white/10 text-white shadow-lg'
+                  : 'text-white/60 hover:text-white/80'
+              }`}
+            >
+              Answers ({userAnswersData?.stats.totalAnswers || 0})
+            </button>
+            <button
+              onClick={() => setActiveTab('questions')}
+              className={`flex-1 py-3 px-4 text-sm font-medium rounded-lg transition-all ${
+                activeTab === 'questions'
+                  ? 'bg-white/10 text-white shadow-lg'
+                  : 'text-white/60 hover:text-white/80'
+              }`}
+            >
+              Questions ({userQuestionsData?.stats.totalQuestions || 0})
+            </button>
+          </div>
 
-          {answersLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-2 border-amber-400 border-t-transparent" />
-            </div>
-          ) : answersError ? (
-            <div className="rounded-xl border border-rose-500/30 bg-rose-950/50 p-4 text-rose-200 text-center">
-              Failed to load answers
-            </div>
-          ) : !userAnswersData?.answers.length ? (
-            <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">
-              No answers yet
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {userAnswersData.answers.map((answer) => (
-                <div key={answer.id} className="glass-card p-4">
-                  {/* Question */}
-                  <div className="mb-3">
-                    <Link
-                      href={`/questions/${answer.question.question_id}`}
-                      className="text-slate-200 hover:text-white transition-colors"
-                    >
-                      <h3 className="font-medium text-sm mb-2">
-                        {truncateText(answer.question.content, 120)}
-                      </h3>
-                    </Link>
-                    <div className="flex items-center gap-2 text-xs text-white/60">
-                      <span>
-                        by {answer.question.creator_username || 'Anonymous'}
-                      </span>
-                      <span>•</span>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          answer.question.status
-                        )}`}
-                      >
-                        {answer.question.status.charAt(0).toUpperCase() +
-                          answer.question.status.slice(1)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Answer */}
-                  <div className="mb-3 p-3 bg-white/5 rounded-lg">
-                    <p className="text-sm text-slate-300 leading-relaxed">
-                      {truncateText(answer.content, 200)}
-                    </p>
-                  </div>
-
-                  {/* Results */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-sm">
-                      {answer.score > 0 && (
-                        <div className="flex items-center gap-1">
-                          <span className="text-white/60">Score:</span>
-                          <span className="font-medium text-amber-400">
-                            {answer.score}
+          {/* Tab Content */}
+          {activeTab === 'answers' && (
+            <div>
+              {answersLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-amber-400 border-t-transparent" />
+                </div>
+              ) : answersError ? (
+                <div className="rounded-xl border border-rose-500/30 bg-rose-950/50 p-4 text-rose-200 text-center">
+                  Failed to load answers
+                </div>
+              ) : !userAnswersData?.answers.length ? (
+                <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">
+                  No answers yet
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {userAnswersData.answers.map((answer) => (
+                    <div key={answer.id} className="glass-card p-4">
+                      {/* Question */}
+                      <div className="mb-3">
+                        <Link
+                          href={`/questions/${answer.question.question_id}`}
+                          className="text-slate-200 hover:text-white transition-colors"
+                        >
+                          <h3 className="font-medium text-sm mb-2">
+                            {truncateText(answer.question.content, 120)}
+                          </h3>
+                        </Link>
+                        <div className="flex items-center gap-2 text-xs text-white/60">
+                          <span>
+                            by {answer.question.creator_username || 'Anonymous'}
+                          </span>
+                          <span>•</span>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                              answer.question.status
+                            )}`}
+                          >
+                            {answer.question.status.charAt(0).toUpperCase() +
+                              answer.question.status.slice(1)}
                           </span>
                         </div>
-                      )}
-                      {answer.rank && (
-                        <div className="flex items-center gap-1">
-                          <span className="text-white/60">Rank:</span>
-                          <span className="font-medium text-purple-400">
-                            {getRankDisplay(answer.rank)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                      </div>
 
-                    <div className="text-right">
-                      {(() => {
-                        const earnings =
-                          answer.creator_reward_amount ||
-                          answer.ai_reward_amount ||
-                          answer.reward_amount ||
-                          0;
-                        if (earnings > 0) {
-                          return (
-                            <div className="text-sm">
-                              <span className="text-white/60">Earned: </span>
-                              <span className="font-medium text-emerald-400">
-                                $
-                                {formatEarnings(
-                                  parseFloat(earnings.toString())
-                                )}
+                      {/* Answer */}
+                      <div className="mb-3 p-3 bg-white/5 rounded-lg">
+                        <p className="text-sm text-slate-300 leading-relaxed">
+                          {truncateText(answer.content, 200)}
+                        </p>
+                      </div>
+
+                      {/* Results */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-sm">
+                          {answer.score > 0 && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-white/60">Score:</span>
+                              <span className="font-medium text-amber-400">
+                                {answer.score}
                               </span>
                             </div>
-                          );
-                        }
-                        return (
-                          <span className="text-xs text-white/40">
-                            No reward
-                          </span>
-                        );
-                      })()}
-                    </div>
-                  </div>
+                          )}
+                          {answer.rank && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-white/60">Rank:</span>
+                              <span className="font-medium text-purple-400">
+                                {getRankDisplay(answer.rank)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
 
-                  {/* AI/Creator Feedback */}
-                  {(answer.ai_reward_reason ||
-                    answer.creator_reward_reason) && (
-                    <div className="mt-3 pt-3 border-t border-white/10">
-                      <div className="text-xs text-white/60">
-                        <span className="font-medium">Feedback: </span>
-                        <span>
-                          {answer.creator_reward_reason ||
-                            answer.ai_reward_reason}
-                        </span>
+                        <div className="text-right">
+                          {(() => {
+                            const earnings =
+                              answer.creator_reward_amount ||
+                              answer.ai_reward_amount ||
+                              answer.reward_amount ||
+                              0;
+                            if (earnings > 0) {
+                              return (
+                                <div className="text-sm">
+                                  <span className="text-white/60">
+                                    Earned:{' '}
+                                  </span>
+                                  <span className="font-medium text-emerald-400">
+                                    $
+                                    {formatEarnings(
+                                      parseFloat(earnings.toString())
+                                    )}
+                                  </span>
+                                </div>
+                              );
+                            }
+                            return (
+                              <span className="text-xs text-white/40">
+                                No reward
+                              </span>
+                            );
+                          })()}
+                        </div>
                       </div>
+
+                      {/* AI/Creator Feedback */}
+                      {(answer.ai_reward_reason ||
+                        answer.creator_reward_reason) && (
+                        <div className="mt-3 pt-3 border-t border-white/10">
+                          <div className="text-xs text-white/60">
+                            <span className="font-medium">Feedback: </span>
+                            <span>
+                              {answer.creator_reward_reason ||
+                                answer.ai_reward_reason}
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  ))}
                 </div>
-              ))}
+              )}
+            </div>
+          )}
+
+          {activeTab === 'questions' && (
+            <div>
+              {questionsLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-amber-400 border-t-transparent" />
+                </div>
+              ) : questionsError ? (
+                <div className="rounded-xl border border-rose-500/30 bg-rose-950/50 p-4 text-rose-200 text-center">
+                  Failed to load questions
+                </div>
+              ) : !userQuestionsData?.questions.length ? (
+                <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">
+                  No questions created yet
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {userQuestionsData.questions.map((question) => (
+                    <div key={question.id} className="glass-card p-4">
+                      {/* Question Content */}
+                      <div className="mb-3">
+                        <Link
+                          href={`/questions/${question.question_id}`}
+                          className="text-slate-200 hover:text-white transition-colors"
+                        >
+                          <h3 className="font-medium text-sm mb-2">
+                            {truncateText(question.content, 120)}
+                          </h3>
+                        </Link>
+                        <div className="flex items-center gap-2 text-xs text-white/60">
+                          <span>Question #{question.question_id}</span>
+                          <span>•</span>
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-white/10 text-white/70">
+                            {question.status.charAt(0).toUpperCase() +
+                              question.status.slice(1)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Question Stats */}
+                      <div className="flex items-center justify-start gap-6">
+                        <div className="flex items-center gap-4 text-sm">
+                          <div className="flex items-center gap-1">
+                            <span className="text-white/60">Submissions:</span>
+                            <span className="font-semibold text-white">
+                              {question.total_submissions}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="text-white/60">Max Winners:</span>
+                            <span className="font-semibold text-white">
+                              {question.max_winners}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="text-white/60">
+                              Cost/Submission:
+                            </span>
+                            <span className="font-semibold text-white">
+                              $
+                              {formatEarnings(
+                                parseFloat(question.submission_cost || '0') /
+                                  1000000
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Reward Pool Info */}
+                      {parseFloat(question.total_reward_pool || '0') > 0 && (
+                        <div className="mt-3 pt-3 border-t border-white/10">
+                          <div className="text-xs text-white/60">
+                            <span className="font-medium">
+                              Total Reward Pool:{' '}
+                            </span>
+                            <span className="text-white">
+                              $
+                              {formatEarnings(
+                                parseFloat(question.total_reward_pool) / 1000000
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </section>

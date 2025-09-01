@@ -33,6 +33,13 @@ export const StoaQuestionABI = [
   },
   {
     type: 'function',
+    name: 'claimable',
+    inputs: [{ name: '', type: 'address', internalType: 'address' }],
+    outputs: [{ name: '', type: 'uint256', internalType: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     name: 'creator',
     inputs: [],
     outputs: [{ name: '', type: 'address', internalType: 'address' }],

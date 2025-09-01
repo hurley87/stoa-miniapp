@@ -22,7 +22,6 @@ export interface QuestionAnswer {
  * Hook to fetch all answers for a specific question
  */
 export function useQuestionAnswers(questionId: number | undefined) {
-  console.log('questionId', questionId);
   return useApiQuery<QuestionAnswer[]>({
     queryKey: ['question-answers', questionId],
     url: `/api/answers/question/${questionId}`,
