@@ -45,10 +45,6 @@ export default function WhitelistDisplay({
 
   return (
     <div className={`glass-card p-6 ${className}`}>
-      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-        {title}
-      </h3>
-
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-6 w-6 border-2 border-amber-400 border-t-transparent" />

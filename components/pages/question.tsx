@@ -21,6 +21,8 @@ type EvaluationResult = {
   response: string;
   reward_amount: number;
   reward_reason: string;
+  username?: string | null;
+  pfp?: string | null;
 };
 
 export default function QuestionPage({ idParam }: Props) {
@@ -596,13 +598,28 @@ export default function QuestionPage({ idParam }: Props) {
                           >
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
-                                <div
-                                  className="text-xs text-white/70 font-mono break-all"
-                                  title={answer.address}
-                                >
-                                  {formatAddress(answer.address)}
+                                {/* User info with profile picture and name */}
+                                <div className="flex items-center gap-2 mb-2">
+                                  {answer.pfp ? (
+                                    <img
+                                      src={answer.pfp}
+                                      alt={`${getDisplayName(answer.username, answer.address)}'s avatar`}
+                                      className="h-6 w-6 rounded-full object-cover ring-1 ring-white/10"
+                                      loading="lazy"
+                                    />
+                                  ) : (
+                                    <div className="h-6 w-6 rounded-full bg-gradient-to-br from-amber-500/30 to-amber-300/20 ring-1 ring-white/10 flex items-center justify-center text-xs font-semibold text-slate-100">
+                                      {getInitial(getDisplayName(answer.username, answer.address))}
+                                    </div>
+                                  )}
+                                  <Link
+                                    href={`/profile/${answer.address}`}
+                                    className="text-sm font-medium text-slate-200 hover:text-white transition-colors"
+                                  >
+                                    {getDisplayName(answer.username, answer.address)}
+                                  </Link>
                                 </div>
-                                <p className="mt-2 text-sm sm:text-base text-slate-100 leading-relaxed">
+                                <p className="text-sm sm:text-base text-slate-100 leading-relaxed">
                                   {answer.content}
                                 </p>
                               </div>
@@ -663,7 +680,7 @@ export default function QuestionPage({ idParam }: Props) {
                                         e.target.value
                                       )
                                     }
-                                    rows={2}
+                                    rows={5}
                                     className="w-full px-2 py-1 bg-white/5 border border-white/20 rounded text-sm text-white resize-none"
                                     placeholder="Explain your reward decision..."
                                   />
@@ -762,6 +779,10 @@ export default function QuestionPage({ idParam }: Props) {
                       <div className="flex flex-col gap-3">
                         {evaluationResults.map((result, idx) => {
                           const hasReward = result.reward_amount > 0;
+                          const displayName = getDisplayName(
+                            result.username ?? null,
+                            result.address
+                          );
                           return (
                             <div
                               key={idx}
@@ -769,13 +790,28 @@ export default function QuestionPage({ idParam }: Props) {
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div className="min-w-0">
-                                  <div
-                                    className="text-xs text-white/70 font-mono break-all"
-                                    title={result.address}
-                                  >
-                                    {formatAddress(result.address)}
+                                  {/* User info with profile picture and name */}
+                                  <div className="flex items-center gap-2 mb-2">
+                                    {result.pfp ? (
+                                      <img
+                                        src={result.pfp}
+                                        alt={`${displayName}'s avatar`}
+                                        className="h-6 w-6 rounded-full object-cover ring-1 ring-white/10"
+                                        loading="lazy"
+                                      />
+                                    ) : (
+                                      <div className="h-6 w-6 rounded-full bg-gradient-to-br from-amber-500/30 to-amber-300/20 ring-1 ring-white/10 flex items-center justify-center text-xs font-semibold text-slate-100">
+                                        {getInitial(displayName)}
+                                      </div>
+                                    )}
+                                    <Link
+                                      href={`/profile/${result.address}`}
+                                      className="text-sm font-medium text-slate-200 hover:text-white transition-colors"
+                                    >
+                                      {displayName}
+                                    </Link>
                                   </div>
-                                  <p className="mt-2 text-sm sm:text-base text-slate-100 leading-relaxed">
+                                  <p className="text-sm sm:text-base text-slate-100 leading-relaxed">
                                     {result.response}
                                   </p>
                                 </div>

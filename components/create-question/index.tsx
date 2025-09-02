@@ -363,11 +363,11 @@ export function CreateQuestionForm() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400 mt-0.5">•</span>
-              <span>Curate prompts; guide quality discourse</span>
+              <span>Curate prompts; guide quality replies</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400 mt-0.5">•</span>
-              <span>Build reputation and influence the discourse</span>
+              <span>Build your influence</span>
             </li>
           </ul>
           <div className="mt-4 p-3 rounded-lg bg-white/5 border border-white/10">
@@ -385,12 +385,6 @@ export function CreateQuestionForm() {
           >
             DM Stoa
           </button>
-          <Link
-            href="/"
-            className="glass-button w-full text-center py-3 px-6 rounded-xl font-medium text-white transition-all"
-          >
-            Explore the discourse
-          </Link>
         </div>
         {/* Whitelist Display Section */}
         <WhitelistDisplay className="mt-8" />

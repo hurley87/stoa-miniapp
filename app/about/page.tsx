@@ -18,10 +18,10 @@ export default function AboutPage() {
             </h2>
             <p className="text-slate-400 leading-relaxed mb-3">
               Stoa is the onchain game of prompts and replies. KOLs drop the
-              prompts. Reply Guys fire back. The best takes win rewards.
+              prompts. Reply guys fire back. The best replies win rewards.
             </p>
             <p className="text-slate-400 leading-relaxed">
-              Start a game. Pay to Reply. Get Judged. Claim Rewards.
+              Start a game. Pay to reply. Claim rewards.
             </p>
           </section>
 

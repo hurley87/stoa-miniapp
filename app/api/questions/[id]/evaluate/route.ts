@@ -16,6 +16,8 @@ const evaluationResultSchema = z.object({
   response: z.string(),
   reward_amount: z.number().min(0),
   reward_reason: z.string(),
+  username: z.string().nullable().optional(),
+  pfp: z.string().nullable().optional(),
 });
 
 const evaluationSchema = z.object({
@@ -69,7 +71,8 @@ export async function POST(
         *,
         creators:creators!fk_answers_creator (
           wallet,
-          username
+          username,
+          pfp
         )
       `
       )
@@ -107,14 +110,25 @@ Question: ${question.content}
 Evaluation Instructions: ${question.evaluation_prompt}
 
 CRITICAL REQUIREMENTS:
-- Total Reward Pool Available: ${availableRewards.toFixed(2)} USDC (fees already collected)
+- Total Reward Pool Available: ${availableRewards.toFixed(
+      2
+    )} USDC (fees already collected)
 - Maximum Winners: ${question.max_winners}
-- YOU MUST DISTRIBUTE ALL ${availableRewards.toFixed(2)} USDC - no tokens can remain unallocated
-- The sum of all reward_amount values MUST EQUAL exactly ${availableRewards.toFixed(2)}
+- YOU MUST DISTRIBUTE ALL ${availableRewards.toFixed(
+      2
+    )} USDC - no tokens can remain unallocated
+- The sum of all reward_amount values MUST EQUAL exactly ${availableRewards.toFixed(
+      2
+    )}
 - At least one answer must receive a reward (cannot all be 0)
-- You can distribute rewards among ${Math.min(question.max_winners, answersToEvaluate.length)} answers maximum
+- You can distribute rewards among ${Math.min(
+      question.max_winners,
+      answersToEvaluate.length
+    )} answers maximum
 
-Please evaluate the following answers and assign rewards that total exactly ${availableRewards.toFixed(2)} USDC:
+Please evaluate the following answers and assign rewards that total exactly ${availableRewards.toFixed(
+      2
+    )} USDC:
 
 Answers to evaluate:
 ${answersToEvaluate
@@ -124,10 +138,14 @@ ${answersToEvaluate
 For each answer, provide:
 - address: The exact wallet address of the responder
 - response: The exact answer content
-- reward_amount: Amount in USDC (must sum to exactly ${availableRewards.toFixed(2)} across all answers)
+- reward_amount: Amount in USDC (must sum to exactly ${availableRewards.toFixed(
+      2
+    )} across all answers)
 - reward_reason: Brief explanation for the reward decision
 
-VALIDATION: Before responding, verify that the sum of all reward_amount values equals exactly ${availableRewards.toFixed(2)} USDC.
+VALIDATION: Before responding, verify that the sum of all reward_amount values equals exactly ${availableRewards.toFixed(
+      2
+    )} USDC.
 `;
 
     // Use Vercel AI generateObject for structured output
@@ -143,41 +161,52 @@ VALIDATION: Before responding, verify that the sum of all reward_amount values e
     const evaluationResults = object.results;
 
     // Validate that all tokens are distributed
-    const totalDistributed = evaluationResults.reduce((sum, result) => sum + result.reward_amount, 0);
+    const totalDistributed = evaluationResults.reduce(
+      (sum, result) => sum + result.reward_amount,
+      0
+    );
     const expectedTotal = availableRewards;
-    
+
     if (Math.abs(totalDistributed - expectedTotal) > 0.01) {
-      console.error(`Token distribution validation failed. Expected: ${expectedTotal}, Got: ${totalDistributed}`);
+      console.error(
+        `Token distribution validation failed. Expected: ${expectedTotal}, Got: ${totalDistributed}`
+      );
       return NextResponse.json(
-        { 
-          error: `Token distribution error: Expected ${expectedTotal.toFixed(2)} USDC, but got ${totalDistributed.toFixed(2)} USDC. All tokens must be distributed.` 
+        {
+          error: `Token distribution error: Expected ${expectedTotal.toFixed(
+            2
+          )} USDC, but got ${totalDistributed.toFixed(
+            2
+          )} USDC. All tokens must be distributed.`,
         },
         { status: 400 }
       );
     }
 
     // Save AI evaluation results to database
-    const updates = evaluationResults.map(result => {
-      const answer = answers.find(a => 
-        ((a as any).creators?.wallet || a.responder) === result.address
-      );
-      
-      if (!answer) {
-        console.warn(`Answer not found for address: ${result.address}`);
-        return null;
-      }
+    const updates = evaluationResults
+      .map((result) => {
+        const answer = answers.find(
+          (a) => ((a as any).creators?.wallet || a.responder) === result.address
+        );
 
-      return {
-        id: answer.id,
-        ai_reward_amount: result.reward_amount,
-        ai_reward_reason: result.reward_reason,
-        ai_evaluated_at: new Date().toISOString(),
-        evaluation_status: 'ai_evaluated',
-        // Initialize creator fields with AI values (creator can modify later)
-        creator_reward_amount: result.reward_amount,
-        creator_reward_reason: result.reward_reason,
-      };
-    }).filter(Boolean);
+        if (!answer) {
+          console.warn(`Answer not found for address: ${result.address}`);
+          return null;
+        }
+
+        return {
+          id: answer.id,
+          ai_reward_amount: result.reward_amount,
+          ai_reward_reason: result.reward_reason,
+          ai_evaluated_at: new Date().toISOString(),
+          evaluation_status: 'ai_evaluated',
+          // Initialize creator fields with AI values (creator can modify later)
+          creator_reward_amount: result.reward_amount,
+          creator_reward_reason: result.reward_reason,
+        };
+      })
+      .filter(Boolean);
 
     // Update answers with AI evaluation results
     for (const update of updates) {
@@ -193,11 +222,26 @@ VALIDATION: Before responding, verify that the sum of all reward_amount values e
       }
     }
 
+    // Enhance evaluation results with creator information
+    const enhancedResults = evaluationResults.map((result) => {
+      const answer = answers.find(
+        (a) => ((a as any).creators?.wallet || a.responder) === result.address
+      );
+
+      const creator = (answer as any)?.creators;
+
+      return {
+        ...result,
+        username: creator?.username || null,
+        pfp: creator?.pfp || null,
+      };
+    });
+
     return NextResponse.json({
       question_id: questionId,
       question_content: question.content,
       total_submissions: answers.length,
-      evaluation_results: evaluationResults,
+      evaluation_results: enhancedResults,
     });
   } catch (error) {
     console.error('Evaluation API error:', error);

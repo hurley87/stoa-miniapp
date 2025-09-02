@@ -128,7 +128,8 @@ export async function GET(
         evaluation_status,
         creators:creators!fk_answers_creator (
           wallet,
-          username
+          username,
+          pfp
         )
       `
       )
@@ -150,6 +151,7 @@ export async function GET(
         content: answer.content,
         address: (answer as any).creators?.wallet || answer.responder,
         username: (answer as any).creators?.username,
+        pfp: (answer as any).creators?.pfp,
         ai_reward_amount: answer.ai_reward_amount,
         ai_reward_reason: answer.ai_reward_reason,
         ai_evaluated_at: answer.ai_evaluated_at,

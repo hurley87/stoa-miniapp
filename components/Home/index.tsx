@@ -105,11 +105,11 @@ export default function Home() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400">•</span>
-              <span>Pay to Reply before time expires</span>
+              <span>Pay to reply before time expires</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400">•</span>
-              <span>Win from the Prize Pool for top replies</span>
+              <span>The top replies receive token rewards</span>
             </li>
           </ul>
         ),
@@ -119,35 +119,20 @@ export default function Home() {
         title: 'How replies are rewarded',
         kicker: 'Objective, consistent judging',
         body: (
-          <>
-            <ul className="text-slate-300 text-sm space-y-2 text-left">
-              <li className="flex items-start gap-2">
-                <span className="text-amber-400">•</span>
-                <span>AI Judge ranks replies against clear criteria</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-amber-400">•</span>
-                <span>Whitelisted Human Judges can adjust earnings</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-amber-400">•</span>
-                <span>Top replies receive token rewards</span>
-              </li>
-            </ul>
-            <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4 text-left">
-              <p className="text-amber-300/90 text-xs font-medium uppercase mb-2">
-                Example
-              </p>
-              <p className="text-slate-200 text-sm">
-                Feedback: Clear reasoning with citations. Consider
-                counter‑arguments.
-              </p>
-              <div className="mt-2 text-slate-300 text-sm">
-                Reward:{' '}
-                <span className="text-amber-400 font-medium">12 tokens</span>
-              </div>
-            </div>
-          </>
+          <ul className="text-slate-300 text-sm space-y-2 text-left">
+            <li className="flex items-start gap-2">
+              <span className="text-amber-400">•</span>
+              <span>AI Judge ranks replies against clear criteria</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-amber-400">•</span>
+              <span>The question creator gets the final say</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-amber-400">•</span>
+              <span>Top replies receive token rewards</span>
+            </li>
+          </ul>
         ),
       },
     ];
@@ -175,17 +160,6 @@ export default function Home() {
                 />
               ))}
             </div>
-
-            <p className="text-slate-400 text-sm sm:text-base">
-              New here?{' '}
-              <Link
-                href="/about"
-                className="underline decoration-amber-400/50 underline-offset-2 hover:text-slate-200"
-              >
-                Learn more about Stoa
-              </Link>
-              .
-            </p>
           </div>
         </div>
         <div

@@ -30,28 +30,17 @@ interface LeaderboardResponse {
   sort: string;
 }
 
-type SortOption =
-  | 'total_earnings'
-  | 'creator_earnings'
-  | 'answerer_earnings'
-  | 'reputation'
-  | 'total_questions'
-  | 'total_answers';
+type SortOption = 'answerer_earnings';
 
 const sortLabels: Record<SortOption, string> = {
-  total_earnings: 'Total Earnings',
-  creator_earnings: 'Creator Earnings',
-  answerer_earnings: 'Answerer Earnings',
-  reputation: 'Reputation',
-  total_questions: 'Games Started',
-  total_answers: 'Replies Posted',
+  answerer_earnings: 'Total Rewards Earned',
 };
 
 export default function LeaderboardPage() {
   const [data, setData] = useState<LeaderboardUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<SortOption>('total_earnings');
+  const [sortBy, setSortBy] = useState<SortOption>('answerer_earnings');
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
 
@@ -99,23 +88,18 @@ export default function LeaderboardPage() {
 
   const formatTokenAmount = (amountStr: string) => {
     const amount = BigInt(amountStr || '0');
-    const zero = BigInt(0);
-    if (amount === zero) return '0';
+    if (amount === BigInt(0)) return '0.00';
 
-    // Convert from wei to tokens (assuming 18 decimals)
-    const divisor = BigInt(10 ** 18);
+    // Convert from smallest unit to tokens (assuming 6 decimals for USDC)
+    const divisor = BigInt(10 ** 6);
     const tokens = amount / divisor;
     const remainder = amount % divisor;
 
-    if (tokens > zero) {
-      return tokens.toString();
-    } else if (remainder > zero) {
-      // Show fractional part for small amounts
-      const fractional = remainder.toString().padStart(18, '0');
-      const trimmed = fractional.replace(/0+$/, '');
-      return `0.${trimmed.slice(0, 6)}`;
-    }
-    return '0';
+    // Convert to decimal number for formatting
+    const decimalAmount = Number(tokens) + Number(remainder) / Number(divisor);
+
+    // Format to exactly 2 decimal places
+    return decimalAmount.toFixed(2);
   };
 
   const truncateAddress = (addr: string) =>
@@ -143,27 +127,6 @@ export default function LeaderboardPage() {
   return (
     <div className="min-h-screen px-4 pt-16 pb-36">
       <div className="max-w-4xl mx-auto">
-        {/* Sort Controls */}
-        <div className="mb-6">
-          <div className="flex gap-2 flex-wrap">
-            {(Object.entries(sortLabels) as [SortOption, string][]).map(
-              ([key, label]) => (
-                <button
-                  key={key}
-                  onClick={() => setSortBy(key)}
-                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    sortBy === key
-                      ? 'bg-amber-500/20 text-amber-300 shadow-sm'
-                      : 'text-slate-300 hover:text-white hover:bg-white/5 border border-white/10'
-                  }`}
-                >
-                  {label}
-                </button>
-              )
-            )}
-          </div>
-        </div>
-
         {/* Leaderboard Table */}
         {isLoading && data.length === 0 ? (
           <div className="flex items-center justify-center py-12">
@@ -183,17 +146,7 @@ export default function LeaderboardPage() {
                         Creator
                       </th>
                       <th className="text-right py-4 px-4 text-slate-300 font-medium">
-                        {sortBy === 'total_earnings'
-                          ? 'Earnings'
-                          : sortBy === 'creator_earnings'
-                          ? 'Creator Earnings'
-                          : sortBy === 'answerer_earnings'
-                          ? 'Answerer Earnings'
-                          : sortBy === 'reputation'
-                          ? 'Reputation'
-                          : sortBy === 'total_questions'
-                          ? 'Games'
-                          : 'Replies'}
+                        Earnings
                       </th>
                       <th className="text-right py-4 px-4 text-slate-300 font-medium hidden sm:table-cell">
                         Games
@@ -215,18 +168,9 @@ export default function LeaderboardPage() {
                       const pfpUrl = user.pfp;
                       const initial = getInitial(displayName);
 
-                      const primaryValue =
-                        sortBy === 'total_earnings'
-                          ? formatTokenAmount(user.total_earnings)
-                          : sortBy === 'creator_earnings'
-                          ? formatTokenAmount(user.total_fees_earned)
-                          : sortBy === 'answerer_earnings'
-                          ? formatTokenAmount(user.total_rewards_earned)
-                          : sortBy === 'reputation'
-                          ? user.reputation.toFixed(1)
-                          : sortBy === 'total_questions'
-                          ? user.total_questions_created.toString()
-                          : user.total_answers_submitted.toString();
+                      const primaryValue = formatTokenAmount(
+                        user.total_rewards_earned
+                      );
 
                       return (
                         <tr
@@ -274,13 +218,9 @@ export default function LeaderboardPage() {
                           </td>
                           <td className="py-4 px-4 text-right">
                             <span className="text-slate-100 font-semibold">
-                              {sortBy.includes('earnings') ? (
-                                <span className="text-amber-400">
-                                  {primaryValue}
-                                </span>
-                              ) : (
-                                primaryValue
-                              )}
+                              <span className="text-amber-400">
+                                ${primaryValue}
+                              </span>
                             </span>
                           </td>
                           <td className="py-4 px-4 text-right text-slate-300 hidden sm:table-cell">

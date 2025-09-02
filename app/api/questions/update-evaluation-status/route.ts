@@ -20,6 +20,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // First, get the question to find the creator and reward amount
+    const { data: questionData, error: questionError } = await supabase
+      .from('questions')
+      .select('creator_id, creator_fees_collected')
+      .eq('contract_address', contractAddress)
+      .single();
+
+    if (questionError || !questionData) {
+      console.error('Error fetching question data:', questionError);
+      return NextResponse.json(
+        { error: 'Question not found' },
+        { status: 404 }
+      );
+    }
+
     // Update the question status to 'evaluated' and set evaluation fields
     const { data, error } = await supabase
       .from('questions')
@@ -45,6 +60,9 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
+
+    // Note: total_rewards_earned will be calculated by a cron job that 
+    // sums all creator_reward_amount values from the answers table
 
     return NextResponse.json({
       success: true,
