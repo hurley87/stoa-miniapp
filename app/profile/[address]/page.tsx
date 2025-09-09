@@ -157,7 +157,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
         <section className="mt-8">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div className="glass-card p-4 text-center">
-              <div className="text-2xl font-bold ">
+              <div className="text-lg font-bold ">
                 {userAnswersData?.stats.totalAnswers || 0}
               </div>
               <div className="text-xs text-white/60 uppercase tracking-wide">
@@ -165,15 +165,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
               </div>
             </div>
             <div className="glass-card p-4 text-center">
-              <div className="text-2xl font-bold ">
-                {userQuestionsData?.stats.totalQuestions || 0}
-              </div>
-              <div className="text-xs text-white/60 uppercase tracking-wide">
-                Prompts
-              </div>
-            </div>
-            <div className="glass-card p-4 text-center">
-              <div className="text-2xl font-bold ">
+              <div className="text-lg font-bold ">
                 $
                 {formatEarnings(
                   (userAnswersData?.stats.totalEarnings || 0) +
@@ -182,14 +174,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
               </div>
               <div className="text-xs text-white/60 uppercase tracking-wide">
                 Total Earned
-              </div>
-            </div>
-            <div className="glass-card p-4 text-center">
-              <div className="text-2xl font-bold ">
-                {userAnswersData?.stats.topRankedAnswers || 0}
-              </div>
-              <div className="text-xs text-white/60 uppercase tracking-wide">
-                1st Place
               </div>
             </div>
           </div>

@@ -6,7 +6,7 @@ import { STOA_FACTORY_ADDRESS, STOA_FACTORY_ABI } from '@/lib/abis/StoaFactory';
 const KNOWN_ADDRESSES = [
   '0x26e94d56892521c4c7bbbd1d9699725932797e9c',
   '0xeFe07d20e9b15aCc922457060B93DA1052F60ea3',
-  '0x891161c0fdd4797c79400ca2256a967bd6198450',
+  '0x891161c0FDD4797C79400CA2256a967bd6198450',
   // Add more addresses as needed
 ].map((addr) => getAddress(addr)); // Ensure proper checksumming
 
@@ -56,7 +56,7 @@ export function useWhitelistStatus() {
 
 export function useIsWhitelisted(address?: string) {
   const normalizedAddress = address ? getAddress(address) : undefined;
-
+  console.log('normalizedAddress', normalizedAddress);
   const { data, isError, isLoading } = useReadContracts({
     contracts: normalizedAddress
       ? [
@@ -71,6 +71,7 @@ export function useIsWhitelisted(address?: string) {
   });
 
   const result = data?.[0];
+  console.log('result', result);
   const isWhitelisted =
     result?.status === 'success'
       ? (result.result as unknown as boolean) === true

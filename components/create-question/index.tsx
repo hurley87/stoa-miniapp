@@ -185,6 +185,11 @@ export function CreateQuestionForm() {
     submissionCostUsd: number;
   } | null>(null);
 
+  console.log('user', user);
+  console.log('address', address);
+  console.log('isWhitelisted', isWhitelisted);
+  console.log('isCheckingWhitelist', isCheckingWhitelist);
+
   const canCreate = isWhitelisted;
 
   interface CreateQuestionRequest {
