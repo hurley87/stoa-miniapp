@@ -257,9 +257,7 @@ export default function Home() {
           </div>
         ) : questions?.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-white/15 bg-slate-900/40 p-8 text-center text-slate-400">
-            {isActiveTab
-              ? 'No open games yet. Be the first to Drop a Prompt.'
-              : 'No past games found'}
+            {isActiveTab ? 'No open questions.' : 'No past games found'}
           </div>
         ) : (
           <div className="flex flex-col gap-4">
