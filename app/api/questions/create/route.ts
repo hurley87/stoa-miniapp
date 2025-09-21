@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { STOA_FACTORY_ADDRESS } from '@/lib/abis/StoaFactory';
+import { StoaQuestionABI } from '@/lib/abis/StoaQuestion';
 import { sendBulkNotification } from '@/lib/bulk-notifications';
 import { z } from 'zod';
+import { createPublicClient, http } from 'viem';
+import { base } from 'viem/chains';
 
 const BodySchema = z.object({
   questionId: z.number().int().nonnegative(),
@@ -26,6 +29,12 @@ const BodySchema = z.object({
 const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+// Create public client for reading contract data
+const publicClient = createPublicClient({
+  chain: base,
+  transport: http(process.env.NEXT_PUBLIC_RPC_URL),
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -58,10 +67,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Read the actual end time from the contract
+    let contractEndTime: bigint;
+    try {
+      contractEndTime = await publicClient.readContract({
+        address: body.questionContract as `0x${string}`,
+        abi: StoaQuestionABI,
+        functionName: 'endsAt',
+      }) as bigint;
+    } catch (err) {
+      console.error('Failed to read end time from contract:', err);
+      return NextResponse.json(
+        { error: 'Failed to read question data from contract' },
+        { status: 500 }
+      );
+    }
+
     const startTime = new Date();
-    const endTime = new Date(
-      startTime.getTime() + Number(body.duration) * 1000
-    );
+    const endTime = new Date(Number(contractEndTime) * 1000); // Convert from Unix timestamp
     const evaluationDeadline = new Date(
       endTime.getTime() + 7 * 24 * 60 * 60 * 1000
     );

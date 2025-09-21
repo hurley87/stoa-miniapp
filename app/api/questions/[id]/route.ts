@@ -30,7 +30,8 @@ export async function GET(
         *,
         creators:creators!fk_questions_creator (
           username,
-          pfp
+          pfp,
+          fid
         )
       `
       )
@@ -66,6 +67,7 @@ export async function GET(
           : (data as any).total_submissions ?? 0,
       creator_username: (data as any)?.creators?.username ?? null,
       creator_pfp: (data as any)?.creators?.pfp ?? null,
+      creator_fid: (data as any)?.creators?.fid ?? null,
     };
 
     return NextResponse.json(merged, {

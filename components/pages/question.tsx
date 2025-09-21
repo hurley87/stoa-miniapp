@@ -12,7 +12,9 @@ import { useClaimReward } from '@/hooks/use-claim-reward';
 import AnswerQuestion from '@/components/answer-question';
 import Answers from '@/components/answers';
 import Countdown from '@/components/countdown';
+import ClaimRewardsSection from '@/components/claim-rewards-section';
 import { useUser } from '@/contexts/user-context';
+import { sdk } from '@farcaster/miniapp-sdk';
 
 type Props = { idParam: string };
 
@@ -356,6 +358,8 @@ export default function QuestionPage({ idParam }: Props) {
     }
   }, [question, isEvaluatedOnchain, isLoadingEvaluationStatus]);
 
+  console.log('question', question);
+
   return (
     <div className="min-h-screen px-4 pt-16 pb-28">
       <div className="max-w-2xl mx-auto px-0">
@@ -438,61 +442,28 @@ export default function QuestionPage({ idParam }: Props) {
               <div className="space-y-4">
                 {isQuestionCreator() ? (
                   isEvaluatedOnchain ? (
-                    <div className="bg-purple-500/10 border border-purple-400/30 rounded-xl p-4">
-                      <h4 className="text-purple-300 font-semibold mb-2">
+                    <div className="bg-emerald-500/10 border border-emerald-400/30 rounded-xl p-4">
+                      <h4 className="text-emerald-300 font-semibold mb-2">
                         Prompt already judged
                       </h4>
-                      <p className="text-purple-200/80 text-sm">
+                      <p className="text-emerald-200/80 text-sm mb-4">
                         This game has been judged onchain. Winners can now claim
                         their rewards.
                       </p>
 
-                      {claimableAmount !== undefined &&
-                        claimableAmount > BigInt(0) && (
-                          <div className="mt-4 pt-4 border-t border-emerald-400/20">
-                            <div className="flex items-center justify-between mb-3">
-                              <div>
-                                <p className="text-emerald-300 font-semibold">
-                                  🎉 You have rewards to claim!
-                                </p>
-                                <p className="text-emerald-200/60 text-sm">
-                                  {formatUSDC(claimableAmount)} USDC available
-                                </p>
-                              </div>
-                            </div>
-
-                            <button
-                              onClick={handleClaimReward}
-                              disabled={isClaiming}
-                              className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl transition-colors"
-                            >
-                              {isClaiming ? (
-                                <span className="flex items-center justify-center">
-                                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/60 border-t-transparent mr-2" />
-                                  Claiming...
-                                </span>
-                              ) : (
-                                `Claim ${formatUSDC(claimableAmount)} USDC`
-                              )}
-                            </button>
-
-                            {claimError && (
-                              <div className="mt-3 rounded-xl border border-rose-500/30 bg-rose-950/50 p-3">
-                                <p className="text-rose-200 text-sm">
-                                  {claimError}
-                                </p>
-                              </div>
-                            )}
-
-                            {claimStep === 'completed' && (
-                              <div className="mt-3 rounded-xl border border-emerald-500/30 bg-emerald-950/50 p-3">
-                                <p className="text-emerald-200 text-sm">
-                                  🎉 Reward claimed successfully!
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        )}
+                      {claimableAmount !== undefined && (
+                        <div className="mt-4 pt-4 border-t border-emerald-400/20">
+                          <ClaimRewardsSection
+                            claimableAmount={claimableAmount}
+                            formatUSDC={formatUSDC}
+                            handleClaimReward={handleClaimReward}
+                            isClaiming={isClaiming}
+                            claimError={claimError}
+                            claimStep={claimStep}
+                            questionId={question.question_id}
+                          />
+                        </div>
+                      )}
                     </div>
                   ) : !evaluationResults ? (
                     <div className="bg-amber-500/10 border border-amber-400/30 rounded-xl p-4">
@@ -514,7 +485,7 @@ export default function QuestionPage({ idParam }: Props) {
                             Evaluating...
                           </span>
                         ) : (
-                          'Run AI Judging'
+                          'Evaluate Answers'
                         )}
                       </button>
                       {evaluationError && (
@@ -603,20 +574,31 @@ export default function QuestionPage({ idParam }: Props) {
                                   {answer.pfp ? (
                                     <img
                                       src={answer.pfp}
-                                      alt={`${getDisplayName(answer.username, answer.address)}'s avatar`}
+                                      alt={`${getDisplayName(
+                                        answer.username,
+                                        answer.address
+                                      )}'s avatar`}
                                       className="h-6 w-6 rounded-full object-cover ring-1 ring-white/10"
                                       loading="lazy"
                                     />
                                   ) : (
                                     <div className="h-6 w-6 rounded-full bg-gradient-to-br from-amber-500/30 to-amber-300/20 ring-1 ring-white/10 flex items-center justify-center text-xs font-semibold text-slate-100">
-                                      {getInitial(getDisplayName(answer.username, answer.address))}
+                                      {getInitial(
+                                        getDisplayName(
+                                          answer.username,
+                                          answer.address
+                                        )
+                                      )}
                                     </div>
                                   )}
                                   <Link
                                     href={`/profile/${answer.address}`}
                                     className="text-sm font-medium text-slate-200 hover:text-white transition-colors"
                                   >
-                                    {getDisplayName(answer.username, answer.address)}
+                                    {getDisplayName(
+                                      answer.username,
+                                      answer.address
+                                    )}
                                   </Link>
                                 </div>
                                 <p className="text-sm sm:text-base text-slate-100 leading-relaxed">
@@ -864,55 +846,40 @@ export default function QuestionPage({ idParam }: Props) {
                     >
                       {isEvaluatedOnchain
                         ? 'This question has been evaluated and submitted to the blockchain. Winners can now claim their rewards.'
-                        : 'This question has ended and is waiting to be evaluated by the creator. Results will be available once evaluation is complete.'}
+                        : 'This question has ended and is waiting to be evaluated by the creator. Results will be available once evaluation is complete. DM '}
                     </p>
 
-                    {claimableAmount !== undefined &&
-                      claimableAmount > BigInt(0) && (
-                        <div className="mt-4 pt-4 border-t border-emerald-400/20">
-                          <div className="flex items-center justify-between mb-3">
-                            <div>
-                              <p className="text-emerald-300 font-semibold">
-                                🎉 You have rewards to claim!
-                              </p>
-                              <p className="text-emerald-200/60 text-sm">
-                                {formatUSDC(claimableAmount)} USDC available
-                              </p>
-                            </div>
-                          </div>
+                    {!isEvaluatedOnchain && (
+                      <div className="mt-4">
+                        <button
+                          onClick={() => {
+                            if (!question?.creator_fid) return;
+                            sdk.actions.viewProfile({
+                              fid: question.creator_fid,
+                            });
+                          }}
+                          className="cta-button w-full"
+                        >
+                          {question.creator_username
+                            ? `DM @${question.creator_username}`
+                            : 'DM creator'}
+                        </button>
+                      </div>
+                    )}
 
-                          <button
-                            onClick={handleClaimReward}
-                            disabled={isClaiming}
-                            className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl transition-colors"
-                          >
-                            {isClaiming ? (
-                              <span className="flex items-center justify-center">
-                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/60 border-t-transparent mr-2" />
-                                Claiming...
-                              </span>
-                            ) : (
-                              `Claim ${formatUSDC(claimableAmount)} USDC`
-                            )}
-                          </button>
-
-                          {claimError && (
-                            <div className="mt-3 rounded-xl border border-rose-500/30 bg-rose-950/50 p-3">
-                              <p className="text-rose-200 text-sm">
-                                {claimError}
-                              </p>
-                            </div>
-                          )}
-
-                          {claimStep === 'completed' && (
-                            <div className="mt-3 rounded-xl border border-emerald-500/30 bg-emerald-950/50 p-3">
-                              <p className="text-emerald-200 text-sm">
-                                🎉 Reward claimed successfully!
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                    {claimableAmount !== undefined && (
+                      <div className="mt-4 pt-4 border-t border-emerald-400/20">
+                        <ClaimRewardsSection
+                          claimableAmount={claimableAmount}
+                          formatUSDC={formatUSDC}
+                          handleClaimReward={handleClaimReward}
+                          isClaiming={isClaiming}
+                          claimError={claimError}
+                          claimStep={claimStep}
+                          questionId={question.question_id}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

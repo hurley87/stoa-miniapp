@@ -242,6 +242,10 @@ export function useSubmitAnswerOnchain() {
       });
       queryClient.invalidateQueries({ queryKey: ['question', questionId] });
       queryClient.invalidateQueries({ queryKey: ['questions', 'active'] });
+      // Invalidate question answers to refresh the submissions list
+      queryClient.invalidateQueries({
+        queryKey: ['question-answers', questionId],
+      });
       // Invalidate prize pool (total reward value) 
       queryClient.invalidateQueries({
         queryKey: ['total-reward-value', contractAddress],
@@ -274,6 +278,10 @@ export function useSubmitAnswerOnchain() {
         });
         queryClient.invalidateQueries({ queryKey: ['question', questionId] });
         queryClient.invalidateQueries({ queryKey: ['questions', 'active'] });
+        // Invalidate question answers to refresh the submissions list
+        queryClient.invalidateQueries({
+          queryKey: ['question-answers', questionId],
+        });
         // Also invalidate prize pool and balance in case they were already updated
         queryClient.invalidateQueries({
           queryKey: ['total-reward-value', contractAddress],

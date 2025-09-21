@@ -455,10 +455,7 @@ export function CreateQuestionForm() {
                 placeholder="Drop a clear, concrete prompt"
                 className="w-full p-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-amber-400/60 resize-none transition-all"
               />
-              <div className="flex justify-between text-xs">
-                <span className="text-white/50">
-                  Clear prompts get better replies
-                </span>
+              <div className="flex justify-end text-xs">
                 <span className="text-white/60">
                   {form.questionContent.length}/150
                 </span>

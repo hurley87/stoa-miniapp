@@ -187,7 +187,7 @@ export default function AnswerQuestion({ question, referrerAddress }: Props) {
         }
       }
       const potentialEarnings = `${question.total_submissions} USDC`;
-      const text = `I may earn ${potentialEarnings} for my thoughtful answer. Rewards distributed in ${timeText}.`;
+      const text = `Answer this question and earn ${potentialEarnings}. Rewards distributed in ${timeText}.`;
 
       const result = await sdk.actions.composeCast({
         text,

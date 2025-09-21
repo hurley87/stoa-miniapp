@@ -13,7 +13,7 @@ export async function GET() {
     // Fetch past questions (ended, evaluated, or emergency) with embedded creator meta
     const { data, error } = await supabase
       .from('questions')
-      .select(`*, creators:creators!fk_questions_creator (username, pfp)`)
+      .select(`*, creators:creators!fk_questions_creator (username, pfp, fid)`)
       .in('status', ['ended', 'evaluated', 'emergency'])
       .order('start_time', { ascending: false });
 
@@ -35,12 +35,17 @@ export async function GET() {
 
     // Flatten embedded creator meta to preserve API response shape
     type RowWithCreator = Record<string, unknown> & {
-      creators?: { username: string | null; pfp: string | null } | null;
+      creators?: {
+        username: string | null;
+        pfp: string | null;
+        fid: number | null;
+      } | null;
     };
     const results = (data as RowWithCreator[]).map(({ creators, ...rest }) => ({
       ...rest,
       creator_username: creators?.username ?? null,
       creator_pfp: creators?.pfp ?? null,
+      creator_fid: creators?.fid ?? null,
     }));
 
     return NextResponse.json(results, {

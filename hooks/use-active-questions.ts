@@ -8,6 +8,7 @@ export type Question = {
   creator_id: number;
   creator_username: string | null;
   creator_pfp: string | null;
+  creator_fid: number | null;
   content: string;
   token_address: string;
   submission_cost: number;
